@@ -1,7 +1,6 @@
 fastapi
 uvicorn
 sqlalchemy
-aiosqlite
 aiosmtpd
 python-multipart
 python-jose[cryptography]

@@ -38,50 +38,50 @@ class EmailResponse(BaseModel):
         )
 
 @router.get("/mail/{folder_id}", response_model=List[EmailResponse])
-async def get_mail_in_folder(
+def get_mail_in_folder(
     folder_id: int,
     current_user: User = Depends(get_current_user),
     mail_service: MailService = Depends(get_mail_service)
 ):
     try:
-        emails = await mail_service.get_folder_emails(folder_id, current_user.id)
+        emails = mail_service.get_folder_emails(folder_id, current_user.id)
         return [EmailResponse.from_entity(e) for e in emails]
     except EntityNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 @router.get("/message/{email_id}", response_model=EmailResponse)
-async def get_email(
+def get_email(
     email_id: int,
     current_user: User = Depends(get_current_user),
     mail_service: MailService = Depends(get_mail_service)
 ):
     try:
-        email = await mail_service.get_email(email_id, current_user.id)
+        email = mail_service.get_email(email_id, current_user.id)
         return EmailResponse.from_entity(email)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 @router.put("/message/{email_id}/move")
-async def move_email(
+def move_email(
     email_id: int,
     folder_id: int,
     current_user: User = Depends(get_current_user),
     mail_service: MailService = Depends(get_mail_service)
 ):
     try:
-        await mail_service.move_email(email_id, folder_id, current_user.id)
+        mail_service.move_email(email_id, folder_id, current_user.id)
         return {"status": "moved"}
     except EntityNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
 @router.post("/mail/send")
-async def send_mail(
+def send_mail(
     email_in: EmailSendRequest,
     current_user: User = Depends(get_current_user),
     mail_service: MailService = Depends(get_mail_service)
 ):
     try:
-        await mail_service.send_mail(
+        mail_service.send_mail(
             sender_user=current_user,
             to=email_in.to,
             subject=email_in.subject,
