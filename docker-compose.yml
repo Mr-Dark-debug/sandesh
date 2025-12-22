@@ -1,0 +1,21 @@
+services:
+  sandesh:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sandesh
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+      - "2525:2525"
+    volumes:
+      - sandesh_data:/data
+    environment:
+      - SANDESH_NAMESPACE=${SANDESH_NAMESPACE:-local}
+      - SANDESH_ADMIN_USER=${SANDESH_ADMIN_USER:-admin}
+      - SANDESH_ADMIN_PASSWORD=${SANDESH_ADMIN_PASSWORD:-admin123}
+      - SANDESH_SECRET_KEY=${SANDESH_SECRET_KEY:-changeme_in_production}
+      - DATABASE_URL=sqlite+aiosqlite:////data/sandesh.db
+
+volumes:
+  sandesh_data:
