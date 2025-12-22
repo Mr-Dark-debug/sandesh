@@ -1,0 +1,33 @@
+from typing import List
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from .deps import get_folder_service, get_current_user
+from ..services.folder_service import FolderService
+from ..core.entities.user import User
+from ..core.exceptions import SandeshError
+
+router = APIRouter()
+
+class FolderResponse(BaseModel):
+    id: int
+    name: str
+
+@router.get("", response_model=List[FolderResponse])
+async def get_folders(
+    current_user: User = Depends(get_current_user),
+    folder_service: FolderService = Depends(get_folder_service)
+):
+    folders = await folder_service.get_user_folders(current_user.id)
+    return [FolderResponse(id=f.id, name=f.name) for f in folders]
+
+@router.post("", response_model=FolderResponse)
+async def create_folder(
+    name: str,
+    current_user: User = Depends(get_current_user),
+    folder_service: FolderService = Depends(get_folder_service)
+):
+    try:
+        new_folder = await folder_service.create_folder(name, current_user)
+        return FolderResponse(id=new_folder.id, name=new_folder.name)
+    except SandeshError as e:
+        raise HTTPException(status_code=400, detail=str(e))
