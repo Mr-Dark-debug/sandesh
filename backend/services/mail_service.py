@@ -20,46 +20,46 @@ class MailService:
         self.user_repo = user_repo
         self.smtp_client = smtp_client
 
-    async def get_folder_emails(self, folder_id: int, user_id: int) -> List[Email]:
+    def get_folder_emails(self, folder_id: int, user_id: int) -> List[Email]:
         # Validate folder ownership
-        folder = await self.folder_repo.get_by_id_and_user(folder_id, user_id)
+        folder = self.folder_repo.get_by_id_and_user(folder_id, user_id)
         if not folder:
             raise EntityNotFoundError("Folder not found")
 
-        return await self.email_repo.get_by_folder(folder_id)
+        return self.email_repo.get_by_folder(folder_id)
 
-    async def get_email(self, email_id: int, user_id: int) -> Email:
-        email = await self.email_repo.get_by_id_and_owner(email_id, user_id)
+    def get_email(self, email_id: int, user_id: int) -> Email:
+        email = self.email_repo.get_by_id_and_owner(email_id, user_id)
         if not email:
             raise EntityNotFoundError("Email not found")
 
         if not email.is_read:
             email.is_read = True
-            await self.email_repo.save(email)
+            self.email_repo.save(email)
 
         return email
 
-    async def move_email(self, email_id: int, target_folder_id: int, user_id: int):
-        email = await self.email_repo.get_by_id_and_owner(email_id, user_id)
+    def move_email(self, email_id: int, target_folder_id: int, user_id: int):
+        email = self.email_repo.get_by_id_and_owner(email_id, user_id)
         if not email:
             raise EntityNotFoundError("Email not found")
 
-        target_folder = await self.folder_repo.get_by_id_and_user(target_folder_id, user_id)
+        target_folder = self.folder_repo.get_by_id_and_user(target_folder_id, user_id)
         if not target_folder:
             raise EntityNotFoundError("Target folder not found")
 
         email.folder_id = target_folder.id
-        await self.email_repo.save(email)
+        self.email_repo.save(email)
 
-    async def send_mail(self, sender_user: User, to: List[str], subject: str, body: str, cc: List[str] = None):
+    def send_mail(self, sender_user: User, to: List[str], subject: str, body: str, cc: List[str] = None):
         cc = cc or []
         all_recipients = to + cc
 
         # 1. Save to Sent Folder
-        sent_folder = await self.folder_repo.get_by_name_and_user("Sent", sender_user.id)
+        sent_folder = self.folder_repo.get_by_name_and_user("Sent", sender_user.id)
         if not sent_folder:
             # Fallback create if missing
-            sent_folder = await self.folder_repo.save(Folder(id=None, name="Sent", user_id=sender_user.id))
+            sent_folder = self.folder_repo.save(Folder(id=None, name="Sent", user_id=sender_user.id))
 
         sent_email = Email(
             id=None,
@@ -71,7 +71,7 @@ class MailService:
             recipients=all_recipients,
             is_read=True
         )
-        await self.email_repo.save(sent_email)
+        self.email_repo.save(sent_email)
 
         # 2. Relay to SMTP
         # Note: exceptions here bubble up to API
@@ -83,7 +83,7 @@ class MailService:
             cc=cc
         )
 
-    async def deliver_incoming_mail(self, sender: str, recipients: List[str], subject: str, body: str):
+    def deliver_incoming_mail(self, sender: str, recipients: List[str], subject: str, body: str):
         """
         Called by SMTP Server to deliver mail to local users.
         """
@@ -94,15 +94,15 @@ class MailService:
             username, domain = rcpt.split('@', 1)
 
             # 1. Find User
-            user = await self.user_repo.get_by_username(username)
+            user = self.user_repo.get_by_username(username)
             if not user:
                 continue # User doesn't exist locally
 
             # 2. Find Inbox
-            inbox = await self.folder_repo.get_by_name_and_user("Inbox", user.id)
+            inbox = self.folder_repo.get_by_name_and_user("Inbox", user.id)
             if not inbox:
                 # Auto-create inbox if missing (robustness)
-                inbox = await self.folder_repo.save(Folder(id=None, name="Inbox", user_id=user.id))
+                inbox = self.folder_repo.save(Folder(id=None, name="Inbox", user_id=user.id))
 
             # 3. Create Email
             new_email = Email(
@@ -115,4 +115,4 @@ class MailService:
                 recipients=recipients,
                 is_read=False
             )
-            await self.email_repo.save(new_email)
+            self.email_repo.save(new_email)

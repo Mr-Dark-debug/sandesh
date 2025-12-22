@@ -21,11 +21,11 @@ class Token(BaseModel):
     user: UserResponse
 
 @router.post("/login", response_model=Token)
-async def login(
+def login(
     form_data: LoginRequest,
     auth_service: AuthService = Depends(get_auth_service)
 ):
-    user = await auth_service.authenticate_user(form_data.username, form_data.password)
+    user = auth_service.authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

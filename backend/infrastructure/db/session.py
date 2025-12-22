@@ -1,21 +1,24 @@
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from sqlalchemy.pool import NullPool
 from ...config import settings
 
 # Database setup
 database_url = settings.DATABASE_URL
 
-engine = create_async_engine(
+# For SQLite, we need to handle the connect_args check_same_thread=False
+# because we might use the session across threads in FastAPI (threadpool)
+# or SMTP handler threads.
+engine = create_engine(
     database_url,
-    connect_args={"check_same_thread": False}, # Needed for SQLite
-    poolclass=NullPool,
+    connect_args={"check_same_thread": False},
+    poolclass=NullPool, # Use NullPool to avoid thread safety issues with SQLite
     echo=False
 )
 
 SessionLocal = sessionmaker(
     bind=engine,
-    class_=AsyncSession,
+    class_=Session,
     expire_on_commit=False,
     autoflush=False,
     autocommit=False

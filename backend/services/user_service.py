@@ -10,14 +10,14 @@ class UserService:
         self.user_repo = user_repo
         self.folder_repo = folder_repo
 
-    async def get_all_users(self) -> List[User]:
-        return await self.user_repo.get_all()
+    def get_all_users(self) -> List[User]:
+        return self.user_repo.get_all()
 
-    async def get_user_by_username(self, username: str) -> Optional[User]:
-        return await self.user_repo.get_by_username(username)
+    def get_user_by_username(self, username: str) -> Optional[User]:
+        return self.user_repo.get_by_username(username)
 
-    async def create_user(self, username: str, password: str) -> User:
-        existing = await self.user_repo.get_by_username(username)
+    def create_user(self, username: str, password: str) -> User:
+        existing = self.user_repo.get_by_username(username)
         if existing:
             raise SandeshError("Username already registered")
 
@@ -28,7 +28,7 @@ class UserService:
             password_hash=get_password_hash(password),
             is_admin=False
         )
-        saved_user = await self.user_repo.save(new_user)
+        saved_user = self.user_repo.save(new_user)
 
         # 2. Create Default Folders
         folders = [

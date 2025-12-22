@@ -35,25 +35,28 @@ class SandeshSMTPHandler:
             body = message.get_content()
 
         # Create fresh session and services for this message
-        async with SessionLocal() as db_session:
+        # Since the service is now sync, we use the sync session context manager.
+        # This will block the asyncio loop for the duration of DB operations.
+        # Given "SMTP handlers can also safely use sync sessions" and "Human-paced email traffic",
+        # this is acceptable.
+        with SessionLocal() as db_session:
             user_repo = UserRepository(db_session)
             folder_repo = FolderRepository(db_session)
             email_repo = EmailRepository(db_session)
             # SMTP Client isn't needed for delivery, but MailService constructor requires it.
-            # We can pass a dummy or the real one.
-            # Real one is fine, though delivery doesn't send out.
             smtp_client = SMTPClient()
 
             mail_service = MailService(email_repo, folder_repo, user_repo, smtp_client)
 
-            await mail_service.deliver_incoming_mail(
+            # Call the sync service method
+            mail_service.deliver_incoming_mail(
                 sender=mail_from,
                 recipients=rcpt_tos,
                 subject=subject,
                 body=body
             )
 
-            await db_session.commit()
+            db_session.commit()
 
         return '250 OK'
 

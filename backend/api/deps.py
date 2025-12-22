@@ -1,7 +1,7 @@
-from typing import AsyncGenerator
+from typing import Generator
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Session
 from ..infrastructure.db.session import SessionLocal
 from ..infrastructure.db.repositories import UserRepository, FolderRepository, EmailRepository
 from ..infrastructure.smtp.smtp_client import SMTPClient
@@ -15,25 +15,28 @@ from ..config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with SessionLocal() as session:
+def get_db() -> Generator[Session, None, None]:
+    """
+    Yields a synchronous SQLAlchemy session.
+    FastAPI will run dependencies that use this in the threadpool if they are defined as `def`.
+    """
+    with SessionLocal() as session:
         try:
             yield session
-            await session.commit()
+            session.commit()
         except Exception:
-            await session.rollback()
+            session.rollback()
             raise
-        finally:
-            await session.close()
+        # SessionLocal context manager handles close()
 
 # Repositories
-def get_user_repo(db: AsyncSession = Depends(get_db)) -> UserRepository:
+def get_user_repo(db: Session = Depends(get_db)) -> UserRepository:
     return UserRepository(db)
 
-def get_folder_repo(db: AsyncSession = Depends(get_db)) -> FolderRepository:
+def get_folder_repo(db: Session = Depends(get_db)) -> FolderRepository:
     return FolderRepository(db)
 
-def get_email_repo(db: AsyncSession = Depends(get_db)) -> EmailRepository:
+def get_email_repo(db: Session = Depends(get_db)) -> EmailRepository:
     return EmailRepository(db)
 
 # Infrastructure
@@ -62,10 +65,13 @@ def get_mail_service(
     return MailService(email_repo, folder_repo, user_repo, smtp_client)
 
 # Current User
-async def get_current_user(
+def get_current_user(
     token: str = Depends(oauth2_scheme),
     user_service: UserService = Depends(get_user_service)
 ) -> User:
+    """
+    Synchronous dependency. FastAPI runs this in threadpool.
+    """
     payload = decode_access_token(token)
     if payload is None:
         raise HTTPException(
@@ -77,12 +83,12 @@ async def get_current_user(
     if username is None:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    user = await user_service.get_user_by_username(username)
+    user = user_service.get_user_by_username(username)
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
     return user
 
-async def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
     if not current_user.is_admin:
         raise HTTPException(status_code=403, detail="Admin privileges required")
     return current_user
