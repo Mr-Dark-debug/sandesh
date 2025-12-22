@@ -1,172 +1,116 @@
-# Sandesh Technical Documentation
+# Sandesh - Local First Email System
 
-## 1. Architecture Overview
+## Architecture
 
-Sandesh follows a monolithic architecture packaged in a single Docker container for simplicity and portability.
+Sandesh follows a strict layered architecture to ensure separation of concerns, modularity, and testability.
+
+### Layers
+
+1.  **Core (Domain Layer)**: `backend/core/`
+    *   Contains pure Python Domain Entities (`User`, `Email`, `Folder`) and Value Objects (`EmailAddress`).
+    *   Defines custom Exceptions.
+    *   Has NO dependencies on frameworks (FastAPI, SQLAlchemy) or infrastructure.
+
+2.  **Services (Business Logic Layer)**: `backend/services/`
+    *   Orchestrates application behavior (`MailService`, `UserService`, `AuthService`).
+    *   Implements business rules (e.g., authentication, folder creation policies).
+    *   Uses Repositories to access data.
+    *   Uses Infrastructure adapters (e.g., `SMTPClient`) to interact with the outside world.
+    *   Framework agnostic.
+
+3.  **Infrastructure (Adapter Layer)**: `backend/infrastructure/`
+    *   **DB**: `backend/infrastructure/db/` - SQLAlchemy models, session management, and concrete Repository implementations.
+    *   **SMTP**: `backend/infrastructure/smtp/` - `SMTPClient` for sending mail and `SMTPHandler` for receiving mail.
+    *   **Security**: `backend/infrastructure/security/` - Password hashing and JWT token management.
+    *   This layer isolates the application from external tools and libraries.
+
+4.  **API (Transport Layer)**: `backend/api/`
+    *   FastAPI routes and dependency injection (`deps.py`).
+    *   Handles HTTP requests/responses and serialization (Pydantic models).
+    *   Delegates all logic to Services.
+
+### Folder Structure
+
+```
+backend/
+├── api/              # API Routes
+│   ├── deps.py       # Dependency Injection
+│   ├── auth.py
+│   ├── mail.py
+│   └── ...
+├── core/             # Domain Entities
+│   ├── entities/
+│   ├── value_objects/
+│   └── exceptions.py
+├── services/         # Business Logic
+│   ├── mail_service.py
+│   ├── user_service.py
+│   └── ...
+├── infrastructure/   # Adapters
+│   ├── db/
+│   │   ├── repositories.py
+│   │   └── models.py
+│   ├── smtp/
+│   │   ├── smtp_client.py
+│   │   └── smtp_server.py
+│   └── security/
+├── config.py
+├── main.py
+└── requirements.txt
+```
+
+### SMTP Flow
+
+#### Sending Mail
+1.  **API** receives send request.
+2.  **MailService** creates a copy in the "Sent" folder via `EmailRepository`.
+3.  **MailService** uses `SMTPClient` to relay the message to the local SMTP server (localhost:2525).
+4.  `SMTPClient` wraps `smtplib` to keep low-level details out of the service layer.
 
 ```mermaid
-graph TD
-    User[User Browser] -->|HTTP/REST| API[FastAPI Web Server :8000]
-    API -->|SQLAlchemy| DB[(SQLite /data/sandesh.db)]
-    API -->|SMTP| SMTP[Local SMTP Server :2525]
-    SMTP -->|SQLAlchemy| DB
-    SMTP -->|Routing| Mailbox[User Inboxes]
+sequenceDiagram
+    participant API
+    participant MailService
+    participant Repository
+    participant SMTPClient
+    participant SMTPServer
+
+    API->>MailService: send_mail(...)
+    MailService->>Repository: save(Sent Email)
+    MailService->>SMTPClient: send_message(...)
+    SMTPClient->>SMTPServer: SMTP Protocol (DATA, etc.)
 ```
 
-### Components
+#### Receiving Mail
+1.  **SMTP Server** (running in background) receives a message.
+2.  **SMTPHandler** parses the message.
+3.  **SMTPHandler** instantiates a fresh `MailService` and Repositories with a new DB session.
+4.  **SMTPHandler** calls `MailService.deliver_incoming_mail(...)`.
+5.  **MailService** looks up the user and saves the email to the "Inbox" via `EmailRepository`.
 
-1.  **FastAPI Backend (`backend/`)**:
-    *   Handles HTTP requests (Auth, User Mgmt, Mail Retrieval).
-    *   Serves compiled Frontend static files.
-    *   Manages the SMTP server lifecycle.
-2.  **SMTP Server (`backend/smtp_server.py`)**:
-    *   Implemented using `aiosmtpd`.
-    *   Listens on port 2525.
-    *   Parses incoming mail and writes directly to the SQLite database.
-3.  **Frontend (`frontend/`)**:
-    *   React Single Page Application (SPA).
-    *   Communicates with Backend via REST API.
-    *   Styled with Tailwind CSS.
-4.  **Database (`SQLite`)**:
-    *   Single file database persisted in a Docker volume.
-    *   Stores Users, Folders, and Emails.
+```mermaid
+sequenceDiagram
+    participant ExternalSender
+    participant SMTPHandler
+    participant MailService
+    participant Repository
+    participant DB
 
-## 2. Data Models
-
-### User
-| Field | Type | Description |
-|-------|------|-------------|
-| id | Integer | PK |
-| username | String | Unique login name |
-| password_hash | String | Bcrypt hash |
-| is_admin | Boolean | Access to user creation |
-
-### Folder
-| Field | Type | Description |
-|-------|------|-------------|
-| id | Integer | PK |
-| name | String | "Inbox", "Sent", or custom |
-| user_id | Integer | FK to User |
-
-### Email
-| Field | Type | Description |
-|-------|------|-------------|
-| id | Integer | PK |
-| owner_id | Integer | FK to User (The mailbox owner) |
-| folder_id | Integer | FK to Folder |
-| sender | String | e.g. "alice@hackathon" |
-| recipients | Text | JSON string of all recipients |
-| subject | String | |
-| body | Text | |
-| is_read | Boolean | |
-| timestamp | DateTime | UTC |
-
-**Storage Strategy:** "Independent Records". If Alice sends to Bob and Charlie:
-1.  One `Email` row created for Alice (Folder=Sent).
-2.  One `Email` row created for Bob (Folder=Inbox).
-3.  One `Email` row created for Charlie (Folder=Inbox).
-
-## 3. Workflows
-
-### 3.1 Sending Email
-
-1.  **User** clicks "Send" in UI.
-2.  **Frontend** POSTs to `/api/mail/send` with `{to, cc, subject, body}`.
-3.  **Backend API**:
-    *   Validates session.
-    *   Creates a copy in sender's "Sent" folder.
-    *   Connects to `localhost:2525` via `smtplib`.
-    *   Sends the message via SMTP protocol.
-4.  **SMTP Server**:
-    *   Receives message.
-    *   Parses `RCPT TO` addresses.
-    *   For each recipient:
-        *   Checks if user exists locally.
-        *   Creates an `Email` record in that user's "Inbox".
-
-#### Sequence Diagram: Sending Flow
-
-```ascii
-+--------+       +------------+       +----------+       +-----------+
-| User   |       | API Server |       | Database |       | SMTP      |
-+--------+       +------------+       +----------+       +-----------+
-    |                  |                   |                   |
-    | 1. POST /send    |                   |                   |
-    |----------------->|                   |                   |
-    |                  | 2. Save "Sent"    |                   |
-    |                  |------------------>|                   |
-    |                  |                   |                   |
-    |                  | 3. Relay Mail     |                   |
-    |                  |-------------------------------------->|
-    |                  |                   |                   |
-    | 4. OK Response   |                   |                   |
-    |<-----------------|                   |                   |
-    |                  |                   | 5. Process        |
-    |                  |                   |    Recipients     |
-    |                  |                   |                   |
-    |                  |                   | 6. Save "Inbox"   |
-    |                  |                   |    Copies         |
-    |                  |                   |------------------>|
+    ExternalSender->>SMTPHandler: SMTP DATA
+    SMTPHandler->>SMTPHandler: Parse Message
+    SMTPHandler->>MailService: deliver_incoming_mail(...)
+    MailService->>Repository: find_user()
+    MailService->>Repository: save(Inbox Email)
+    Repository->>DB: INSERT
 ```
 
-### 3.2 Receiving Email (Internal)
+### Database & Persistence
 
-Since Sandesh is local-only, "Receiving" is just the latter half of the Sending flow handled by the SMTP server. There is no external POP3/IMAP fetch.
+*   **SQLite** is the sole database.
+*   **SQLAlchemy** is used for ORM.
+*   **Separation**:
+    *   `core/entities` are pure Python dataclasses.
+    *   `infrastructure/db/models` are SQLAlchemy classes.
+    *   `infrastructure/db/repositories` handle the mapping between them.
+*   **SMTP Decoupling**: The SMTP server does not write SQL directly. It uses the `MailService`, ensuring all business rules (like auto-creating inboxes) are applied consistently.
 
-#### Sequence Diagram: Receive/Delivery Flow
-
-```ascii
-+----------+       +----------+       +----------+
-| SMTP     |       | Database |       | Recipient|
-+----------+       +----------+       +----------+
-    |                   |                  |
-    | 1. DATA Received  |                  |
-    |-------------------|                  |
-    |                   |                  |
-    | 2. Parse Headers  |                  |
-    |                   |                  |
-    | 3. For each rcpt: |                  |
-    |    Check User     |                  |
-    |------------------>|                  |
-    |                   |                  |
-    | 4. Create Email   |                  |
-    |    in Inbox       |                  |
-    |------------------>|                  |
-    |                   |                  |
-    |                   | 5. View Inbox    |
-    |                   |    (via API)     |
-    |                   |<-----------------|
-```
-
-## 4. API Reference
-
-### Auth
-*   `POST /api/auth/login`: Returns JWT access token.
-
-### Users (Admin Only)
-*   `GET /api/users`: List all users.
-*   `POST /api/users`: Create new user.
-
-### Folders
-*   `GET /api/folders`: List current user's folders.
-*   `POST /api/folders`: Create a new folder.
-
-### Mail
-*   `GET /api/mail/{folder_id}`: List emails in folder.
-*   `GET /api/message/{id}`: Get full email details (marks as read).
-*   `PUT /api/message/{id}/move?folder_id=X`: Move email to folder X.
-*   `POST /api/mail/send`: Send a new email.
-
-## 5. Security & Limitations
-
-*   **No SSL/TLS:** Designed for trusted LANs. Passwords sent in cleartext over HTTP (unless reverse proxy used).
-*   **No External Relay:** Cannot email gmail.com, etc.
-*   **Single Instance:** Not designed for horizontal scaling (SQLite lock).
-*   **Namespace Trust:** The system trusts the namespace env var. It does not validate ownership of the namespace on the wider internet.
-
-## 6. Future Improvements
-
-*   Attachments support.
-*   Reply/Forward UI logic.
-*   Search functionality.
-*   Rich text editor.
