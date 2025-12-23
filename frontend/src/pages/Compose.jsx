@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sendMail } from '../api';
-import { ArrowLeft, Send } from 'lucide-react';
+import { ArrowLeft, Send, Loader2 } from 'lucide-react';
 
 export default function Compose() {
   const navigate = useNavigate();
@@ -10,17 +10,19 @@ export default function Compose() {
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
 
     // Parse recipients
     const toList = to.split(',').map(s => s.trim()).filter(Boolean);
     const ccList = cc.split(',').map(s => s.trim()).filter(Boolean);
 
     if (toList.length === 0) {
-        alert("Please specify at least one recipient");
+        setError("Please specify at least one recipient");
         setLoading(false);
         return;
     }
@@ -34,7 +36,7 @@ export default function Compose() {
       });
       navigate('/');
     } catch (e) {
-      alert("Failed to send mail");
+      setError("Failed to send mail. Please check your connection and try again.");
       console.error(e);
     } finally {
       setLoading(false);
@@ -58,7 +60,7 @@ export default function Compose() {
             <h3 className="text-base font-semibold leading-7 text-gray-900">New Message</h3>
         </div>
 
-        <form onSubmit={handleSubmit} className="px-4 py-6 sm:px-6 space-y-4">
+        <form onSubmit={handleSubmit} className="px-4 py-6 sm:px-6 space-y-4" noValidate>
           <div>
             <label htmlFor="to" className="block text-sm font-medium leading-6 text-gray-900">To</label>
             <div className="mt-1">
@@ -120,14 +122,29 @@ export default function Compose() {
             </div>
           </div>
 
+          {error && (
+            <div role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700">
+                {error}
+            </div>
+          )}
+
           <div className="flex justify-end pt-2">
             <button
               type="submit"
               disabled={loading}
-              className="inline-flex justify-center rounded-md bg-indigo-600 py-2 px-6 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50"
+              className="inline-flex justify-center rounded-md bg-indigo-600 py-2 px-6 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed items-center"
             >
-              {loading ? 'Sending...' : 'Send'}
-              {!loading && <Send className="ml-2 h-4 w-4" />}
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  Send
+                  <Send className="ml-2 h-4 w-4" />
+                </>
+              )}
             </button>
           </div>
         </form>
