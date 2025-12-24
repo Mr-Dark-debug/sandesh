@@ -22,6 +22,7 @@ Sandesh provides a complete, self-hosted email experience without requiring inte
 
 ---
 <img width="1807" height="889" alt="image" src="https://github.com/user-attachments/assets/f1f00595-f89b-4690-857c-6e6f90605ef7" />
+<img width="1917" height="937" alt="image" src="https://github.com/user-attachments/assets/f95c9494-48e4-47d8-934a-135cd9973d5d" />
 
 
 ## Quick Start
