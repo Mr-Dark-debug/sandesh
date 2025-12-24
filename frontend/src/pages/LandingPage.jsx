@@ -576,7 +576,7 @@ export default function LandingPage() {
                     </div>
 
                     <div className="mt-12 pt-8 border-t border-[#4A4A4A] flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-[#8B8B8B]">
-                        <p>© 2024 सनdesh. Open source under MIT license.</p>
+                        <p>© 2025 सनdesh. Open source under MIT license.</p>
                         <div className="flex items-center gap-4">
                             <span>Made with ❤️ by</span>
                             <a

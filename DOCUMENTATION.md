@@ -150,8 +150,8 @@ Response:
 {
   "instance_name": "Office Mail",
   "mail_namespace": "office",
-  "created_at": "2024-01-01T00:00:00",
-  "updated_at": "2024-01-15T12:00:00"
+  "created_at": "2025-01-01T00:00:00",
+  "updated_at": "2025-01-15T12:00:00"
 }
 ```
 
@@ -327,4 +327,4 @@ Only administrators can create new users through the Admin Console.
 
 ---
 
-*Last updated: December 2024*
+*Last updated: December 2025*

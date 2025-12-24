@@ -45,7 +45,7 @@ We built सनdesh with three principles:
 
 Ready to get started? Continue to the [Quick Start](#/docs/quick-start) guide.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'what-is-sandesh': {
@@ -108,7 +108,7 @@ Because everything is local, emails arrive immediately. No spam filters, no dela
 
 This is by design. सनdesh is focused on **private, local communication**.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'quick-start': {
@@ -165,7 +165,7 @@ Send your users:
 
 > 💡 **Tip**: Change your admin password immediately after first login.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'identity': {
@@ -235,7 +235,7 @@ This combines:
 
 > 💡 **Why this format?** This ensures recipients know who you are (Display Name) and where the email came from (Email Address) without any ambiguity.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'user-settings': {
@@ -284,7 +284,7 @@ Manage your personal profile and preferences.
 
 > ❓ **Need to change these?** Contact your administrator. They may need to create a new account for you.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'using-sandesh': {
@@ -347,7 +347,7 @@ Emails are automatically marked as read when you open them.
 2. The email moves to the **Trash** folder.
 3. To permanently delete, go to Trash and delete it again.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'email-features': {
@@ -393,7 +393,7 @@ If you try to send to a user that **does not exist**:
 - **Sent Folder**: Every email you send is saved here.
 - **No Quotas**: There are currently no storage limits enforced, but please be respectful of disk space.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'email-lifecycle': {
@@ -448,7 +448,7 @@ Because सनdesh is local-only, failure is rare. It usually means:
 
 In these cases, the email **remains in your Sent folder** as proof you sent it, but it never reaches a destination.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'folders': {
@@ -485,7 +485,7 @@ You can create your own folders to organize projects or topics.
 - To permanently delete, you must delete it **from** the Trash.
 - Currently, Trash is not auto-emptied. You must do it manually.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'compose': {
@@ -520,7 +520,7 @@ To prevent accidental data loss:
 - **Self-Email**: You can send email to yourself (\`yourname@namespace\`) to test features or keep notes.
 - **Signatures**: Set a signature in Settings to avoid typing your name every time.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'confirmation-safety': {
@@ -556,7 +556,7 @@ We believe software should be **forgiving**. However, some actions are destructi
 ## Summary
 If you see a popup dialog, **pause and read it**. It usually means data is about to be permanently changed or removed.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'admin-guide': {
@@ -606,7 +606,7 @@ For operators and system administrators.
 2. **Secure the Admin Password**: It has full control over the system.
 3. **Backup**: Regularly backup the \`/data\` folder (Docker volume).
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'namespace': {
@@ -642,7 +642,7 @@ Changing this setting updates the derived email address for **everyone**.
 ## Intance Name
 This is purely cosmetic. It changes the title on the Login page and browser tab. Use it to brand your internal tool (e.g., "Acme Corp Mail").
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'limitations': {
@@ -691,7 +691,7 @@ To trust a system, you must know what it **cannot** do.
 - **Reason**: No external email to send a reset link to!
 - **Solution**: Admins must manually reset passwords.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'security': {
@@ -717,7 +717,7 @@ To trust a system, you must know what it **cannot** do.
 
 > 🛡️ **Recommendation**: Only run सनdesh on a trusted private network (LAN/VPN) or behind a secure authentication proxy.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'faq': {
@@ -749,7 +749,7 @@ To trust a system, you must know what it **cannot** do.
 **Q: I forgot my password.**
 **A**: Ask your administrator to reset it.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'troubleshooting': {
@@ -778,7 +778,7 @@ Common issues and solutions.
 **Issue**: System Settings won't save.
 - **Fix**: Refresh the page. Ensure you are logged in as Admin.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     },
 
     'glossary': {
@@ -809,7 +809,7 @@ The "domain" part of your email address (e.g., \`@sandesh\`). Set by Admin.
 ### Username
 Your unique login ID. **Not Editable**.
     `,
-        lastUpdated: 'December 24, 2024'
+        lastUpdated: 'December 24, 2025'
     }
 };
 
@@ -1222,7 +1222,7 @@ export default function Documentation() {
                 <div className="p-4 border-t border-[#E5E8EB]">
                     <p className="text-xs text-[#8B8B8B]">
                         सनdesh Documentation<br />
-                        Last updated: December 2024
+                        Last updated: December 2025
                     </p>
                 </div>
             </aside>
