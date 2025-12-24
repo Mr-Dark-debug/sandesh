@@ -16,7 +16,7 @@ export default function Login() {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      navigate('/');
+      navigate('/app');
     }
 
     // Get namespace from health endpoint
@@ -38,7 +38,7 @@ export default function Login() {
       const { data } = await login(username, password);
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/');
+      navigate('/app');
     } catch (err) {
       if (err.response?.status === 401) {
         setError('Invalid username or password');

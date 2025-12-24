@@ -152,7 +152,7 @@ export default function Layout() {
       >
         {/* Logo Header */}
         <div className="h-16 flex items-center justify-between px-4">
-          <Link to="/" className="flex items-center gap-3 px-2">
+          <Link to="/app/" className="flex items-center gap-3 px-2">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#A3A380] to-[#8B8B68] flex items-center justify-center shadow-sm">
               <Mail className="w-5 h-5 text-white" />
             </div>
@@ -203,13 +203,13 @@ export default function Layout() {
             <div className="space-y-0.5">
               {folders.map(folder => {
                 const Icon = getIcon(folder.name);
-                const active = isActive(`/folder/${folder.id}`);
+                const active = isActive(`/app/folder/${folder.id}`);
                 const unreadCount = unreadCounts[folder.id] || 0;
 
                 return (
                   <Link
                     key={folder.id}
-                    to={`/folder/${folder.id}`}
+                    to={`/app/folder/${folder.id}`}
                     className={`
                       flex items-center gap-4 px-4 py-2.5 rounded-full
                       text-[14px] font-medium transition-all duration-150
@@ -305,11 +305,11 @@ export default function Layout() {
                 {/* Admin Link */}
                 {user?.is_admin && (
                   <Link
-                    to="/admin"
+                    to="/app/admin"
                     className={`
                       flex items-center gap-4 px-4 py-2.5 rounded-full
                       text-[14px] font-medium transition-all duration-150
-                      ${isActive('/admin')
+                      ${isActive('/app/admin')
                         ? 'bg-[#D7CE93]/30 text-[#3D3D3D] font-semibold'
                         : 'text-[#6B6B6B] hover:bg-[#E5E8EB] hover:text-[#3D3D3D]'
                       }
@@ -399,7 +399,7 @@ export default function Layout() {
                     <p className="text-xs text-[#8B8B8B]">{user?.username}@{namespace}</p>
                   </div>
                   <Link
-                    to="/settings"
+                    to="/app/settings"
                     onClick={() => setShowUserMenu(false)}
                     className="
                       w-full flex items-center gap-3 px-4 py-2.5
@@ -412,7 +412,7 @@ export default function Layout() {
                   </Link>
                   {user?.is_admin && (
                     <Link
-                      to="/admin/system"
+                      to="/app/admin/system"
                       onClick={() => setShowUserMenu(false)}
                       className="
                         w-full flex items-center gap-3 px-4 py-2.5
