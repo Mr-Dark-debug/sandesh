@@ -21,6 +21,8 @@ Sandesh provides a complete, self-hosted email experience without requiring inte
 - 🌐 **No Internet Required** - Works completely offline
 
 ---
+<img width="1807" height="889" alt="image" src="https://github.com/user-attachments/assets/f1f00595-f89b-4690-857c-6e6f90605ef7" />
+
 
 ## Quick Start
 
