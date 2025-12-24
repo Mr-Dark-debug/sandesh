@@ -22,6 +22,7 @@ export default function Layout() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [namespace, setNamespace] = useState('local');
   const [instanceName, setInstanceName] = useState('Sandesh');
+  const [expandedSections, setExpandedSections] = useState({ manage: true }); // Track expanded sections
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -162,7 +163,7 @@ export default function Layout() {
           </Link>
           <button
             onClick={() => setMobileMenuOpen(false)}
-            className="md:hidden p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-white rounded-lg"
+            className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-white rounded-lg"
             aria-label="Close menu"
           >
             <X className="w-5 h-5" />
@@ -236,99 +237,120 @@ export default function Layout() {
 
           {/* Folder Management Section */}
           <div className="mt-4 pt-4 border-t border-[#E5E8EB]">
-            <p className="px-4 py-2 text-xs font-semibold text-[#8B8B8B] uppercase tracking-wider">
-              Manage
-            </p>
-
-            {/* Create Folder */}
-            {!isCreatingFolder ? (
-              <button
-                onClick={() => setIsCreatingFolder(true)}
-                className="
-                  flex items-center gap-4 w-full px-4 py-2.5 rounded-full
-                  text-[14px] font-medium text-[#6B6B6B]
-                  hover:bg-[#E5E8EB] hover:text-[#3D3D3D]
-                  transition-all duration-150
-                "
-              >
-                <FolderPlus className="w-5 h-5" />
-                Create folder
-              </button>
-            ) : (
-              <form onSubmit={handleCreateFolder} className="px-2 py-2">
-                <div className="flex flex-col gap-2">
-                  <input
-                    autoFocus
-                    type="text"
-                    className="
-                      w-full px-3 py-2.5 text-sm
-                      bg-white border border-[#E5E8EB] rounded-lg
-                      focus:outline-none focus:border-[#A3A380] focus:ring-2 focus:ring-[#A3A380]/20
-                    "
-                    placeholder="Folder name"
-                    value={newFolderName}
-                    onChange={e => setNewFolderName(e.target.value)}
-                    disabled={creatingFolderLoading}
-                    onKeyDown={e => e.key === 'Escape' && setIsCreatingFolder(false)}
-                  />
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => { setIsCreatingFolder(false); setNewFolderName(''); }}
-                      className="flex-1 px-3 py-1.5 text-sm text-[#6B6B6B] hover:bg-[#E5E8EB] rounded-lg"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={!newFolderName.trim() || creatingFolderLoading}
-                      className="
-                        flex-1 px-3 py-1.5 text-sm font-medium
-                        bg-[#A3A380] text-white rounded-lg
-                        hover:bg-[#8B8B68] disabled:opacity-50
-                      "
-                    >
-                      {creatingFolderLoading ? '...' : 'Create'}
-                    </button>
-                  </div>
-                </div>
-              </form>
-            )}
-
-            {/* Admin Link */}
-            {user?.is_admin && (
-              <Link
-                to="/admin"
-                className={`
-                  flex items-center gap-4 px-4 py-2.5 rounded-full
-                  text-[14px] font-medium transition-all duration-150
-                  ${isActive('/admin')
-                    ? 'bg-[#D7CE93]/30 text-[#3D3D3D] font-semibold'
-                    : 'text-[#6B6B6B] hover:bg-[#E5E8EB] hover:text-[#3D3D3D]'
-                  }
-                `}
-              >
-                <Settings className="w-5 h-5" />
-                Admin Console
-              </Link>
-            )}
-
-            {/* Documentation Link */}
-            <a
-              href="/docs"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="
-                flex items-center gap-4 px-4 py-2.5 rounded-full
-                text-[14px] font-medium transition-all duration-150
-                text-[#6B6B6B] hover:bg-[#E5E8EB] hover:text-[#3D3D3D]
-              "
+            <button
+              className="flex items-center justify-between w-full px-4 py-2 text-xs font-semibold text-[#8B8B8B] uppercase tracking-wider"
+              onClick={() => setExpandedSections(prev => ({ ...prev, manage: !prev.manage }))}
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-              </svg>
-              Documentation
-            </a>
+              <span>Manage</span>
+              <ChevronDown className={`w-3 h-3 transition-transform ${expandedSections.manage ? 'rotate-180' : ''}`} />
+            </button>
+
+            {expandedSections.manage && (
+              <div className="mt-1 space-y-1">
+                {/* Create Folder */}
+                {!isCreatingFolder ? (
+                  <button
+                    onClick={() => setIsCreatingFolder(true)}
+                    className="
+                      flex items-center gap-4 w-full px-4 py-2.5 rounded-full
+                      text-[14px] font-medium text-[#6B6B6B]
+                      hover:bg-[#E5E8EB] hover:text-[#3D3D3D]
+                      transition-all duration-150
+                    "
+                  >
+                    <FolderPlus className="w-5 h-5" />
+                    Create folder
+                  </button>
+                ) : (
+                  <form onSubmit={handleCreateFolder} className="px-2 py-2">
+                    <div className="flex flex-col gap-2">
+                      <input
+                        autoFocus
+                        type="text"
+                        className="
+                          w-full px-3 py-2.5 text-sm
+                          bg-white border border-[#E5E8EB] rounded-lg
+                          focus:outline-none focus:border-[#A3A380] focus:ring-2 focus:ring-[#A3A380]/20
+                        "
+                        placeholder="Folder name"
+                        value={newFolderName}
+                        onChange={e => setNewFolderName(e.target.value)}
+                        disabled={creatingFolderLoading}
+                        onKeyDown={e => e.key === 'Escape' && setIsCreatingFolder(false)}
+                      />
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => { setIsCreatingFolder(false); setNewFolderName(''); }}
+                          className="flex-1 px-3 py-1.5 text-sm text-[#6B6B6B] hover:bg-[#E5E8EB] rounded-lg"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={!newFolderName.trim() || creatingFolderLoading}
+                          className="
+                            flex-1 px-3 py-1.5 text-sm font-medium
+                            bg-[#A3A380] text-white rounded-lg
+                            hover:bg-[#8B8B68] disabled:opacity-50
+                          "
+                        >
+                          {creatingFolderLoading ? '...' : 'Create'}
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                )}
+
+                {/* Admin Link */}
+                {user?.is_admin && (
+                  <Link
+                    to="/admin"
+                    className={`
+                      flex items-center gap-4 px-4 py-2.5 rounded-full
+                      text-[14px] font-medium transition-all duration-150
+                      ${isActive('/admin')
+                        ? 'bg-[#D7CE93]/30 text-[#3D3D3D] font-semibold'
+                        : 'text-[#6B6B6B] hover:bg-[#E5E8EB] hover:text-[#3D3D3D]'
+                      }
+                    `}
+                  >
+                    <Settings className="w-5 h-5" />
+                    Admin Console
+                  </Link>
+                )}
+
+                {/* Documentation Link */}
+                <Link
+                  to="/docs"
+                  className="
+                    flex items-center gap-4 px-4 py-2.5 rounded-full
+                    text-[14px] font-medium transition-all duration-150
+                    text-[#6B6B6B] hover:bg-[#E5E8EB] hover:text-[#3D3D3D]
+                  "
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  Documentation
+                </Link>
+
+                {/* Swagger UI Link */}
+                <a
+                  href="/api/docs" target="_blank" rel="noopener noreferrer"
+                  className="
+                    flex items-center gap-4 px-4 py-2.5 rounded-full
+                    text-[14px] font-medium transition-all duration-150
+                    text-[#6B6B6B] hover:bg-[#E5E8EB] hover:text-[#3D3D3D]
+                  "
+                >
+                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M13 2 3 14h9l-1 5 10-9-5-1v-9z" />
+                  </svg>
+                  API Documentation
+                </a>
+              </div>
+            )}
           </div>
         </nav>
 
@@ -443,6 +465,15 @@ export default function Layout() {
             onClick={() => setMobileMenuOpen(true)}
             className="md:hidden p-2 -ml-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-lg"
             aria-label="Open menu"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+
+          {/* Desktop sidebar toggle button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="hidden md:block p-2 -ml-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-lg"
+            aria-label="Toggle sidebar"
           >
             <Menu className="w-6 h-6" />
           </button>

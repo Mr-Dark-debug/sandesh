@@ -90,7 +90,7 @@ async def lifespan(app: FastAPI):
     logger.info("SMTP Server stopped")
 
 
-app = FastAPI(title="Sandesh", lifespan=lifespan)
+app = FastAPI(title="Sandesh", lifespan=lifespan, docs_url="/api/docs", redoc_url="/api/redoc")
 
 # CORS
 app.add_middleware(

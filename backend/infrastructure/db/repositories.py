@@ -206,31 +206,45 @@ class EmailRepository:
         return self._to_entity(model) if model else None
 
     def save(self, email: Email) -> Email:
-        if email.id:
-            result = self.session.execute(select(EmailModel).where(EmailModel.id == email.id))
-            model = result.scalars().first()
-            if model:
-                model.folder_id = email.folder_id
-                model.is_read = email.is_read
+        import time
+        from sqlalchemy.exc import OperationalError
+        
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                if email.id:
+                    result = self.session.execute(select(EmailModel).where(EmailModel.id == email.id))
+                    model = result.scalars().first()
+                    if model:
+                        model.folder_id = email.folder_id
+                        model.is_read = email.is_read
+                        self.session.flush()
+                        return self._to_entity(model)
+
+                # Create new email with identity fields
+                model = EmailModel(
+                    owner_id=email.owner_id,
+                    folder_id=email.folder_id,
+                    sender=email.sender,
+                    sender_display_name=getattr(email, 'sender_display_name', None),
+                    sender_email=getattr(email, 'sender_email', None),
+                    recipients=json.dumps(email.recipients),
+                    subject=email.subject,
+                    body=email.body,
+                    is_read=email.is_read,
+                    timestamp=email.timestamp
+                )
+                self.session.add(model)
                 self.session.flush()
                 return self._to_entity(model)
-
-        # Create new email with identity fields
-        model = EmailModel(
-            owner_id=email.owner_id,
-            folder_id=email.folder_id,
-            sender=email.sender,
-            sender_display_name=getattr(email, 'sender_display_name', None),
-            sender_email=getattr(email, 'sender_email', None),
-            recipients=json.dumps(email.recipients),
-            subject=email.subject,
-            body=email.body,
-            is_read=email.is_read,
-            timestamp=email.timestamp
-        )
-        self.session.add(model)
-        self.session.flush()
-        return self._to_entity(model)
+            except OperationalError as e:
+                if "database is locked" in str(e) and attempt < max_retries - 1:
+                    time.sleep(0.1 * (attempt + 1))  # Exponential backoff
+                    continue
+                else:
+                    raise e
+            except Exception as e:
+                raise e
 
     def _to_entity(self, model: EmailModel) -> Email:
         return Email(

@@ -50,28 +50,58 @@ class MailService:
 
     def get_email(self, email_id: int, user_id: int) -> Email:
         """Get a specific email and mark it as read."""
-        email = self.email_repo.get_by_id_and_owner(email_id, user_id)
-        if not email:
-            raise EntityNotFoundError("Email not found")
+        import time
+        from sqlalchemy.exc import OperationalError
+        
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                email = self.email_repo.get_by_id_and_owner(email_id, user_id)
+                if not email:
+                    raise EntityNotFoundError("Email not found")
 
-        if not email.is_read:
-            email.is_read = True
-            self.email_repo.save(email)
+                if not email.is_read:
+                    email.is_read = True
+                    self.email_repo.save(email)
 
-        return email
+                return email
+            except OperationalError as e:
+                if "database is locked" in str(e) and attempt < max_retries - 1:
+                    time.sleep(0.1 * (attempt + 1))  # Exponential backoff
+                    continue
+                else:
+                    raise e
+            except Exception as e:
+                raise e
 
     def move_email(self, email_id: int, target_folder_id: int, user_id: int):
         """Move an email to a different folder."""
-        email = self.email_repo.get_by_id_and_owner(email_id, user_id)
-        if not email:
-            raise EntityNotFoundError("Email not found")
+        import time
+        from sqlalchemy.exc import OperationalError
+        
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                email = self.email_repo.get_by_id_and_owner(email_id, user_id)
+                if not email:
+                    raise EntityNotFoundError("Email not found")
 
-        target_folder = self.folder_repo.get_by_id_and_user(target_folder_id, user_id)
-        if not target_folder:
-            raise EntityNotFoundError("Target folder not found")
+                target_folder = self.folder_repo.get_by_id_and_user(target_folder_id, user_id)
+                if not target_folder:
+                    raise EntityNotFoundError("Target folder not found")
 
-        email.folder_id = target_folder.id
-        self.email_repo.save(email)
+                email.folder_id = target_folder.id
+                self.email_repo.save(email)
+                
+                return  # Success
+            except OperationalError as e:
+                if "database is locked" in str(e) and attempt < max_retries - 1:
+                    time.sleep(0.1 * (attempt + 1))  # Exponential backoff
+                    continue
+                else:
+                    raise e
+            except Exception as e:
+                raise e
 
     def send_mail(
         self, 
@@ -90,6 +120,9 @@ class MailService:
         - sender_display_name: User's display name at send time
         - sender_email: Full email address at send time
         """
+        import time
+        from sqlalchemy.exc import OperationalError
+        
         cc = cc or []
         all_recipients = to + cc
         
@@ -106,39 +139,56 @@ class MailService:
         if include_signature and sender_user.signature:
             email_body = f"{body}\n\n--\n{sender_user.signature}"
 
-        # 1. Save to Sent Folder
-        sent_folder = self.folder_repo.get_by_name_and_user("Sent", sender_user.id)
-        if not sent_folder:
-            sent_folder = self.folder_repo.save(Folder(id=None, name="Sent", user_id=sender_user.id))
+        # Retry mechanism for handling database locking issues
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                # 1. Save to Sent Folder
+                sent_folder = self.folder_repo.get_by_name_and_user("Sent", sender_user.id)
+                if not sent_folder:
+                    sent_folder = self.folder_repo.save(Folder(id=None, name="Sent", user_id=sender_user.id))
 
-        sent_email = Email(
-            id=None,
-            owner_id=sender_user.id,
-            folder_id=sent_folder.id,
-            sender=formatted_sender,
-            sender_display_name=sender_display_name,
-            sender_email=sender_email,
-            subject=subject,
-            body=email_body,
-            recipients=all_recipients,
-            is_read=True
-        )
-        self.email_repo.save(sent_email)
+                sent_email = Email(
+                    id=None,
+                    owner_id=sender_user.id,
+                    folder_id=sent_folder.id,
+                    sender=formatted_sender,
+                    sender_display_name=sender_display_name,
+                    sender_email=sender_email,
+                    subject=subject,
+                    body=email_body,
+                    recipients=all_recipients,
+                    is_read=True
+                )
+                self.email_repo.save(sent_email)
 
-        # 2. Relay to SMTP
-        self.smtp_client.send_message(
-            sender=formatted_sender,
-            recipients=to,
-            subject=subject,
-            body=email_body,
-            cc=cc
-        )
+                # 2. Relay to SMTP
+                self.smtp_client.send_message(
+                    sender=formatted_sender,
+                    recipients=to,
+                    subject=subject,
+                    body=email_body,
+                    cc=cc
+                )
+                
+                return  # Success, exit the retry loop
+            except OperationalError as e:
+                if "database is locked" in str(e) and attempt < max_retries - 1:
+                    time.sleep(0.1 * (attempt + 1))  # Exponential backoff
+                    continue
+                else:
+                    raise e
+            except Exception as e:
+                raise e
 
     def deliver_incoming_mail(self, sender: str, recipients: List[str], subject: str, body: str):
         """
         Called by SMTP Server to deliver mail to local users.
         Parses sender identity if formatted.
         """
+        import time
+        from sqlalchemy.exc import OperationalError
+        
         # Parse sender identity
         sender_display_name = None
         sender_email = sender
@@ -178,4 +228,18 @@ class MailService:
                 recipients=recipients,
                 is_read=False
             )
-            self.email_repo.save(new_email)
+            
+            # Retry mechanism for database operations
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    self.email_repo.save(new_email)
+                    break  # Success, exit retry loop
+                except OperationalError as e:
+                    if "database is locked" in str(e) and attempt < max_retries - 1:
+                        time.sleep(0.1 * (attempt + 1))  # Exponential backoff
+                        continue
+                    else:
+                        raise e
+                except Exception as e:
+                    raise e

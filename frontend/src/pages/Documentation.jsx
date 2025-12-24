@@ -44,7 +44,8 @@ We built सनdesh with three principles:
 3. **Transparency**: No hidden behaviors, no surprising defaults
 
 Ready to get started? Continue to the [Quick Start](#/docs/quick-start) guide.
-    `
+    `,
+        lastUpdated: 'December 24, 2024'
     },
 
     'what-is-sandesh': {
@@ -106,7 +107,8 @@ Because everything is local, emails arrive immediately. No spam filters, no dela
 | Mobile apps | ❌ Web only | ✅ Yes |
 
 This is by design. सनdesh is focused on **private, local communication**.
-    `
+    `,
+        lastUpdated: 'December 24, 2024'
     },
 
     'quick-start': {
@@ -121,85 +123,49 @@ Get productive with सनdesh in 5 minutes.
 
 ## For Users
 
-### Step 1: Log In
+### 1. Log In
+Use the credentials provided by your administrator.
+- **Username**: Used for login
+- **Password**: Your secret key
 
-1. Open your browser and go to your सनdesh URL (e.g., \`http://localhost:8000\`)
-2. Enter your **username** and **password**
-3. Click **Sign in**
+### 2. Update Your Identity
+Go to **Settings** (click your name → Your Profile).
+- Set your **Display Name** (e.g., "Alice Smith")
+- Add a **Signature** if you like
+- Verify your **Email Address**
 
-> 💡 Your username was created by your administrator. If you don't have one, ask them.
-
-### Step 2: Explore Your Inbox
-
-After logging in, you'll see:
-
-- **Sidebar** (left): Your folders—Inbox, Sent, Trash
-- **Main area**: Your email list or welcome screen
-- **Compose button**: Big button to write new emails
-
-### Step 3: Send Your First Email
-
-1. Click the **Compose** button
-2. Enter a recipient: \`username@namespace\` (e.g., \`alice@sandesh\`)
-3. Add a subject and message
+### 3. Send Your First Email
+1. Click **Compose**
+2. Enter a recipient (e.g., \`bob@sandesh\`)
+3. Write a subject and message
 4. Click **Send**
 
-That's it! The recipient will see your email instantly.
-
-### Step 4: Customize Your Profile
-
-1. Click your name in the bottom-left corner
-2. Select **Your Profile**
-3. Update your **Display Name** (how others see you in emails)
-4. Add an optional **Signature**
-5. Save changes
+That's it! You're using local email.
 
 ---
 
 ## For Administrators
 
-### Step 1: First Login
+### 1. Initial Setup
+Log in with the default admin account (\`admin\`). Go to **System Settings** to configure:
+- **Instance Name**: What users see on the login screen
+- **Mail Namespace**: The domain for all emails (e.g., \`@office\`)
 
-1. Open सनdesh in your browser
-2. Log in with the default admin credentials:
-   - Username: \`admin\` (or your configured admin)
-   - Password: \`admin123\` (or your configured password)
+### 2. Create Users
+Go to the **Admin Console**.
+1. Click **Add User**
+2. Define their username (this sets their email address)
+3. Set a temporary password
 
-> ⚠️ **Change the admin password immediately in production!**
+### 3. Share Details
+Send your users:
+- The URL to this instance
+- Their username & password
+- Their new email address (\`username@namespace\`)
 
-### Step 2: Understand the Namespace
-
-Your namespace determines all email addresses:
-
-- Namespace: \`sandesh\`
-- User \`alice\` → Email: \`alice@sandesh\`
-
-To view or change: Click profile → **System Settings**
-
-### Step 3: Create Users
-
-1. Click **Admin Console** in the sidebar
-2. Click **Add User**
-3. Enter:
-   - **Username**: Will become part of their email (e.g., \`bob\` → \`bob@sandesh\`)
-   - **Password**: Their login password
-   - **Display Name**: Optional friendly name
-4. Click **Create User**
-
-### Step 4: Share Login Info
-
-Give each user:
-- The सनdesh URL
-- Their username
-- Their password
-- Their email address format: \`username@namespace\`
-
----
-
-## You're Ready!
-
-You now know enough to use सनdesh productively. For deeper understanding, continue reading the documentation.
-    `
+> 💡 **Tip**: Change your admin password immediately after first login.
+    `,
+        lastUpdated: 'December 24, 2024'
     },
 
     'identity': {
@@ -217,7 +183,6 @@ This is the most important concept in सनdesh. Read this page carefully.
 Every user in सनdesh has three identity components:
 
 ### 1. Username (Permanent)
-
 - Created by admin when your account is made
 - **Cannot be changed** after creation
 - Used for login
@@ -226,7 +191,6 @@ Every user in सनdesh has three identity components:
 Example: \`prashant\`
 
 ### 2. Display Name (Changeable)
-
 - Your human-friendly name
 - Shown in the UI and email headers
 - **You can change this anytime** in Settings
@@ -234,7 +198,6 @@ Example: \`prashant\`
 Example: \`Prashant Choudhary\`
 
 ### 3. Namespace (System-wide)
-
 - Set by administrator
 - Same for all users on the instance
 - Forms the "domain" part of email addresses
@@ -270,70 +233,58 @@ This combines:
 - Your **Display Name** ("Prashant Choudhary")
 - Your **Email Address** ("<prashant@sandesh>")
 
----
+> 💡 **Why this format?** This ensures recipients know who you are (Display Name) and where the email came from (Email Address) without any ambiguity.
+    `,
+        lastUpdated: 'December 24, 2024'
+    },
 
-## What You CAN Change
+    'user-settings': {
+        title: 'User Settings',
+        icon: Wrench,
+        content: `
+# User Settings
 
-| Field | Changeable? | Where? |
-|-------|-------------|--------|
-| Display Name | ✅ Yes | Settings → Profile |
-| Signature | ✅ Yes | Settings → Profile |
-| Avatar Color | ✅ Yes | Settings → Profile |
-
-## What You CANNOT Change
-
-| Field | Changeable? | Why? |
-|-------|-------------|------|
-| Username | ❌ No | Part of your email address |
-| Email Address | ❌ No | Derived from username + namespace |
-| Role | ❌ No | Set by administrator |
+Manage your personal profile and preferences.
 
 ---
 
-## Why Email Addresses Look This Way
+## Accessing Settings
 
-You might wonder: "Why \`alice@sandesh\` instead of \`alice@gmail.com\`?"
-
-सनdesh uses a **local namespace** instead of internet domains because:
-
-1. **No internet required**: We don't need DNS or external servers
-2. **You control it**: The admin chooses what makes sense for your organization
-3. **Simplicity**: No domain registration or email verification needed
-
-Common namespace examples:
-- \`sandesh\` (default)
-- \`office\`
-- \`team\`
-- \`hackathon\`
-- \`company-name\`
+1. Click your **Name** or Avatar in the bottom-left corner of the sidebar.
+2. Select **Your Profile** / **Settings**.
 
 ---
 
-## A Complete Example
+## What You Can Change
 
-**Setup:**
-- Admin creates user with username \`alice\`
-- System namespace is \`office\`
-- Alice sets her display name to "Alice Johnson"
+### Display Name
+**Purpose**: The name people see when you send them email.
+- **Recommendation**: Use your real first and last name (e.g., "Alice Smith").
+- **Effect**: Updates instantly on new emails. Old emails keep the name used when they were sent.
 
-**Result:**
-- Login: \`alice\`
-- Email Address: \`alice@office\`
-- Emails show as: \`Alice Johnson <alice@office>\`
+### Avatar Color
+**Purpose**: The background color of your profile icon.
+- **Recommendation**: Pick a color that distinguishes you from others.
+- **Effect**: Updates instantly across the UI.
+
+### Email Signature
+**Purpose**: Text automatically added to the end of every email you write.
+- **Usage**: Good for job titles, contact info, or friendly sign-offs.
+- **Format**: Plain text. Links (URLs) are clickable in most email clients.
 
 ---
 
-## FAQ
+## What You Cannot Change
 
-**Q: Can I have multiple email addresses?**
-A: No. Each user has exactly one email address.
+| Field | Reason |
+|-------|--------|
+| **Username** | It determines your unique identity and login. Changing it would break your account history. |
+| **Email Address** | Derived directly from your username and the system namespace. |
+| **Role** | Only administrators can promote or demote users. |
 
-**Q: What if I want to change my email address?**
-A: You would need a new account with a different username. Only admins can create accounts.
-
-**Q: What happens if the namespace changes?**
-A: All email addresses change. The admin must confirm this action because it affects all users.
-    `
+> ❓ **Need to change these?** Contact your administrator. They may need to create a new account for you.
+    `,
+        lastUpdated: 'December 24, 2024'
     },
 
     'using-sandesh': {
@@ -342,117 +293,61 @@ A: All email addresses change. The admin must confirm this action because it aff
         content: `
 # Using सनdesh
 
-This guide covers the everyday user experience.
+This guide covers the everyday user experience of reading and organizing mail.
 
 ---
 
-## The Main Interface
+## The Inbox Interface
 
 After logging in, you see three areas:
 
 ### 1. Sidebar (Left)
-
 - **Compose**: Create a new email
 - **Inbox**: Received emails
 - **Sent**: Emails you've sent
 - **Trash**: Deleted emails
 - **Custom folders**: Any folders you've created
-- **Your profile**: Bottom of sidebar
 
 ### 2. Email List (Center)
+When you select a folder, you see a list of emails.
+- **Unread**: Bold text
+- **Read**: Normal text
+- **Selection**: Checkboxes for bulk actions
 
-When you select a folder:
-- List of emails with sender, subject, and preview
-- Unread emails appear **bold**
-- Click to open an email
-
-### 3. Email View (Center)
-
-When you open an email:
-- Full email content
-- Action buttons (Reply, Delete, Move)
-- Back button to return to list
+### 3. Email View (Center/Right)
+Click an email to read it.
+- **Header**: Sender, To, Date
+- **Body**: The message content
+- **Actions**: Reply, Delete, Move
 
 ---
 
 ## Reading Emails
 
 ### Finding Emails
+1. Click a folder in the sidebar.
+2. Scroll to find the message.
+3. Click to open.
 
-1. Click a folder in the sidebar (e.g., Inbox)
-2. Scroll through the email list
-3. Click an email to read it
-
-### Unread vs Read
-
-- **Unread**: Bold text, slightly different background
-- **Read**: Normal text
-
-Clicking an email automatically marks it as read.
-
-### Email Information
-
-Each email shows:
-- **Sender**: Who sent it (Display Name and email)
-- **Subject**: The topic
-- **Body**: The message content
-- **Timestamp**: When it was sent
+### Marking as Read
+Emails are automatically marked as read when you open them.
+- To keep an email "Unread", you can't currently toggle it back (feature coming soon).
 
 ---
 
-## Managing Emails
-
-### Deleting Emails
-
-**From the list:**
-1. Hover over an email
-2. Click the trash icon
-
-**From the email view:**
-1. Open the email
-2. Click **Delete** in the action bar
-
-Deleted emails go to Trash.
+## Organizing
 
 ### Moving Emails
+1. Open the email.
+2. Click **Move to**.
+3. Select a destination folder.
 
-1. Open the email
-2. Click **Move to**
-3. Select the destination folder
-
-### Selecting Multiple Emails
-
-1. Check the boxes next to emails
-2. Use the bulk action bar that appears
-3. Choose an action (Delete, etc.)
-
----
-
-## Your Profile
-
-Access your profile by clicking your name at the bottom of the sidebar.
-
-### What You Can Change
-
-1. **Display Name**: How you appear in emails
-2. **Email Signature**: Text added to outgoing emails
-3. **Avatar Color**: Your profile icon color
-
-### What You Cannot Change
-
-- Username (fixed at account creation)
-- Email address (derived from username)
-- Role (set by admin)
-
----
-
-## Tips for Effective Use
-
-1. **Use meaningful display names**: "Alice Johnson" is better than "alice"
-2. **Add a signature**: Helps recipients know who you are
-3. **Organize with folders**: Create folders for projects or topics
-4. **Empty trash periodically**: Keep your account clean
-    `
+### Deleting
+1. Click the **Trash** icon.
+2. The email moves to the **Trash** folder.
+3. To permanently delete, go to Trash and delete it again.
+    `,
+        lastUpdated: 'December 24, 2024'
     },
 
     'email-features': {
@@ -461,123 +356,99 @@ Access your profile by clicking your name at the bottom of the sidebar.
         content: `
 # Email Features & Behavior
 
-Understanding how emails work in सनdesh.
+Understanding the capabilities of the system.
 
 ---
 
-## Sending Emails
+## Sending Capabilities
 
-### To Field
+### Recipients
+- **Internal Only**: You can only email users on this सनdesh instance.
+- **Format**: \`username@namespace\` (e.g., \`alice@sandesh\`).
+- **Multiple**: Separate addresses with commas or new lines.
 
-- Enter recipient email addresses
-- Format: \`username@namespace\` (e.g., \`alice@sandesh\`)
-- Multiple recipients: Add each on a new line or separate with commas
+### CC (Carbon Copy)
+- Works just like standard email.
+- All recipients can see who was CC'd.
 
-### CC Field
-
-- Carbon Copy: Additional recipients
-- Everyone can see CC recipients
-- Toggle CC field visibility in Compose
-
-### Subject
-
-- Optional but recommended
-- Appears in recipient's inbox list
-
-### Body
-
-- Your message content
-- Plain text (no rich formatting currently)
-
-### Signature
-
-- If you've set a signature in Settings, it's automatically appended
-- Appears after your message with a separator (\`--\`)
+### Attachments
+- ❌ **Not supported yet**. Text only.
 
 ---
 
-## Delivery Behavior
+## Delivery
 
 ### Instant Delivery
+Emails transfer directly within the local database. Delivery is effectively instantaneous.
 
-Emails are delivered **immediately**. There's no queue or delay because everything is local.
-
-### Local Only
-
-सनdesh can only deliver to users on the same instance:
-
-| Recipient | Delivery |
-|-----------|----------|
-| \`alice@sandesh\` (same namespace) | ✅ Delivered |
-| \`alice@gmail.com\` (external) | ❌ Not delivered |
-
-### What Happens If User Doesn't Exist?
-
-If you send to a username that doesn't exist, the email is silently dropped. No error message is sent back.
+### Failed Delivery
+If you try to send to a user that **does not exist**:
+- The system will accept the email (to prevent username enumeration probing).
+- It will silently fail to deliver to that specific bad address.
+- Valid recipients will still receive the email.
 
 ---
 
-## Sent Folder
+## Storage
+- **Sent Folder**: Every email you send is saved here.
+- **No Quotas**: There are currently no storage limits enforced, but please be respectful of disk space.
+    `,
+        lastUpdated: 'December 24, 2024'
+    },
 
-Every email you send is **automatically saved** to your Sent folder. This happens:
+    'email-lifecycle': {
+        title: 'Email Lifecycle',
+        icon: Zap,
+        content: `
+# Email Lifecycle
 
-- Before delivery attempt
-- Even if delivery fails
-- With full content preserved
-
----
-
-## Receiving Emails
-
-### Notifications
-
-Currently, सनdesh doesn't have push notifications. To see new emails:
-
-- Refresh the page
-- Click on Inbox
-- Use the refresh button if available
-
-### Unread Count
-
-The sidebar shows unread counts next to folders (e.g., "Inbox 3").
+What happens when you send an email? Here is the journey of a message in सनdesh.
 
 ---
 
-## Timestamps
+## 1. Composition
+- **State**: You are typing in the Compose window.
+- **Storage**: In-memory only.
+- ⚠️ **Note**: If you refresh or close the tab without sending, the draft is **lost**.
 
-All timestamps are stored in UTC and displayed in your browser's local timezone.
+## 2. Sending
+- **Action**: You click the **Send** button.
+- **Validation**: System checks if the format of addresses is valid.
+- **Processing**: The backend receives your message.
+
+## 3. Storage (Sent)
+- **Action**: The system immediately saves a copy to your **Sent** folder.
+- **Status**: The email is now permanently recorded in your history.
+
+## 4. Delivery (Local SMTP)
+- **Action**: The backend hands the message to the internal SMTP server.
+- **Routing**: The server looks up the recipients in the local database.
+- **Deposit**: The message is inserted into the recipient's **Inbox**.
+
+## 5. Receipt
+- **Action**: The recipient's view updates (upon refresh/poll).
+- **Status**: The email is available for them to read.
 
 ---
 
-## Email Storage
+## Diagram
 
-### Where Emails Are Stored
+\`\`\`
+[ You ]  →  [ Backend ]  →  [ Your Sent Folder ]
+                 ↓
+            [ SMTP Engine ]
+                 ↓
+[ Recipient Inbox ]  ←  [ Recipient ]
+\`\`\`
 
-- All emails are stored in a SQLite database
-- On disk in the Docker volume (\`/data/sandesh.db\`)
+## What if delivery fails?
+Because सनdesh is local-only, failure is rare. It usually means:
+- The recipient username does not exist.
+- The system prevents delivery to protect privacy (silent fail).
 
-### Email Limits
-
-No hard limits on:
-- Number of emails
-- Email size
-- Attachment size (attachments not currently supported)
-
-However, very large databases may affect performance.
-
----
-
-## Replies and Forwards
-
-### Current Behavior
-
-- Reply and Forward buttons exist in the UI
-- They pre-populate the Compose window appropriately
-
-### Threading
-
-Currently, emails are not threaded. Each email appears separately in your inbox.
-    `
+In these cases, the email **remains in your Sent folder** as proof you sent it, but it never reaches a destination.
+    `,
+        lastUpdated: 'December 24, 2024'
     },
 
     'folders': {
@@ -586,91 +457,35 @@ Currently, emails are not threaded. Each email appears separately in your inbox.
         content: `
 # Folder & Inbox Management
 
-Organize your emails effectively.
+Keep your mailbox clean and organized.
 
 ---
 
 ## Default Folders
+These exist for everyone and cannot be deleted.
 
-Every user has three default folders:
+1. **Inbox**: Where new mail arrives.
+2. **Sent**: Archive of everything you've sent.
+3. **Trash**: Holding area for deleted items.
 
-### Inbox
-- Receives all incoming emails
-- Cannot be deleted or renamed
+## Custom Folders
+You can create your own folders to organize projects or topics.
 
-### Sent
-- Automatically stores all sent emails
-- Cannot be deleted or renamed
+### Creating a Folder
+1. Click **Create folder** in the sidebar.
+2. Name it (e.g., "Finance", "Project X").
+3. It appears in the sidebar instantly.
 
-### Trash
-- Holds deleted emails
-- Cannot be deleted or renamed
-- Emails here can be permanently deleted or restored
+### Using Folders
+- **Move** emails from Inbox to Custom Folders to reach "Inbox Zero".
+- **Delete** a folder to remove it. ⚠️ **Warning**: This deletes all emails inside it!
 
----
-
-## Creating Folders
-
-1. In the sidebar, find "Create folder" or the + icon
-2. Enter a name for your folder
-3. Press Enter or click Create
-
-**Naming rules:**
-- Cannot use names of default folders (Inbox, Sent, Trash)
-- Keep names short and descriptive
-- Special characters allowed but not recommended
-
----
-
-## Moving Emails to Folders
-
-### From Email View
-
-1. Open the email
-2. Click **Move to** button
-3. Select destination folder
-
-### From Email List
-
-1. Select emails using checkboxes
-2. Use the bulk action menu
-3. Choose Move and select folder
-
----
-
-## Deleting Emails
-
-### To Trash
-
-- Click delete button → Email moves to Trash
-- Not permanent, can be recovered
-
-### From Trash
-
-- Currently: Delete again to remove permanently
-- This action cannot be undone
-
----
-
-## Managing Folders
-
-### Accessing a Folder
-
-Click the folder name in the sidebar to view its contents.
-
-### Folder Counts
-
-Some folders show unread counts (e.g., "Inbox 5").
-
----
-
-## Best Practices
-
-1. **Use descriptive names**: "Project Alpha" is better than "Stuff"
-2. **Archive completed projects**: Move old emails to project folders
-3. **Empty Trash regularly**: Don't let deleted emails accumulate
-4. **Don't over-organize**: Too many folders can be harder to manage than too few
-    `
+## Trash Behavior
+- Moving email to Trash **does not** hide it forever.
+- To permanently delete, you must delete it **from** the Trash.
+- Currently, Trash is not auto-emptied. You must do it manually.
+    `,
+        lastUpdated: 'December 24, 2024'
     },
 
     'compose': {
@@ -679,127 +494,69 @@ Some folders show unread counts (e.g., "Inbox 5").
         content: `
 # Compose & Sending Email
 
-How to write and send emails in सनdesh.
-
----
-
-## Opening Compose
-
-Click the **Compose** button in the sidebar. A compose window appears.
+How to write and send messages.
 
 ---
 
 ## The Compose Window
+Click **Compose** to open the floating window.
+- **Minimize**: Keep it open while checking other emails.
+- **Maximize**: Focus on writing.
+- **Close**: Discard the message.
 
-### Floating Mode
+## Writing
+- **To**: Enter \`username@namespace\`.
+- **Subject**: Keep it short and clear.
+- **Body**: Plain text message.
 
-The compose window floats at the bottom-right of your screen, similar to Gmail. You can:
+## Confirmation & Safety
+To prevent accidental data loss:
+- If you try to **close** the window while text is written, a **Confirmation Dialog** will appear.
+- You must explicitly choose to **Discard** the draft.
 
-- **Minimize**: Click the minimize button to collapse
-- **Maximize**: Click again to restore
-- **Close**: Click X (if you have content, you'll be asked to confirm)
-
-### Fields
-
-| Field | Required | Description |
-|-------|----------|-------------|
-| To | ✅ Yes | Recipient email address |
-| CC | ❌ No | Carbon copy recipients |
-| Subject | ❌ No | Email subject line |
-| Body | ❌ No | Your message |
-
----
-
-## Entering Recipients
-
-### Format
-
-Always use the full email format:
-\`\`\`
-username@namespace
-\`\`\`
-
-Example: \`alice@sandesh\`
-
-### Multiple Recipients
-
-Enter each recipient on a new line, or separate with commas:
-\`\`\`
-alice@sandesh
-bob@sandesh
-charlie@sandesh
-\`\`\`
-
-### CC (Carbon Copy)
-
-Click **CC** to reveal the CC field. CC recipients:
-- Receive the email
-- Are visible to all other recipients
-- Appear in the email header
-
----
-
-## Writing Your Message
-
-### Subject Line
-
-- Keep it descriptive and concise
-- Helps recipients understand the email's purpose
-- Shows in their inbox list
-
-### Body
-
-- Write your message in plain text
-- Press Enter for new lines
-- No rich text formatting currently
-
----
-
-## Signatures
-
-If you've set a signature in Settings:
-- It's automatically appended to every email
-- Separated by \`--\` line
-- You can edit or remove it before sending
-
----
-
-## Sending
-
-Click the **Send** button to send your email.
-
-### What Happens
-
-1. Email is saved to your Sent folder
-2. Email is delivered to recipient's Inbox
-3. Compose window closes
-4. You see a success confirmation
-
-### If Sending Fails
-
-- An error message appears
-- Your message is NOT lost (still in the compose window)
-- Try again or copy your content
-
----
-
-## Discarding Drafts
-
-If you close the compose window with unsaved content:
-- A confirmation dialog appears
-- Choose to **discard** or **keep writing**
-
-There is no auto-save or draft folder currently.
-
----
+> ⚠️ **No Auto-Save**: Drafts are not saved to the server while you type. Do not stick properly to the "Sent" lifecycle until you actually click Send.
 
 ## Tips
+- **Self-Email**: You can send email to yourself (\`yourname@namespace\`) to test features or keep notes.
+- **Signatures**: Set a signature in Settings to avoid typing your name every time.
+    `,
+        lastUpdated: 'December 24, 2024'
+    },
 
-1. **Double-check recipients**: There's no undo after sending
-2. **Use clear subjects**: Makes emails easier to find later
-3. **Keep it concise**: Respect your recipients' time
-4. **Add a signature**: Set it once in Settings, appears automatically
-    `
+    'confirmation-safety': {
+        title: 'Confirmation & Safety',
+        icon: Shield,
+        content: `
+# Confirmation & Safety
+
+Why does सनdesh ask "Are you sure?"
+
+---
+
+## Design Philosophy
+We believe software should be **forgiving**. However, some actions are destructive or irreversible. In those cases, we require explicit confirmation to prevent accidents.
+
+## When You Will See Confirmations
+
+### 1. Discarding Drafts
+**Action**: Closing the Compose window with unsaved text.
+- **Why**: To prevent losing a long email you were writing just because you misclicked.
+- **Choice**: "Keep Editing" saves your work; "Discard" deletes it.
+
+### 2. Deleting Items
+**Action**: Deleting a folder or user.
+- **Why**: Deleting a folder deletes all emails inside it. This cannot be undone.
+- **Choice**: You must confirm the deletion.
+
+### 3. Changing Namespace (Admin)
+**Action**: Changing the system Mail Namespace.
+- **Why**: This changes the email address of **every user in the system**. It breaks communication history continuity.
+- **Safety**: This requires a specific "Critical Action" confirmation.
+
+## Summary
+If you see a popup dialog, **pause and read it**. It usually means data is about to be permanently changed or removed.
+    `,
+        lastUpdated: 'December 24, 2024'
     },
 
     'admin-guide': {
@@ -808,130 +565,48 @@ There is no auto-save or draft folder currently.
         content: `
 # Admin Guide
 
-Everything administrators need to know.
+For operators and system administrators.
 
 ---
 
-## Admin vs User Role
+## Your Responsibilities
 
-| Capability | Admin | User |
-|------------|-------|------|
-| Send/receive email | ✅ | ✅ |
-| Manage own profile | ✅ | ✅ |
-| Create users | ✅ | ❌ |
-| Deactivate users | ✅ | ❌ |
-| Access System Settings | ✅ | ❌ |
-| Change namespace | ✅ | ❌ |
+### 1. User Management
+- **Create Users**: You are the only one who can make new accounts.
+- **Reset Access**: Use Deactivate/Delete if a user is compromised.
+- **Privacy**: You verify that the instance is running on a secure network.
 
----
-
-## Accessing Admin Features
-
-### Admin Console
-
-1. Look for **Admin Console** in the sidebar
-2. Click to open user management
-
-### System Settings
-
-1. Click your profile (bottom-left)
-2. Select **System Settings**
+### 2. System Configuration
+- **Namespace**: You assert ownership of the \`@namespace\`.
+- **Instance Name**: You set the tone for the login screen.
 
 ---
 
-## Creating Users
+## Managing Users
 
-### Step by Step
+### Creating a User
+1. Go to **Admin Console**.
+2. Click **Add User**.
+3. **Username**: Simple, lowercase (e.g., \`alice\`).
+4. **Password**: Share this securely with the user.
+5. **Display Name**: You can set a default, but they should update it.
 
-1. Go to Admin Console
-2. Click **Add User**
-3. Fill in:
-   - **Username**: Will become part of their email (letters, numbers, underscores)
-   - **Password**: Their login password (minimum 6 characters)
-   - **Display Name**: Optional friendly name
-4. Click **Create User**
+### Deactivating a User
+- **Effect**: User cannot log in. Data remains.
+- **Use Case**: Employee leaves the company.
 
-### After Creation
-
-The new user:
-- Can log in immediately
-- Has default folders (Inbox, Sent, Trash)
-- Has email address: \`username@namespace\`
-
-### What to Tell New Users
-
-Provide them with:
-- सनdesh URL
-- Their username
-- Their password
-- Their email format: \`username@namespace\`
+### Deleting a User
+- **Effect**: User AND all their emails are permanently removed.
+- **Use Case**: Cleanup of test accounts.
 
 ---
 
-## Username Rules
-
-Usernames must:
-- Start with a letter
-- Be 3-30 characters
-- Contain only lowercase letters, numbers, and underscores
-- Be unique
-
-**Important**: Usernames cannot be changed after creation because they're part of the email address.
-
----
-
-## Deactivating Users
-
-### When to Deactivate
-
-- User leaves the organization
-- Security concerns
-- Temporary suspension
-
-### How to Deactivate
-
-1. Go to Admin Console
-2. Find the user
-3. Click **Deactivate** (or delete icon)
-4. Confirm the action
-
-### What Happens
-
-- User cannot log in
-- User's emails are preserved
-- User's data remains in the database
-- Can be reactivated (if you implement this feature)
-
----
-
-## Managing System Settings
-
-### Instance Name
-
-- Cosmetic name for your installation
-- Shown on login page
-- Change anytime without impact
-
-### Mail Namespace
-
-- Defines all email addresses
-- **Changing this affects ALL users**
-- Requires confirmation
-
-See [System Settings & Namespace](#/docs/namespace) for details.
-
----
-
-## Security Responsibilities
-
-As admin, you should:
-
-1. **Use strong passwords**: For admin and all users
-2. **Limit admin accounts**: Only trusted people
-3. **Monitor users**: Regularly review user list
-4. **Backup data**: Regularly backup the database volume
-5. **Secure network**: Ensure सनdesh is only accessible on trusted networks
-    `
+## Best Practices
+1. **Dont use 'admin' for daily email**: Create a personal account (e.g., \`prashant\`) for your actual email usage.
+2. **Secure the Admin Password**: It has full control over the system.
+3. **Backup**: Regularly backup the \`/data\` folder (Docker volume).
+    `,
+        lastUpdated: 'December 24, 2024'
     },
 
     'namespace': {
@@ -940,239 +615,34 @@ As admin, you should:
         content: `
 # System Settings & Namespace
 
-Configure your सनdesh instance.
+Configuring the core identity of your instance.
 
 ---
 
-## Accessing System Settings
-
-1. Click your profile in the bottom-left corner
-2. Select **System Settings**
-3. Only administrators can access this
-
----
-
-## Instance Name
-
-### What It Is
-
-The display name for your सनdesh installation.
-
-### Where It Appears
-
-- Login page
-- Page titles
-- System information
-
-### Changing It
-
-1. Edit the Instance Name field
-2. Click Save
-3. No impact on users or emails
-
----
-
-## Mail Namespace
-
-### What It Is
-
-The "domain" part of all email addresses in your system.
-
-\`\`\`
-Email = username@NAMESPACE
-\`\`\`
-
-### Default Value
-
-The default namespace is \`local\` or whatever was set during installation.
-
-### Examples
-
-| Namespace | Example Email |
-|-----------|---------------|
-| \`sandesh\` | \`alice@sandesh\` |
-| \`office\` | \`alice@office\` |
-| \`company\` | \`alice@company\` |
-| \`hackathon\` | \`alice@hackathon\` |
-
----
-
-## Changing the Namespace
-
-### ⚠️ This is a Significant Action
-
-Changing the namespace affects **every user** in your system:
-
-- All email addresses change immediately
-- Users need to know their new address
-- Existing emails keep their original sender info
-
-### How to Change
-
-1. Go to System Settings
-2. Edit the Mail Namespace field
-3. Review the warnings shown
-4. Click Save
-5. Confirm in the confirmation dialog
-
-### What Happens After
-
-- New emails use the new namespace
-- Old emails keep their historical sender information
-- Users now log in the same way but have new email addresses
-
-### Namespace Rules
-
-Must be:
-- 2-20 characters
-- Start with a letter
-- Lowercase letters, numbers, and hyphens only
-
----
-
-## When to Change Namespace
-
-**Good reasons:**
-- Rebranding your organization
-- Initial setup was done with placeholder value
-- Merging systems
-
-**Bad reasons:**
-- Just to try it out (causes confusion)
-- One user wants a different email (not possible individually)
-
----
-
-## Reverting a Namespace Change
-
-You can change the namespace again to revert:
-
-1. Go to System Settings
-2. Enter the old namespace
-3. Confirm
-
-However, any emails sent during the changed period will show the old sender information.
-    `
-    },
-
-    'security': {
-        title: 'Security & Privacy Model',
-        icon: Lock,
-        content: `
-# Security & Privacy Model
-
-Understand how सनdesh handles security and privacy.
-
----
-
-## Privacy by Design
-
-### Local-First
-
-- All data stays on your server
-- No cloud sync
-- No external services
-
-### No Tracking
-
-- No analytics
-- No usage statistics
-- No telemetry
-
-### No Third Parties
-
-- No external authentication
-- No CDN dependencies
-- No external APIs
-
----
-
-## Security Model
-
-### Authentication
-
-- Username and password login
-- JWT tokens for session management
-- Tokens expire after 60 minutes (by default)
-- Passwords hashed with bcrypt
-
-### Authorization
-
-- Two roles: Admin and User
-- Role-based access control
-- Admin actions require admin role
-
-### Network
-
-⚠️ **Important**: सनdesh does NOT include:
-- HTTPS/TLS encryption by default
-- Network security features
-
-**You should**:
-- Run behind an HTTPS reverse proxy (nginx, Caddy)
-- Restrict network access to trusted networks
-- Use a VPN for remote access
-
----
-
-## What's NOT Secured
-
-Be aware of these design decisions:
-
-### No Email Encryption
-
-Emails are stored in plain text in the database. Anyone with database access can read all emails.
-
-### No TLS for SMTP
-
-The local SMTP server (port 2525) does not use TLS. This is acceptable for local networks but not for internet-facing deployments.
-
-### Trusted Network Assumption
-
-सनdesh assumes it's running on a trusted network. It doesn't protect against:
-- Network sniffing
-- Man-in-the-middle attacks
-- Malicious internal users with network access
-
----
-
-## Admin Access
-
-Administrators can:
-- See the user list (but not read their emails through the UI)
-- Create and deactivate users
-- Change system settings
-
-Administrators cannot (through the UI):
-- Read other users' emails
-- Access other users' passwords
-- Impersonate other users
-
-However, anyone with database access could read all data.
-
----
-
-## Data Protection Recommendations
-
-1. **Secure the host**: Use strong OS-level security
-2. **Limit admin accounts**: Minimize who has admin access
-3. **Use HTTPS**: Put a reverse proxy in front of सनdesh
-4. **Backup regularly**: Database is in the Docker volume
-5. **Network segmentation**: Only accessible from trusted networks
-6. **Strong passwords**: Enforce for all users
-
----
-
-## Incident Response
-
-If you suspect a security issue:
-
-1. Check who has admin access
-2. Review recent user activity
-3. Check Docker/container logs
-4. Rotate admin passwords if needed
-5. Consider backing up and redeploying
-    `
+## The Mail Namespace
+The namespace is the text after the \`@\` in email addresses.
+
+### Rules
+- **Length**: 2-20 characters.
+- **Allowed**: Lowercase letters, numbers, hyphens.
+- **Example**: \`sandesh\` → \`user@sandesh\`.
+
+### Changing the Namespace
+**⚠️ Critical Action**
+Changing this setting updates the derived email address for **everyone**.
+1. Go to **System Settings**.
+2. Edit **Mail Namespace**.
+3. Review the impact warning.
+4. Confirm the change.
+
+**Why is this dangerous?**
+- If Alice was \`alice@old\`, she is now \`alice@new\`.
+- Anyone trying to reply to her old emails (\`alice@old\`) might get a delivery failure or confusion.
+
+## Intance Name
+This is purely cosmetic. It changes the title on the Login page and browser tab. Use it to brand your internal tool (e.g., "Acme Corp Mail").
+    `,
+        lastUpdated: 'December 24, 2024'
     },
 
     'limitations': {
@@ -1181,150 +651,73 @@ If you suspect a security issue:
         content: `
 # Limitations & Design Choices
 
-Understanding what सनdesh intentionally doesn't do.
+To trust a system, you must know what it **cannot** do.
 
 ---
 
-## Why This Page Exists
+## Intentionally Missing Features
 
-Every product makes tradeoffs. We believe in **transparency** about what सनdesh doesn't do and why.
+### ❌ No External Email
+**Detail**: You cannot email Gmail, Outlook, or Yahoo.
+**Reason**: Strict privacy isolation. No data ever leaves your local network.
 
----
+### ❌ No IMAP / POP3
+**Detail**: You cannot connect Outlook or Thunderbird desktop apps.
+**Reason**: We focus 100% on a high-quality web experience.
 
-## Intentional Limitations
+### ❌ No Mobile App
+**Detail**: There is no iOS or Android app to download.
+**Reason**: The web interface is responsive and works on mobile browsers.
 
-### No External Email
-
-**What**: सनdesh cannot send or receive emails to/from Gmail, Outlook, or any internet address.
-
-**Why**: 
-- Simplifies setup dramatically
-- No DNS, MX records, or domain management
-- No spam filtering needed
-- No deliverability issues
-
-**Alternative**: For external email, use a traditional email provider.
+### ❌ No Rich Text / HTML
+**Detail**: Emails are plain text only.
+**Reason**: Security (no XSS execution) and simplicity.
 
 ---
 
-### No IMAP/POP3
-
-**What**: You cannot access सनdesh through Outlook, Apple Mail, or other email clients.
-
-**Why**:
-- Reduces complexity significantly
-- Web interface is the primary experience
-- Fewer security surfaces
-
-**Alternative**: Use the web interface on any device with a browser.
-
----
-
-### No Mobile App
-
-**What**: There's no dedicated iOS or Android app.
-
-**Why**:
-- Web app works on mobile browsers
-- Reduces development and maintenance burden
-- One codebase to maintain
-
-**Alternative**: Add the web app to your home screen.
-
----
-
-### No Rich Text / HTML Email
-
-**What**: Emails are plain text only.
-
-**Why**:
-- Avoids security risks from HTML
-- Simpler storage and rendering
-- Plain text is actually more accessible
-
-**Alternative**: Use clear formatting with line breaks and symbols.
-
----
-
-### No Attachments (Currently)
-
-**What**: You cannot attach files to emails.
-
-**Why**:
-- Simplifies storage management
-- Avoids large file handling issues
-- May be added in future versions
-
-**Alternative**: Share files through other means and reference them in email.
-
----
-
-## Technical Choices
-
-### SQLite Database
-
-**What**: सनdesh uses SQLite, not PostgreSQL or MySQL.
-
-**Why**:
-- Zero configuration needed
-- Single file, easy to backup
-- Sufficient for intended scale
-
-**Limitation**: Not suitable for hundreds of concurrent users or massive email volumes.
-
----
+## Technical Constraints
 
 ### Single Instance
+- **Scope**: Designed for one server (Docker container).
+- **Scale**: Good for 1-1000 users. Not designed for millions.
 
-**What**: सनdesh runs as one container, not a distributed system.
+### SQLite Database
+- **Storage**: All data lives in a single \`.db\` file.
+- **Pros**: insanely easy to backup (copy one file).
+- **Cons**: Write-heavy loads (thousands of emails/second) will eventually be slow.
 
-**Why**:
-- Simple deployment
-- No orchestration needed
-- Easy to understand and debug
+### No "Forgot Password"
+- **Detail**: There is no automated password reset.
+- **Reason**: No external email to send a reset link to!
+- **Solution**: Admins must manually reset passwords.
+    `,
+        lastUpdated: 'December 24, 2024'
+    },
 
-**Limitation**: Vertical scaling only. Can't distribute load.
-
----
-
-### Synchronous Database Access
-
-**What**: Database operations are synchronous, not async.
-
-**Why**:
-- SQLite doesn't benefit from async
-- Simpler code
-- Easier to debug
-
-**Limitation**: High concurrency may cause delays.
-
----
-
-## What We Might Add
-
-These are not promises, but areas we've considered:
-
-- Attachments
-- Email search
-- Email threading
-- Dark mode
-- Keyboard shortcuts
-- Email templates
+    'security': {
+        title: 'Security & Privacy Model',
+        icon: Lock,
+        content: `
+# Security & Privacy Model
 
 ---
 
-## What We Won't Add
+## Privacy
+- **Zero Tracking**: We collect no data.
+- **Local Storage**: Data stays on your disk.
 
-Some things are intentionally out of scope:
+## Network Security
+- **No TLS (HTTPS)**: The container runs on HTTP. **You are responsible** for putting it behind a secure proxy (like Nginx) if running on an untrusted network.
+- **Local SMTP**: Port 2525 is open for internal delivery. It is not secured for the public internet.
 
-- External email (SMTP relay)
-- IMAP/POP3 server
-- Calendar integration
-- Chat/messaging
-- File storage
+## Application Security
+- **Passwords**: Hashed using **bcrypt** (industry standard).
+- **Sessions**: JWT (JSON Web Tokens) with expiration.
+- **XSS Protection**: React automatically escapes content.
 
-सनdesh is an email system, and we want to do that well.
-    `
+> 🛡️ **Recommendation**: Only run सनdesh on a trusted private network (LAN/VPN) or behind a secure authentication proxy.
+    `,
+        lastUpdated: 'December 24, 2024'
     },
 
     'faq': {
@@ -1333,117 +726,30 @@ Some things are intentionally out of scope:
         content: `
 # Frequently Asked Questions
 
-Common questions and clear answers.
-
 ---
 
-## General Questions
+### General
+**Q: Can I email my personal Gmail account?**
+**A**: No. सनdesh is a closed, private network system.
 
-### What does "सनdesh" mean?
+**Q: Where is my data stored?**
+**A**: In the \`/data\` folder of your Docker installation.
 
-"संदेश" (Sandesh) is a Hindi word meaning "message." We write it as "सनdesh" to blend Hindi and English characters.
+### Identity
+**Q: Can I change my email address?**
+**A**: No, it is permanently linked to your username. You would need a new account.
 
-### Is सनdesh free?
+**Q: Can I change my username?**
+**A**: No. Ask your admin to create a new user and delete the old one.
 
-Yes, सनdesh is open source and free to use.
+### Troubleshooting
+**Q: My email didn't arrive.**
+**A**: Check if the username was correct. If the user doesn't exist, the email is dropped.
 
-### Who made सनdesh?
-
-सनdesh was created as a local-first email system for private networks.
-
----
-
-## Email Questions
-
-### Why can't I email Gmail or external addresses?
-
-सनdesh is designed for **local-only** email. It doesn't connect to the internet or external mail servers. This is a feature, not a bug—it keeps things simple and private.
-
-### Why does my email address look like \`alice@sandesh\`?
-
-Email addresses in सनdesh use a local namespace instead of an internet domain. Your admin chose the namespace (like "sandesh" or "office"). This is normal for सनdesh.
-
-### Can I change my email address?
-
-No. Your email address is derived from your username, which is permanent. If you need a different email address, you would need a new account.
-
-### Why didn't my email arrive?
-
-Check that:
-1. You used the correct recipient address (\`username@namespace\`)
-2. The recipient exists in the system
-3. You're looking in the right folder
-
-### Can I send to multiple people?
-
-Yes! Enter multiple addresses in the To or CC fields, separated by commas or on separate lines.
-
----
-
-## Account Questions
-
-### How do I change my password?
-
-Currently, password changes require admin assistance. Contact your administrator.
-
-### I forgot my password. What do I do?
-
-Contact your administrator. They can reset your account.
-
-### Can I delete my account?
-
-Contact your administrator. They can deactivate your account.
-
-### Why can't I change my username?
-
-Usernames are permanent because they're part of your email address. Changing them would change your email address, which could cause confusion.
-
----
-
-## Admin Questions
-
-### How do I create new users?
-
-Go to Admin Console, click Add User, fill in the details, and create.
-
-### What happens when I deactivate a user?
-
-They can't log in, but their emails are preserved in the database.
-
-### Can I change the namespace?
-
-Yes, but carefully. Changing the namespace changes ALL email addresses in the system. It requires confirmation.
-
-### How do I backup सنदesh?
-
-Backup the Docker volume containing the SQLite database (\`/data/sandesh.db\`).
-
----
-
-## Technical Questions
-
-### What port does सनdesh use?
-
-- **8000**: Web interface (HTTP)
-- **2525**: SMTP server (for local delivery)
-
-### Can I use my own database?
-
-सनdesh uses SQLite by default. Using a different database would require code changes.
-
-### Is there an API?
-
-Yes, सनdesh has a REST API. Authentication is via JWT tokens.
-
----
-
-## Getting Help
-
-If your question isn't answered here:
-1. Check the [Troubleshooting](#/docs/troubleshooting) section
-2. Review the full documentation
-3. Check the project repository for issues
-    `
+**Q: I forgot my password.**
+**A**: Ask your administrator to reset it.
+    `,
+        lastUpdated: 'December 24, 2024'
     },
 
     'troubleshooting': {
@@ -1452,156 +758,27 @@ If your question isn't answered here:
         content: `
 # Troubleshooting
 
-Common problems and how to fix them.
+Common issues and solutions.
 
 ---
 
-## Login Issues
+## Login Problems
+**Issue**: "Invalid credentials"
+- **Fix**: Check Caps Lock. Ask admin to verify username.
 
-### "Incorrect username or password"
+**Issue**: "Could not connect to server"
+- **Fix**: Ensure the Docker container is running. Check your network connection.
 
-**Causes**:
-- Mistyped username or password
-- Caps Lock is on
-- Copy-pasted with extra spaces
+## Email Problems
+**Issue**: Recipient never got the email.
+- **Check**: Did you mistype the username? \`alice\` vs \`alic\`?
+- **Check**: Is the recipient actually part of your instance?
 
-**Solutions**:
-1. Type credentials carefully
-2. Check Caps Lock
-3. Ask admin to verify your username
-
-### "Account is deactivated"
-
-**Cause**: Your account has been disabled by an administrator.
-
-**Solution**: Contact your administrator.
-
-### "Could not validate credentials"
-
-**Cause**: Your session has expired.
-
-**Solution**: Log in again.
-
----
-
-## Missing Emails
-
-### Sent email not in recipient's inbox
-
-**Possible causes**:
-1. Recipient username doesn't exist
-2. Wrong namespace in address
-3. Typo in email address
-
-**Solutions**:
-1. Verify the recipient exists in the system
-2. Check you used the correct format: \`username@namespace\`
-3. Check your Sent folder to confirm it was sent
-
-### Emails disappeared
-
-**Possible causes**:
-1. Moved to another folder
-2. Deleted
-
-**Solutions**:
-1. Check Trash and other folders
-2. Check with admin about database status
-
----
-
-## Compose Issues
-
-### Can't send email
-
-**Possible causes**:
-1. No recipient entered
-2. Invalid email format
-3. Server error
-
-**Solutions**:
-1. Ensure at least one recipient is entered
-2. Use format \`username@namespace\`
-3. Check browser console for errors
-
-### Lost my draft
-
-**Cause**: Compose window was closed without sending.
-
-**Prevention**: सनdesh doesn't have auto-save. Confirm the discard dialog carefully.
-
----
-
-## Display Issues
-
-### Page doesn't load
-
-**Solutions**:
-1. Clear browser cache
-2. Try a different browser
-3. Check if the server is running
-
-### UI looks broken
-
-**Solutions**:
-1. Hard refresh (Ctrl+Shift+R or Cmd+Shift+R)
-2. Clear browser cache
-3. Try incognito mode
-
----
-
-## Admin Issues
-
-### Can't access Admin Console
-
-**Cause**: You're not logged in as an administrator.
-
-**Solution**: Log in with an admin account.
-
-### Can't change namespace
-
-**Possible causes**:
-1. Not an admin
-2. Didn't confirm the change
-
-**Solution**: Ensure you check the confirmation box when prompted.
-
----
-
-## Performance Issues
-
-### Slow loading
-
-**Possible causes**:
-1. Large number of emails
-2. Network latency
-3. Server resources
-
-**Solutions**:
-1. Archive old emails to folders
-2. Check server logs
-3. Increase server resources
-
----
-
-## Still Stuck?
-
-If you can't resolve an issue:
-
-1. Check the server logs:
-   \`\`\`bash
-   docker logs sandesh
-   \`\`\`
-
-2. Restart the container:
-   \`\`\`bash
-   docker compose restart
-   \`\`\`
-
-3. Check for errors in browser developer tools (F12)
-
-4. Consult the project documentation or repository
-    `
+## System Problems
+**Issue**: System Settings won't save.
+- **Fix**: Refresh the page. Ensure you are logged in as Admin.
+    `,
+        lastUpdated: 'December 24, 2024'
     },
 
     'glossary': {
@@ -1610,106 +787,29 @@ If you can't resolve an issue:
         content: `
 # Glossary
 
-Key terms used in सनdesh documentation.
+Terms used in user documentation.
 
 ---
-
-## A
 
 ### Admin / Administrator
-A user with elevated privileges who can create users, change system settings, and manage the सनdesh instance.
-
----
-
-## D
+A user with elevated privileges (can create users, change settings).
 
 ### Display Name
-The human-friendly name that appears in emails and the UI. Can be changed by the user at any time.
-
-### Draft
-An unsent email being composed. सनdesh currently does not save drafts automatically.
-
----
-
-## E
-
-### Email Address
-The full identifier used to send email to a user. Format: \`username@namespace\`. Cannot be changed directly.
-
----
-
-## F
-
-### Folder
-A container for organizing emails. Default folders are Inbox, Sent, and Trash.
-
----
-
-## I
-
-### Instance
-A running सनdesh installation. All users on an instance share the same namespace.
-
----
-
-## L
+Your "Human" name shown to others (e.g., "Prashant"). **Editable**.
 
 ### Local-First
-A design philosophy where all data is stored and processed locally, not in the cloud.
-
----
-
-## N
+Software that prioritizes running on your own machine over the cloud.
 
 ### Namespace
-The "domain" portion of email addresses. Set by the administrator. All users share the same namespace.
+The "domain" part of your email address (e.g., \`@sandesh\`). Set by Admin.
 
-Example: In \`alice@office\`, "office" is the namespace.
-
----
-
-## R
-
-### Role
-A user's privilege level. सनdesh has two roles: Admin and User.
-
----
-
-## S
-
-### Signature
-Text that is automatically appended to outgoing emails. Set in user profile settings.
-
-### SMTP (Simple Mail Transfer Protocol)
-The standard protocol for sending email. सनdesh runs a local SMTP server on port 2525.
-
-### SQLite
-A lightweight database engine. सनdesh uses SQLite to store all data in a single file.
-
----
-
-## T
-
-### Token (JWT)
-A security credential that proves you're logged in. Expires after a set time (default: 60 minutes).
-
-### Trash
-A special folder where deleted emails are moved. Emails in Trash can be permanently deleted.
-
----
-
-## U
+### SMTP
+"Simple Mail Transfer Protocol". The language email servers use to talk.
 
 ### Username
-The unique identifier used to log in. Becomes part of the email address. Cannot be changed after account creation.
-
----
-
-## W
-
-### Web Interface
-The browser-based application you use to access सनdesh. No software installation required.
-    `
+Your unique login ID. **Not Editable**.
+    `,
+        lastUpdated: 'December 24, 2024'
     }
 };
 
@@ -1721,8 +821,8 @@ const NAV_SECTIONS = [
     {
         title: 'Getting Started',
         items: [
-            { id: 'welcome', title: 'Welcome to सনdesh' },
-            { id: 'what-is-sandesh', title: 'What is सনdesh?' },
+            { id: 'welcome', title: 'Welcome to सनdesh' },
+            { id: 'what-is-sandesh', title: 'What is सनdesh?' },
             { id: 'quick-start', title: 'Quick Start' },
         ]
     },
@@ -1730,29 +830,32 @@ const NAV_SECTIONS = [
         title: 'Core Concepts',
         items: [
             { id: 'identity', title: 'Identity & Email Addresses' },
+            { id: 'email-lifecycle', title: 'Email Lifecycle' },
         ]
     },
     {
         title: 'User Guide',
         items: [
-            { id: 'using-sandesh', title: 'Using সনdesh' },
-            { id: 'email-features', title: 'Email Features & Behavior' },
-            { id: 'folders', title: 'Folder & Inbox Management' },
-            { id: 'compose', title: 'Compose & Sending Email' },
+            { id: 'using-sandesh', title: 'Inbox & Reading' },
+            { id: 'user-settings', title: 'User Settings' },
+            { id: 'compose', title: 'Compose & Sending' },
+            { id: 'email-features', title: 'Features & Behavior' },
+            { id: 'folders', title: 'Folders & Organization' },
+            { id: 'confirmation-safety', title: 'Confirmation & Safety' },
         ]
     },
     {
         title: 'Administration',
         items: [
             { id: 'admin-guide', title: 'Admin Guide' },
-            { id: 'namespace', title: 'System Settings & Namespace' },
+            { id: 'namespace', title: 'System Settings' },
         ]
     },
     {
         title: 'Security & Privacy',
         items: [
-            { id: 'security', title: 'Security & Privacy Model' },
-            { id: 'limitations', title: 'Limitations & Design Choices' },
+            { id: 'security', title: 'Security Model' },
+            { id: 'limitations', title: 'Limitations & Choices' },
         ]
     },
     {
@@ -1925,13 +1028,31 @@ function renderMarkdown(content) {
             const content = line.slice(2);
             const isWarning = content.includes('⚠️');
             const isInfo = content.includes('💡');
+            const isGuide = content.includes('🛡️');
+            const isQuestion = content.includes('❓');
+
+            let bg = 'bg-[#F6F8FC]';
+            let border = 'border-[#A3A380]';
+            let text = 'text-[#4A4A4A]';
+
+            if (isWarning) {
+                bg = 'bg-[#FEF3C7]';
+                border = 'border-[#F59E0B]';
+                text = 'text-[#92400E]';
+            } else if (isInfo) {
+                bg = 'bg-[#E0F2FE]';
+                border = 'border-[#0EA5E9]';
+                text = 'text-[#0369A1]';
+            } else if (isGuide || isQuestion) {
+                bg = 'bg-[#ECFCCB]';
+                border = 'border-[#84CC16]';
+                text = 'text-[#365314]';
+            }
+
             elements.push(
                 <blockquote
                     key={`quote-${elements.length}`}
-                    className={`pl-4 py-3 pr-4 mb-4 rounded-r-lg border-l-4 ${isWarning ? 'bg-[#FEF3C7] border-[#F59E0B] text-[#92400E]' :
-                            isInfo ? 'bg-[#E0F2FE] border-[#0EA5E9] text-[#0369A1]' :
-                                'bg-[#F6F8FC] border-[#A3A380] text-[#4A4A4A]'
-                        }`}
+                    className={`pl-4 py-3 pr-4 mb-4 rounded-r-lg border-l-4 ${bg} ${border} ${text}`}
                     dangerouslySetInnerHTML={{ __html: processInline(content) }}
                 />
             );
@@ -2139,7 +1260,14 @@ export default function Documentation() {
                     {/* Page content */}
                     <article className="prose prose-slate max-w-none">
                         {pageContent ? (
-                            renderMarkdown(pageContent.content)
+                            <>
+                                {renderMarkdown(pageContent.content)}
+                                {pageContent.lastUpdated && (
+                                    <div className="mt-8 pt-4 border-t border-[#E5E8EB] text-xs text-[#8B8B8B] italic">
+                                        Last updated: {pageContent.lastUpdated}
+                                    </div>
+                                )}
+                            </>
                         ) : (
                             <div className="text-center py-12">
                                 <HelpCircle className="w-12 h-12 text-[#E5E8EB] mx-auto mb-4" />

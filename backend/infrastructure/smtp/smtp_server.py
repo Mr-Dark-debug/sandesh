@@ -8,6 +8,8 @@ from ..db.session import SessionLocal
 from ..db.repositories import EmailRepository, FolderRepository, UserRepository
 from ...services.mail_service import MailService
 from ...config import settings
+import time
+from sqlalchemy.exc import OperationalError
 
 logger = logging.getLogger("sandesh.smtp")
 
@@ -34,31 +36,49 @@ class SandeshSMTPHandler:
         else:
             body = message.get_content()
 
-        # Create fresh session and services for this message
-        # Since the service is now sync, we use the sync session context manager.
-        # This will block the asyncio loop for the duration of DB operations.
-        # Given "SMTP handlers can also safely use sync sessions" and "Human-paced email traffic",
-        # this is acceptable.
-        with SessionLocal() as db_session:
-            user_repo = UserRepository(db_session)
-            folder_repo = FolderRepository(db_session)
-            email_repo = EmailRepository(db_session)
-            # SMTP Client isn't needed for delivery, but MailService constructor requires it.
-            smtp_client = SMTPClient()
+        # Retry mechanism for handling database locking issues
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                # Create fresh session and services for this message
+                # Since the service is now sync, we use the sync session context manager.
+                # This will block the asyncio loop for the duration of DB operations.
+                # Given "SMTP handlers can also safely use sync sessions" and "Human-paced email traffic",
+                # this is acceptable.
+                with SessionLocal() as db_session:
+                    user_repo = UserRepository(db_session)
+                    folder_repo = FolderRepository(db_session)
+                    email_repo = EmailRepository(db_session)
+                    # SMTP Client isn't needed for delivery, but MailService constructor requires it.
+                    smtp_client = SMTPClient()
 
-            mail_service = MailService(email_repo, folder_repo, user_repo, smtp_client)
+                    mail_service = MailService(email_repo, folder_repo, user_repo, smtp_client)
 
-            # Call the sync service method
-            mail_service.deliver_incoming_mail(
-                sender=mail_from,
-                recipients=rcpt_tos,
-                subject=subject,
-                body=body
-            )
+                    # Call the sync service method
+                    mail_service.deliver_incoming_mail(
+                        sender=mail_from,
+                        recipients=rcpt_tos,
+                        subject=subject,
+                        body=body
+                    )
 
-            db_session.commit()
+                    db_session.commit()
 
-        return '250 OK'
+                return '250 OK'
+            except OperationalError as e:
+                if "database is locked" in str(e) and attempt < max_retries - 1:
+                    logger.warning(f"Database locked, retrying ({attempt + 1}/{max_retries}): {e}")
+                    time.sleep(0.1 * (attempt + 1))  # Exponential backoff
+                    continue
+                else:
+                    logger.error(f"Failed to deliver mail after {max_retries} attempts: {e}")
+                    db_session.rollback()
+                    return '554 Transaction failed'
+            except Exception as e:
+                logger.error(f"Unexpected error during mail delivery: {e}")
+                return '554 Transaction failed'
+
+        return '554 Transaction failed after retries'
 
 def create_smtp_controller(hostname="0.0.0.0", port=2525):
     handler = SandeshSMTPHandler()
