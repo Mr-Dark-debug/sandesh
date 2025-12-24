@@ -3,17 +3,21 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from ..infrastructure.db.session import SessionLocal
-from ..infrastructure.db.repositories import UserRepository, FolderRepository, EmailRepository
+from ..infrastructure.db.repositories import (
+    UserRepository, FolderRepository, EmailRepository, SystemSettingsRepository
+)
 from ..infrastructure.smtp.smtp_client import SMTPClient
 from ..services.auth_service import AuthService
 from ..services.user_service import UserService
 from ..services.folder_service import FolderService
 from ..services.mail_service import MailService
+from ..services.system_settings_service import SystemSettingsService
 from ..infrastructure.security.jwt import decode_access_token
 from ..core.entities.user import User
 from ..config import settings
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
+
 
 def get_db() -> Generator[Session, None, None]:
     """
@@ -27,42 +31,62 @@ def get_db() -> Generator[Session, None, None]:
         except Exception:
             session.rollback()
             raise
-        # SessionLocal context manager handles close()
+
 
 # Repositories
 def get_user_repo(db: Session = Depends(get_db)) -> UserRepository:
     return UserRepository(db)
 
+
 def get_folder_repo(db: Session = Depends(get_db)) -> FolderRepository:
     return FolderRepository(db)
+
 
 def get_email_repo(db: Session = Depends(get_db)) -> EmailRepository:
     return EmailRepository(db)
 
+
+def get_settings_repo(db: Session = Depends(get_db)) -> SystemSettingsRepository:
+    return SystemSettingsRepository(db)
+
+
 # Infrastructure
 def get_smtp_client() -> SMTPClient:
-    return SMTPClient() # Config params defaults or from settings
+    return SMTPClient()
+
 
 # Services
 def get_auth_service(user_repo: UserRepository = Depends(get_user_repo)) -> AuthService:
     return AuthService(user_repo)
 
+
 def get_user_service(
     user_repo: UserRepository = Depends(get_user_repo),
-    folder_repo: FolderRepository = Depends(get_folder_repo)
+    folder_repo: FolderRepository = Depends(get_folder_repo),
+    settings_repo: SystemSettingsRepository = Depends(get_settings_repo)
 ) -> UserService:
-    return UserService(user_repo, folder_repo)
+    return UserService(user_repo, folder_repo, settings_repo)
+
 
 def get_folder_service(folder_repo: FolderRepository = Depends(get_folder_repo)) -> FolderService:
     return FolderService(folder_repo)
+
 
 def get_mail_service(
     email_repo: EmailRepository = Depends(get_email_repo),
     folder_repo: FolderRepository = Depends(get_folder_repo),
     user_repo: UserRepository = Depends(get_user_repo),
-    smtp_client: SMTPClient = Depends(get_smtp_client)
+    smtp_client: SMTPClient = Depends(get_smtp_client),
+    settings_repo: SystemSettingsRepository = Depends(get_settings_repo)
 ) -> MailService:
-    return MailService(email_repo, folder_repo, user_repo, smtp_client)
+    return MailService(email_repo, folder_repo, user_repo, smtp_client, settings_repo)
+
+
+def get_settings_service(
+    settings_repo: SystemSettingsRepository = Depends(get_settings_repo)
+) -> SystemSettingsService:
+    return SystemSettingsService(settings_repo)
+
 
 # Current User
 def get_current_user(
@@ -86,7 +110,13 @@ def get_current_user(
     user = user_service.get_user_by_username(username)
     if user is None:
         raise HTTPException(status_code=401, detail="User not found")
+    
+    # Check if user is active
+    if hasattr(user, 'is_active') and not user.is_active:
+        raise HTTPException(status_code=401, detail="User account is deactivated")
+    
     return user
+
 
 def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
     if not current_user.is_admin:

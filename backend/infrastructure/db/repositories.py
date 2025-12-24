@@ -2,10 +2,65 @@ import json
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import select
-from .models import UserModel, FolderModel, EmailModel
-from ...core.entities.user import User
+from .models import UserModel, FolderModel, EmailModel, SystemSettingsModel
+from ...core.entities.user import User, SystemSettings
 from ...core.entities.folder import Folder
 from ...core.entities.email import Email
+
+
+class SystemSettingsRepository:
+    """Repository for system-wide settings (singleton pattern)."""
+    
+    def __init__(self, session: Session):
+        self.session = session
+    
+    def get(self) -> SystemSettings:
+        """Get system settings, creating default if not exists."""
+        result = self.session.execute(select(SystemSettingsModel).where(SystemSettingsModel.id == 1))
+        model = result.scalars().first()
+        
+        if not model:
+            # Create default settings
+            model = SystemSettingsModel(
+                id=1,
+                instance_name="Sandesh",
+                mail_namespace="local"
+            )
+            self.session.add(model)
+            self.session.flush()
+        
+        return self._to_entity(model)
+    
+    def update(self, settings: SystemSettings) -> SystemSettings:
+        """Update system settings."""
+        result = self.session.execute(select(SystemSettingsModel).where(SystemSettingsModel.id == 1))
+        model = result.scalars().first()
+        
+        if model:
+            model.instance_name = settings.instance_name
+            model.mail_namespace = settings.mail_namespace
+            self.session.flush()
+            return self._to_entity(model)
+        else:
+            # Create if not exists
+            model = SystemSettingsModel(
+                id=1,
+                instance_name=settings.instance_name,
+                mail_namespace=settings.mail_namespace
+            )
+            self.session.add(model)
+            self.session.flush()
+            return self._to_entity(model)
+    
+    def _to_entity(self, model: SystemSettingsModel) -> SystemSettings:
+        return SystemSettings(
+            id=model.id,
+            instance_name=model.instance_name,
+            mail_namespace=model.mail_namespace,
+            created_at=model.created_at,
+            updated_at=model.updated_at
+        )
+
 
 class UserRepository:
     def __init__(self, session: Session):
@@ -17,35 +72,74 @@ class UserRepository:
         if model:
             return self._to_entity(model)
         return None
+    
+    def get_by_id(self, user_id: int) -> Optional[User]:
+        result = self.session.execute(select(UserModel).where(UserModel.id == user_id))
+        model = result.scalars().first()
+        if model:
+            return self._to_entity(model)
+        return None
 
     def get_all(self) -> List[User]:
-        result = self.session.execute(select(UserModel))
+        result = self.session.execute(select(UserModel).where(UserModel.is_active == True))
         models = result.scalars().all()
         return [self._to_entity(m) for m in models]
 
     def save(self, user: User) -> User:
         if user.id:
-            # Update not fully implemented in this refactor scope unless needed,
-            # but usually we fetch model, update fields, commit.
-            # For strict refactor, we focus on creation which is used.
-            pass
+            # Update existing user
+            result = self.session.execute(select(UserModel).where(UserModel.id == user.id))
+            model = result.scalars().first()
+            if model:
+                # Only update mutable fields
+                model.display_name = user.display_name
+                model.signature = user.signature
+                model.avatar_color = user.avatar_color
+                model.is_active = user.is_active
+                # Password hash update only if changed
+                if user.password_hash and user.password_hash != model.password_hash:
+                    model.password_hash = user.password_hash
+                self.session.flush()
+                return self._to_entity(model)
 
+        # Create new user
         model = UserModel(
             username=user.username,
             password_hash=user.password_hash,
-            is_admin=user.is_admin
+            is_admin=user.is_admin,
+            is_active=user.is_active,
+            display_name=user.display_name or user.username.title(),
+            signature=user.signature,
+            avatar_color=user.avatar_color or "#A3A380"
         )
         self.session.add(model)
-        self.session.flush() # Populate ID
+        self.session.flush()
         return self._to_entity(model)
+    
+    def deactivate(self, user_id: int) -> bool:
+        """Soft delete - deactivate user."""
+        result = self.session.execute(select(UserModel).where(UserModel.id == user_id))
+        model = result.scalars().first()
+        if model:
+            model.is_active = False
+            self.session.flush()
+            return True
+        return False
 
     def _to_entity(self, model: UserModel) -> User:
         return User(
             id=model.id,
             username=model.username,
             password_hash=model.password_hash,
-            is_admin=model.is_admin
+            is_admin=model.is_admin,
+            is_active=model.is_active if hasattr(model, 'is_active') else True,
+            display_name=model.display_name if hasattr(model, 'display_name') else None,
+            signature=model.signature if hasattr(model, 'signature') else None,
+            avatar_color=model.avatar_color if hasattr(model, 'avatar_color') else "#A3A380",
+            created_at=model.created_at if hasattr(model, 'created_at') else None,
+            updated_at=model.updated_at if hasattr(model, 'updated_at') else None
         )
+
 
 class FolderRepository:
     def __init__(self, session: Session):
@@ -79,7 +173,6 @@ class FolderRepository:
         self.session.flush()
         return self._to_entity(model)
 
-    # Batch save used in initialization
     def add_all(self, folders: List[Folder]):
         models = [FolderModel(name=f.name, user_id=f.user_id) for f in folders]
         self.session.add_all(models)
@@ -90,6 +183,7 @@ class FolderRepository:
             name=model.name,
             user_id=model.user_id
         )
+
 
 class EmailRepository:
     def __init__(self, session: Session):
@@ -112,22 +206,22 @@ class EmailRepository:
         return self._to_entity(model) if model else None
 
     def save(self, email: Email) -> Email:
-        # Check if updating or creating
         if email.id:
             result = self.session.execute(select(EmailModel).where(EmailModel.id == email.id))
             model = result.scalars().first()
             if model:
                 model.folder_id = email.folder_id
                 model.is_read = email.is_read
-                # We typically don't update body/subject/sender of existing emails
                 self.session.flush()
                 return self._to_entity(model)
 
-        # Create
+        # Create new email with identity fields
         model = EmailModel(
             owner_id=email.owner_id,
             folder_id=email.folder_id,
             sender=email.sender,
+            sender_display_name=getattr(email, 'sender_display_name', None),
+            sender_email=getattr(email, 'sender_email', None),
             recipients=json.dumps(email.recipients),
             subject=email.subject,
             body=email.body,
@@ -148,5 +242,7 @@ class EmailRepository:
             body=model.body,
             recipients=json.loads(model.recipients),
             is_read=model.is_read,
-            timestamp=model.timestamp
+            timestamp=model.timestamp,
+            sender_display_name=model.sender_display_name if hasattr(model, 'sender_display_name') else None,
+            sender_email=model.sender_email if hasattr(model, 'sender_email') else None
         )

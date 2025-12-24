@@ -1,153 +1,316 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { sendMail } from '../api';
-import { ArrowLeft, Send, Loader2 } from 'lucide-react';
+import { sendMail, checkHealth } from '../api';
+import { useToast } from '../components/ToastContext';
+import { useConfirmation } from '../components/ConfirmationDialog';
+import { Button } from '../components/ui';
+import {
+  X, Send, Minus, Maximize2, Paperclip,
+  Image, Link, Smile, MoreVertical, Trash2,
+  AlertCircle, ChevronDown
+} from 'lucide-react';
 
 export default function Compose() {
   const navigate = useNavigate();
+  const toast = useToast();
+  const { confirm } = useConfirmation();
+
   const [to, setTo] = useState('');
   const [cc, setCc] = useState('');
   const [subject, setSubject] = useState('');
   const [body, setBody] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [sending, setSending] = useState(false);
+  const [errors, setErrors] = useState({});
+  const [namespace, setNamespace] = useState('local');
+  const [showCc, setShowCc] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+
+  // Get namespace for hints
+  useEffect(() => {
+    checkHealth()
+      .then(({ data }) => {
+        if (data.namespace) {
+          setNamespace(data.namespace);
+        }
+      })
+      .catch(() => { });
+  }, []);
+
+  const hasContent = to || cc || subject || body;
+
+  const validateEmail = (email) => {
+    const trimmed = email.trim();
+    if (!trimmed) return false;
+    return trimmed.includes('@');
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+
+    const toList = to.split(',').map(s => s.trim()).filter(Boolean);
+    if (toList.length === 0) {
+      newErrors.to = 'Please add at least one recipient';
+    } else {
+      const invalidEmails = toList.filter(email => !validateEmail(email));
+      if (invalidEmails.length > 0) {
+        newErrors.to = `Invalid format. Use username@${namespace}`;
+      }
+    }
+
+    if (cc.trim()) {
+      const ccList = cc.split(',').map(s => s.trim()).filter(Boolean);
+      const invalidCc = ccList.filter(email => !validateEmail(email));
+      if (invalidCc.length > 0) {
+        newErrors.cc = 'Invalid format';
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
+    e?.preventDefault();
 
-    // Parse recipients
+    if (!validateForm()) {
+      return;
+    }
+
+    setSending(true);
+
     const toList = to.split(',').map(s => s.trim()).filter(Boolean);
     const ccList = cc.split(',').map(s => s.trim()).filter(Boolean);
-
-    if (toList.length === 0) {
-        setError("Please specify at least one recipient");
-        setLoading(false);
-        return;
-    }
 
     try {
       await sendMail({
         to: toList,
         cc: ccList,
-        subject,
+        subject: subject.trim() || '(No Subject)',
         body
       });
+
+      toast.success('Message sent!');
       navigate('/');
     } catch (e) {
-      setError("Failed to send mail. Please check your connection and try again.");
-      console.error(e);
+      console.error('Failed to send email:', e);
+      const message = e.response?.data?.detail || 'Failed to send. Please try again.';
+      toast.error(message);
     } finally {
-      setLoading(false);
+      setSending(false);
     }
   };
 
+  const handleClose = async () => {
+    if (hasContent) {
+      const confirmed = await confirm('DISCARD_DRAFT');
+      if (confirmed) {
+        navigate(-1);
+      }
+    } else {
+      navigate(-1);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (hasContent) {
+      const confirmed = await confirm('DISCARD_DRAFT');
+      if (confirmed) {
+        setTo('');
+        setCc('');
+        setSubject('');
+        setBody('');
+        navigate(-1);
+      }
+    } else {
+      navigate(-1);
+    }
+  };
+
+  // Floating compose modal (Gmail-style)
   return (
-    <div className="max-w-4xl mx-auto">
-      <div className="mb-6">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
+    <div className="h-full flex items-end justify-end p-4 md:p-6 bg-transparent pointer-events-none">
+      <div
+        className={`
+          pointer-events-auto
+          bg-white rounded-t-lg shadow-2xl border border-[#E5E8EB]
+          w-full max-w-2xl
+          flex flex-col
+          animate-[slideUp_200ms_ease]
+          ${isMinimized ? 'h-12' : 'h-[80vh] max-h-[600px]'}
+          transition-all duration-200
+        `}
+      >
+        {/* Header */}
+        <div
+          className="
+            flex items-center justify-between px-4 py-3
+            bg-[#404040] text-white rounded-t-lg
+            cursor-pointer
+          "
+          onClick={() => isMinimized && setIsMinimized(false)}
         >
-          <ArrowLeft className="h-4 w-4 mr-1" />
-          Discard
-        </button>
-      </div>
-
-      <div className="bg-white shadow-sm ring-1 ring-gray-900/5 sm:rounded-xl overflow-hidden">
-        <div className="border-b border-gray-100 bg-gray-50/50 px-4 py-4 sm:px-6">
-            <h3 className="text-base font-semibold leading-7 text-gray-900">New Message</h3>
-        </div>
-
-        <form onSubmit={handleSubmit} className="px-4 py-6 sm:px-6 space-y-4" noValidate>
-          <div>
-            <label htmlFor="to" className="block text-sm font-medium leading-6 text-gray-900">To</label>
-            <div className="mt-1">
-              <input
-                type="text"
-                name="to"
-                id="to"
-                className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="alice@hackathon, bob@hackathon"
-                value={to}
-                onChange={e => setTo(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="cc" className="block text-sm font-medium leading-6 text-gray-900">CC</label>
-            <div className="mt-1">
-              <input
-                type="text"
-                name="cc"
-                id="cc"
-                className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                placeholder="observer@hackathon"
-                value={cc}
-                onChange={e => setCc(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="subject" className="block text-sm font-medium leading-6 text-gray-900">Subject</label>
-            <div className="mt-1">
-              <input
-                type="text"
-                name="subject"
-                id="subject"
-                className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                value={subject}
-                onChange={e => setSubject(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="body" className="block text-sm font-medium leading-6 text-gray-900">Message</label>
-            <div className="mt-1">
-              <textarea
-                id="body"
-                name="body"
-                rows={12}
-                className="block w-full rounded-md border-0 py-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 font-mono"
-                value={body}
-                onChange={e => setBody(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          {error && (
-            <div role="alert" className="rounded-md bg-red-50 p-3 text-sm text-red-700">
-                {error}
-            </div>
-          )}
-
-          <div className="flex justify-end pt-2">
+          <h3 className="text-sm font-medium truncate">
+            {subject || 'New Message'}
+          </h3>
+          <div className="flex items-center gap-1">
             <button
-              type="submit"
-              disabled={loading}
-              className="inline-flex justify-center rounded-md bg-indigo-600 py-2 px-6 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed items-center"
+              onClick={(e) => { e.stopPropagation(); setIsMinimized(!isMinimized); }}
+              className="p-1.5 hover:bg-white/10 rounded transition-colors"
+              title={isMinimized ? 'Expand' : 'Minimize'}
             >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  Send
-                  <Send className="ml-2 h-4 w-4" />
-                </>
-              )}
+              <Minus className="w-4 h-4" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); handleClose(); }}
+              className="p-1.5 hover:bg-white/10 rounded transition-colors"
+              title="Close"
+            >
+              <X className="w-4 h-4" />
             </button>
           </div>
-        </form>
+        </div>
+
+        {/* Body - hidden when minimized */}
+        {!isMinimized && (
+          <>
+            {/* Form fields */}
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {/* To field */}
+              <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB]">
+                <label className="text-sm text-[#8B8B8B] w-12">To</label>
+                <input
+                  type="text"
+                  autoFocus
+                  className={`
+                    flex-1 text-sm text-[#3D3D3D] outline-none
+                    placeholder:text-[#C0C0C0]
+                    ${errors.to ? 'text-[#C4756E]' : ''}
+                  `}
+                  placeholder={`recipient@${namespace}`}
+                  value={to}
+                  onChange={e => {
+                    setTo(e.target.value);
+                    if (errors.to) setErrors(prev => ({ ...prev, to: null }));
+                  }}
+                  disabled={sending}
+                />
+                <button
+                  onClick={() => setShowCc(!showCc)}
+                  className="text-xs text-[#8B8B8B] hover:text-[#3D3D3D] px-2"
+                >
+                  Cc
+                </button>
+              </div>
+              {errors.to && (
+                <div className="px-4 py-1 bg-[#C4756E]/5 flex items-center gap-2">
+                  <AlertCircle className="w-3 h-3 text-[#C4756E]" />
+                  <span className="text-xs text-[#C4756E]">{errors.to}</span>
+                </div>
+              )}
+
+              {/* CC field (optional) */}
+              {showCc && (
+                <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB]">
+                  <label className="text-sm text-[#8B8B8B] w-12">Cc</label>
+                  <input
+                    type="text"
+                    className="flex-1 text-sm text-[#3D3D3D] outline-none placeholder:text-[#C0C0C0]"
+                    placeholder={`cc@${namespace}`}
+                    value={cc}
+                    onChange={e => setCc(e.target.value)}
+                    disabled={sending}
+                  />
+                </div>
+              )}
+
+              {/* Subject field */}
+              <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB]">
+                <label className="text-sm text-[#8B8B8B] w-12">Subject</label>
+                <input
+                  type="text"
+                  className="flex-1 text-sm text-[#3D3D3D] outline-none placeholder:text-[#C0C0C0]"
+                  placeholder="Subject"
+                  value={subject}
+                  onChange={e => setSubject(e.target.value)}
+                  disabled={sending}
+                />
+              </div>
+
+              {/* Body */}
+              <div className="flex-1 overflow-hidden">
+                <textarea
+                  className="
+                    w-full h-full px-4 py-3
+                    text-sm text-[#3D3D3D] leading-relaxed
+                    outline-none resize-none
+                    placeholder:text-[#C0C0C0]
+                  "
+                  placeholder="Compose email"
+                  value={body}
+                  onChange={e => setBody(e.target.value)}
+                  disabled={sending}
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-between px-4 py-3 border-t border-[#E5E8EB]">
+              <div className="flex items-center gap-2">
+                {/* Send button */}
+                <button
+                  onClick={handleSubmit}
+                  disabled={sending || !to.trim()}
+                  className="
+                    flex items-center gap-2 px-5 py-2
+                    bg-[#0B57D0] hover:bg-[#0842A0] text-white
+                    rounded-full text-sm font-medium
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                    transition-colors
+                  "
+                >
+                  {sending ? (
+                    <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                  ) : (
+                    'Send'
+                  )}
+                  <ChevronDown className="w-3 h-3" />
+                </button>
+
+                {/* Formatting tools (placeholders) */}
+                <div className="flex items-center gap-1 ml-2 border-l border-[#E5E8EB] pl-2">
+                  <button className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full" title="Attach files">
+                    <Paperclip className="w-4 h-4" />
+                  </button>
+                  <button className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full" title="Insert link">
+                    <Link className="w-4 h-4" />
+                  </button>
+                  <button className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full" title="Insert emoji">
+                    <Smile className="w-4 h-4" />
+                  </button>
+                  <button className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full" title="Insert photo">
+                    <Image className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1">
+                <button className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full">
+                  <MoreVertical className="w-4 h-4" />
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="p-2 text-[#6B6B6B] hover:text-[#C4756E] hover:bg-[#C4756E]/10 rounded-full"
+                  title="Discard draft"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

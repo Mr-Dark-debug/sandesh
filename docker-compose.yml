@@ -15,7 +15,13 @@ services:
       - SANDESH_ADMIN_USER=${SANDESH_ADMIN_USER:-admin}
       - SANDESH_ADMIN_PASSWORD=${SANDESH_ADMIN_PASSWORD:-admin123}
       - SANDESH_SECRET_KEY=${SANDESH_SECRET_KEY:-changeme_in_production}
-      - DATABASE_URL=sqlite+aiosqlite:////data/sandesh.db
+      - DATABASE_URL=sqlite:////data/sandesh.db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
 volumes:
   sandesh_data:

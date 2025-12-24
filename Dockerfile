@@ -2,7 +2,7 @@
 FROM node:20-alpine as frontend-build
 WORKDIR /app/frontend
 COPY frontend/package*.json ./
-RUN npm ci
+RUN npm install
 COPY frontend/ ./
 RUN npm run build
 
@@ -11,8 +11,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system dependencies if any (none needed for pure python logic mostly)
-# We might need gcc for some python packages if wheels aren't available, but standard ones are usually fine.
+# Install system dependencies (curl for health checks)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy Backend requirements
 COPY backend/requirements.txt ./

@@ -1,4 +1,9 @@
-from typing import List
+"""
+Mail API
+
+Endpoints for email operations.
+"""
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from .deps import get_mail_service, get_current_user
@@ -8,15 +13,24 @@ from ..core.exceptions import EntityNotFoundError
 
 router = APIRouter()
 
+
 class EmailSendRequest(BaseModel):
     to: List[str]
     cc: List[str] = []
     subject: str
     body: str
 
+
+class MoveEmailRequest(BaseModel):
+    folder_id: int
+
+
 class EmailResponse(BaseModel):
+    """Email response with full sender identity."""
     id: int
     sender: str
+    sender_display_name: Optional[str] = None
+    sender_email: Optional[str] = None
     recipients: List[str]
     subject: str
     body: str
@@ -29,6 +43,8 @@ class EmailResponse(BaseModel):
         return EmailResponse(
             id=entity.id,
             sender=entity.sender,
+            sender_display_name=getattr(entity, 'sender_display_name', None),
+            sender_email=getattr(entity, 'sender_email', None),
             recipients=entity.recipients,
             subject=entity.subject or "",
             body=entity.body or "",
@@ -37,17 +53,22 @@ class EmailResponse(BaseModel):
             folder_id=entity.folder_id
         )
 
+
 @router.get("/mail/{folder_id}", response_model=List[EmailResponse])
 def get_mail_in_folder(
     folder_id: int,
     current_user: User = Depends(get_current_user),
     mail_service: MailService = Depends(get_mail_service)
 ):
+    """
+    Get all emails in a specific folder.
+    """
     try:
         emails = mail_service.get_folder_emails(folder_id, current_user.id)
         return [EmailResponse.from_entity(e) for e in emails]
     except EntityNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
 
 @router.get("/message/{email_id}", response_model=EmailResponse)
 def get_email(
@@ -55,24 +76,32 @@ def get_email(
     current_user: User = Depends(get_current_user),
     mail_service: MailService = Depends(get_mail_service)
 ):
+    """
+    Get a specific email by ID and mark it as read.
+    """
     try:
         email = mail_service.get_email(email_id, current_user.id)
         return EmailResponse.from_entity(email)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
+
 @router.put("/message/{email_id}/move")
 def move_email(
     email_id: int,
-    folder_id: int,
+    move_request: MoveEmailRequest,
     current_user: User = Depends(get_current_user),
     mail_service: MailService = Depends(get_mail_service)
 ):
+    """
+    Move an email to a different folder.
+    """
     try:
-        mail_service.move_email(email_id, folder_id, current_user.id)
+        mail_service.move_email(email_id, move_request.folder_id, current_user.id)
         return {"status": "moved"}
     except EntityNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
 
 @router.post("/mail/send")
 def send_mail(
@@ -80,6 +109,13 @@ def send_mail(
     current_user: User = Depends(get_current_user),
     mail_service: MailService = Depends(get_mail_service)
 ):
+    """
+    Send an email to recipients.
+    
+    Sender identity is automatically set from the current user's profile:
+    - Display name from user settings
+    - Email address derived from username@namespace
+    """
     try:
         mail_service.send_mail(
             sender_user=current_user,
@@ -90,5 +126,4 @@ def send_mail(
         )
         return {"status": "sent"}
     except Exception as e:
-        # Log error here
         raise HTTPException(status_code=500, detail=f"Failed to send mail: {str(e)}")

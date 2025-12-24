@@ -1,16 +1,32 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { getFolders, createFolder } from '../api';
-import { Inbox, Send, Folder, LogOut, Plus, User, Menu } from 'lucide-react';
+import { getFolders, createFolder, getMail, checkHealth } from '../api';
+import { useToast } from '../components/ToastContext';
+import { useConfirmation } from '../components/ConfirmationDialog';
+import { Button, Badge, Skeleton } from '../components/ui';
+import {
+  Inbox, Send, Trash2, Folder, FolderPlus,
+  LogOut, Plus, Settings, Menu, X, Mail,
+  User, Search, MoreVertical, RefreshCw, ChevronDown, Server
+} from 'lucide-react';
 
 export default function Layout() {
   const [folders, setFolders] = useState([]);
+  const [unreadCounts, setUnreadCounts] = useState({});
   const [newFolderName, setNewFolderName] = useState('');
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
+  const [creatingFolderLoading, setCreatingFolderLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [foldersLoading, setFoldersLoading] = useState(true);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [namespace, setNamespace] = useState('local');
+  const [instanceName, setInstanceName] = useState('Sandesh');
+
   const navigate = useNavigate();
   const location = useLocation();
+  const toast = useToast();
+  const { confirm } = useConfirmation();
 
   useEffect(() => {
     const u = localStorage.getItem('user');
@@ -19,155 +35,465 @@ export default function Layout() {
     } else {
       setUser(JSON.parse(u));
       fetchFolders();
+      fetchSystemInfo();
     }
-  }, []);
+  }, [navigate]);
+
+  const fetchSystemInfo = async () => {
+    try {
+      const { data } = await checkHealth();
+      if (data.namespace) setNamespace(data.namespace);
+      if (data.instance_name) setInstanceName(data.instance_name);
+    } catch (e) {
+      console.error('Failed to fetch system info:', e);
+    }
+  };
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setShowUserMenu(false);
+  }, [location.pathname]);
 
   const fetchFolders = async () => {
+    setFoldersLoading(true);
     try {
       const { data } = await getFolders();
-      // Sort: Inbox, Sent, then others alpha
+      // Sort: Inbox, Sent, Trash, then others alphabetically
       const sorted = data.sort((a, b) => {
-        if (a.name === 'Inbox') return -1;
-        if (b.name === 'Inbox') return 1;
-        if (a.name === 'Sent') return -1;
-        if (b.name === 'Sent') return 1;
+        const order = ['Inbox', 'Sent', 'Trash'];
+        const aIdx = order.indexOf(a.name);
+        const bIdx = order.indexOf(b.name);
+        if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+        if (aIdx !== -1) return -1;
+        if (bIdx !== -1) return 1;
         return a.name.localeCompare(b.name);
       });
       setFolders(sorted);
+
+      // Fetch unread counts for each folder
+      fetchUnreadCounts(sorted);
     } catch (e) {
-      console.error(e);
+      console.error('Failed to load folders:', e);
+      toast.error('Failed to load folders');
+    } finally {
+      setFoldersLoading(false);
+    }
+  };
+
+  const fetchUnreadCounts = async (folderList) => {
+    try {
+      const counts = {};
+      for (const folder of folderList) {
+        const { data } = await getMail(folder.id);
+        counts[folder.id] = data.filter(email => !email.is_read).length;
+      }
+      setUnreadCounts(counts);
+    } catch (e) {
+      console.error('Failed to fetch unread counts:', e);
     }
   };
 
   const handleCreateFolder = async (e) => {
     e.preventDefault();
-    if (!newFolderName) return;
+    if (!newFolderName.trim()) return;
+
+    setCreatingFolderLoading(true);
     try {
-      await createFolder(newFolderName);
+      await createFolder(newFolderName.trim());
       setNewFolderName('');
       setIsCreatingFolder(false);
-      fetchFolders();
+      await fetchFolders();
+      toast.success(`Folder "${newFolderName}" created`);
     } catch (e) {
-      alert("Failed to create folder");
+      const message = e.response?.data?.detail || 'Failed to create folder';
+      toast.error(message);
+    } finally {
+      setCreatingFolderLoading(false);
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    navigate('/login');
+  const handleLogout = async () => {
+    const confirmed = await confirm('SIGN_OUT');
+    if (confirmed) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      navigate('/login');
+    }
   };
 
   const getIcon = (name) => {
-    if (name === 'Inbox') return <Inbox className="h-4 w-4 mr-2" />;
-    if (name === 'Sent') return <Send className="h-4 w-4 mr-2" />;
-    return <Folder className="h-4 w-4 mr-2" />;
+    switch (name) {
+      case 'Inbox': return Inbox;
+      case 'Sent': return Send;
+      case 'Trash': return Trash2;
+      default: return Folder;
+    }
   };
 
+  const isActive = (path) => location.pathname === path;
+
+  // Calculate total unread
+  const totalUnread = Object.values(unreadCounts).reduce((a, b) => a + b, 0);
+
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-white overflow-hidden">
       {/* Sidebar */}
-      <div className={`fixed inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0`}>
-        <div className="flex flex-col h-full">
-          <div className="h-16 flex items-center px-6 border-b border-gray-100">
-            <h1 className="text-xl font-bold text-gray-800 tracking-tight">Sandesh</h1>
-          </div>
+      <aside
+        className={`
+          fixed inset-y-0 left-0 z-40 w-[280px] 
+          bg-[#F6F8FC] border-r border-[#E5E8EB]
+          transform transition-transform duration-200 ease-in-out
+          ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
+          md:relative md:translate-x-0
+          flex flex-col
+        `}
+      >
+        {/* Logo Header */}
+        <div className="h-16 flex items-center justify-between px-4">
+          <Link to="/" className="flex items-center gap-3 px-2">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#A3A380] to-[#8B8B68] flex items-center justify-center shadow-sm">
+              <Mail className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-lg font-bold text-[#3D3D3D] tracking-tight">Sandesh</h1>
+              <p className="text-[10px] text-[#8B8B8B] -mt-0.5">Local Email</p>
+            </div>
+          </Link>
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="md:hidden p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-white rounded-lg"
+            aria-label="Close menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-          <div className="p-4">
-            <button
-              onClick={() => { setMobileMenuOpen(false); navigate('/compose'); }}
-              className="w-full bg-indigo-600 text-white rounded-md py-2 px-4 text-sm font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center shadow-sm"
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Compose
-            </button>
-          </div>
+        {/* Compose Button */}
+        <div className="px-4 py-3">
+          <button
+            onClick={() => navigate('/compose')}
+            className="
+              w-full flex items-center gap-3 px-6 py-3.5
+              bg-[#D7CE93] hover:bg-[#C9BF7D] 
+              text-[#3D3D3D] font-semibold
+              rounded-2xl shadow-sm hover:shadow-md
+              transition-all duration-150
+            "
+          >
+            <Plus className="w-5 h-5" strokeWidth={2.5} />
+            Compose
+          </button>
+        </div>
 
-          <div className="flex-1 overflow-y-auto px-3 py-2 space-y-1">
-            {folders.map(f => (
-              <Link
-                key={f.id}
-                to={`/folder/${f.id}`}
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors ${location.pathname === `/folder/${f.id}` ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'}`}
+        {/* Folders List */}
+        <nav className="flex-1 overflow-y-auto px-3 py-2">
+          {foldersLoading ? (
+            // Loading skeletons
+            <div className="space-y-1">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="flex items-center gap-3 px-4 py-3">
+                  <Skeleton className="w-5 h-5 rounded" />
+                  <Skeleton className="w-20 h-4" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="space-y-0.5">
+              {folders.map(folder => {
+                const Icon = getIcon(folder.name);
+                const active = isActive(`/folder/${folder.id}`);
+                const unreadCount = unreadCounts[folder.id] || 0;
+
+                return (
+                  <Link
+                    key={folder.id}
+                    to={`/folder/${folder.id}`}
+                    className={`
+                      flex items-center gap-4 px-4 py-2.5 rounded-full
+                      text-[14px] font-medium transition-all duration-150
+                      ${active
+                        ? 'bg-[#D7CE93]/30 text-[#3D3D3D] font-semibold'
+                        : 'text-[#3D3D3D] hover:bg-[#E5E8EB]'
+                      }
+                    `}
+                  >
+                    <Icon className={`w-5 h-5 ${active ? 'text-[#3D3D3D]' : 'text-[#6B6B6B]'}`} />
+                    <span className="flex-1">{folder.name}</span>
+                    {unreadCount > 0 && (
+                      <span className={`
+                        text-xs font-semibold min-w-[20px] text-center
+                        ${active ? 'text-[#3D3D3D]' : 'text-[#6B6B6B]'}
+                      `}>
+                        {unreadCount}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Folder Management Section */}
+          <div className="mt-4 pt-4 border-t border-[#E5E8EB]">
+            <p className="px-4 py-2 text-xs font-semibold text-[#8B8B8B] uppercase tracking-wider">
+              Manage
+            </p>
+
+            {/* Create Folder */}
+            {!isCreatingFolder ? (
+              <button
+                onClick={() => setIsCreatingFolder(true)}
+                className="
+                  flex items-center gap-4 w-full px-4 py-2.5 rounded-full
+                  text-[14px] font-medium text-[#6B6B6B]
+                  hover:bg-[#E5E8EB] hover:text-[#3D3D3D]
+                  transition-all duration-150
+                "
               >
-                {getIcon(f.name)}
-                {f.name}
-              </Link>
-            ))}
-
-            <div className="pt-4 mt-4 border-t border-gray-100">
-              {!isCreatingFolder ? (
-                <button
-                  onClick={() => setIsCreatingFolder(true)}
-                  className="flex items-center w-full px-3 py-2 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-50 rounded-md"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Folder
-                </button>
-              ) : (
-                <form onSubmit={handleCreateFolder} className="px-3">
+                <FolderPlus className="w-5 h-5" />
+                Create folder
+              </button>
+            ) : (
+              <form onSubmit={handleCreateFolder} className="px-2 py-2">
+                <div className="flex flex-col gap-2">
                   <input
                     autoFocus
                     type="text"
-                    className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    placeholder="Folder Name"
+                    className="
+                      w-full px-3 py-2.5 text-sm
+                      bg-white border border-[#E5E8EB] rounded-lg
+                      focus:outline-none focus:border-[#A3A380] focus:ring-2 focus:ring-[#A3A380]/20
+                    "
+                    placeholder="Folder name"
                     value={newFolderName}
                     onChange={e => setNewFolderName(e.target.value)}
-                    onBlur={() => !newFolderName && setIsCreatingFolder(false)}
+                    disabled={creatingFolderLoading}
+                    onKeyDown={e => e.key === 'Escape' && setIsCreatingFolder(false)}
                   />
-                </form>
-              )}
-            </div>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => { setIsCreatingFolder(false); setNewFolderName(''); }}
+                      className="flex-1 px-3 py-1.5 text-sm text-[#6B6B6B] hover:bg-[#E5E8EB] rounded-lg"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={!newFolderName.trim() || creatingFolderLoading}
+                      className="
+                        flex-1 px-3 py-1.5 text-sm font-medium
+                        bg-[#A3A380] text-white rounded-lg
+                        hover:bg-[#8B8B68] disabled:opacity-50
+                      "
+                    >
+                      {creatingFolderLoading ? '...' : 'Create'}
+                    </button>
+                  </div>
+                </div>
+              </form>
+            )}
 
-             {/* Admin Link */}
-             {user?.is_admin && (
-                <Link
-                  to="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center px-3 py-2 mt-2 text-sm font-medium rounded-md ${location.pathname === '/admin' ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700 hover:bg-gray-100'}`}
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  Admin
-                </Link>
-              )}
+            {/* Admin Link */}
+            {user?.is_admin && (
+              <Link
+                to="/admin"
+                className={`
+                  flex items-center gap-4 px-4 py-2.5 rounded-full
+                  text-[14px] font-medium transition-all duration-150
+                  ${isActive('/admin')
+                    ? 'bg-[#D7CE93]/30 text-[#3D3D3D] font-semibold'
+                    : 'text-[#6B6B6B] hover:bg-[#E5E8EB] hover:text-[#3D3D3D]'
+                  }
+                `}
+              >
+                <Settings className="w-5 h-5" />
+                Admin Console
+              </Link>
+            )}
+
+            {/* Documentation Link */}
+            <a
+              href="/docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="
+                flex items-center gap-4 px-4 py-2.5 rounded-full
+                text-[14px] font-medium transition-all duration-150
+                text-[#6B6B6B] hover:bg-[#E5E8EB] hover:text-[#3D3D3D]
+              "
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+              Documentation
+            </a>
           </div>
+        </nav>
 
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium text-gray-700 truncate mr-2">
-                {user?.username}
+        {/* User Footer */}
+        <div className="p-3 border-t border-[#E5E8EB]">
+          <div className="relative">
+            <button
+              onClick={() => setShowUserMenu(!showUserMenu)}
+              className="
+                w-full flex items-center gap-3 p-3 rounded-xl
+                hover:bg-white transition-colors text-left
+              "
+            >
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D8A48F] to-[#BB8588] flex items-center justify-center shadow-sm">
+                <span className="text-white font-semibold text-sm">
+                  {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                </span>
               </div>
-              <button onClick={handleLogout} className="text-gray-400 hover:text-gray-600">
-                <LogOut className="h-5 w-5" />
-              </button>
-            </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[#3D3D3D] truncate">
+                  {user?.username}
+                </p>
+                <p className="text-xs text-[#8B8B8B]">
+                  {user?.is_admin ? 'Administrator' : 'User'}
+                </p>
+              </div>
+              <ChevronDown className={`w-4 h-4 text-[#8B8B8B] transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* User Dropdown Menu */}
+            {showUserMenu && (
+              <>
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setShowUserMenu(false)}
+                />
+                <div className="
+                  absolute bottom-full left-0 right-0 mb-2 z-50
+                  bg-white rounded-xl shadow-lg border border-[#E5E8EB]
+                  py-2 animate-[slideUp_150ms_ease]
+                ">
+                  <div className="px-4 py-2 border-b border-[#E5E8EB]">
+                    <p className="text-sm font-semibold text-[#3D3D3D]">
+                      {user?.display_name || user?.username}
+                    </p>
+                    <p className="text-xs text-[#8B8B8B]">{user?.username}@{namespace}</p>
+                  </div>
+                  <Link
+                    to="/settings"
+                    onClick={() => setShowUserMenu(false)}
+                    className="
+                      w-full flex items-center gap-3 px-4 py-2.5
+                      text-sm text-[#3D3D3D] hover:bg-[#F6F8FC]
+                      transition-colors
+                    "
+                  >
+                    <User className="w-4 h-4 text-[#6B6B6B]" />
+                    Your Profile
+                  </Link>
+                  {user?.is_admin && (
+                    <Link
+                      to="/admin/system"
+                      onClick={() => setShowUserMenu(false)}
+                      className="
+                        w-full flex items-center gap-3 px-4 py-2.5
+                        text-sm text-[#3D3D3D] hover:bg-[#F6F8FC]
+                        transition-colors
+                      "
+                    >
+                      <Server className="w-4 h-4 text-[#6B6B6B]" />
+                      System Settings
+                    </Link>
+                  )}
+                  <div className="border-t border-[#E5E8EB] my-1" />
+                  <button
+                    onClick={handleLogout}
+                    className="
+                      w-full flex items-center gap-3 px-4 py-2.5
+                      text-sm text-[#C4756E] hover:bg-[#C4756E]/5
+                      transition-colors text-left
+                    "
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Sign out
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
-      </div>
+      </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        {/* Mobile Header */}
-        <div className="md:hidden flex items-center justify-between bg-white border-b border-gray-200 px-4 py-2">
-           <h1 className="text-lg font-bold text-gray-800">Sandesh</h1>
-           <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-             <Menu className="h-6 w-6 text-gray-600" />
-           </button>
-        </div>
-
-        <main className="flex-1 overflow-auto bg-white p-4 sm:p-6 md:p-8">
-          <Outlet />
-        </main>
-      </div>
-
-      {/* Overlay for mobile sidebar */}
+      {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-gray-600 bg-opacity-75 z-20 md:hidden"
+          className="fixed inset-0 bg-black/30 z-30 md:hidden"
           onClick={() => setMobileMenuOpen(false)}
-        ></div>
+          aria-hidden="true"
+        />
       )}
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        {/* Top Header Bar */}
+        <header className="
+          h-16 flex items-center justify-between gap-4
+          px-4 md:px-6 
+          bg-white border-b border-[#E5E8EB]
+        ">
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setMobileMenuOpen(true)}
+            className="md:hidden p-2 -ml-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-lg"
+            aria-label="Open menu"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+
+          {/* Search Bar (placeholder) */}
+          <div className="flex-1 max-w-2xl hidden md:block">
+            <div className="
+              flex items-center gap-3 px-4 py-2.5
+              bg-[#F6F8FC] rounded-full
+              border border-transparent hover:border-[#E5E8EB] hover:shadow-sm
+              transition-all
+            ">
+              <Search className="w-5 h-5 text-[#8B8B8B]" />
+              <input
+                type="text"
+                placeholder="Search in mail"
+                className="
+                  flex-1 bg-transparent text-sm text-[#3D3D3D]
+                  placeholder:text-[#8B8B8B]
+                  focus:outline-none
+                "
+              />
+            </div>
+          </div>
+
+          {/* Right side - mobile logo & refresh */}
+          <div className="flex items-center gap-2">
+            {/* Mobile logo */}
+            <div className="md:hidden flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#A3A380] to-[#8B8B68] flex items-center justify-center">
+                <Mail className="w-4 h-4 text-white" />
+              </div>
+              <span className="font-bold text-[#3D3D3D]">Sandesh</span>
+            </div>
+
+            {/* Refresh button */}
+            <button
+              onClick={fetchFolders}
+              className="p-2.5 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full transition-colors"
+              title="Refresh"
+            >
+              <RefreshCw className="w-5 h-5" />
+            </button>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 overflow-hidden bg-white">
+          <Outlet context={{ refreshFolders: fetchFolders, unreadCounts }} />
+        </main>
+      </div>
     </div>
   );
 }
