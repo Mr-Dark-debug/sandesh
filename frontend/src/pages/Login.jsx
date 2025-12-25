@@ -200,7 +200,14 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8B8B8B] hover:text-[#3D3D3D]"
+                  className="
+                    absolute right-4 top-1/2 -translate-y-1/2
+                    text-[#8B8B8B] hover:text-[#3D3D3D]
+                    p-1 rounded-md
+                    focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3A380]
+                    transition-colors
+                  "
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
