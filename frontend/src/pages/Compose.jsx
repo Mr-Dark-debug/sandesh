@@ -157,6 +157,7 @@ export default function Compose() {
               onClick={(e) => { e.stopPropagation(); setIsMinimized(!isMinimized); }}
               className="p-1.5 hover:bg-white/10 rounded transition-colors"
               title={isMinimized ? 'Expand' : 'Minimize'}
+              aria-label={isMinimized ? 'Expand' : 'Minimize'}
             >
               <Minus className="w-4 h-4" />
             </button>
@@ -164,6 +165,7 @@ export default function Compose() {
               onClick={(e) => { e.stopPropagation(); handleClose(); }}
               className="p-1.5 hover:bg-white/10 rounded transition-colors"
               title="Close"
+              aria-label="Close"
             >
               <X className="w-4 h-4" />
             </button>
@@ -281,29 +283,50 @@ export default function Compose() {
 
                 {/* Formatting tools (placeholders) */}
                 <div className="flex items-center gap-1 ml-2 border-l border-[#E5E8EB] pl-2">
-                  <button className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full" title="Attach files">
+                  <button
+                    className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full"
+                    title="Attach files"
+                    aria-label="Attach files"
+                  >
                     <Paperclip className="w-4 h-4" />
                   </button>
-                  <button className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full" title="Insert link">
+                  <button
+                    className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full"
+                    title="Insert link"
+                    aria-label="Insert link"
+                  >
                     <Link className="w-4 h-4" />
                   </button>
-                  <button className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full" title="Insert emoji">
+                  <button
+                    className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full"
+                    title="Insert emoji"
+                    aria-label="Insert emoji"
+                  >
                     <Smile className="w-4 h-4" />
                   </button>
-                  <button className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full" title="Insert photo">
+                  <button
+                    className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full"
+                    title="Insert photo"
+                    aria-label="Insert photo"
+                  >
                     <Image className="w-4 h-4" />
                   </button>
                 </div>
               </div>
 
               <div className="flex items-center gap-1">
-                <button className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full">
+                <button
+                  className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full"
+                  title="More options"
+                  aria-label="More options"
+                >
                   <MoreVertical className="w-4 h-4" />
                 </button>
                 <button
                   onClick={handleDelete}
                   className="p-2 text-[#6B6B6B] hover:text-[#C4756E] hover:bg-[#C4756E]/10 rounded-full"
                   title="Discard draft"
+                  aria-label="Discard draft"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
