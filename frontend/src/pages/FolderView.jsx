@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, useNavigate, useOutletContext } from 'react-router-dom';
-import { getMail, getFolders, moveMessage } from '../api';
+import { getMail, moveMessage } from '../api';
 import { format, isToday, isYesterday, isThisYear } from 'date-fns';
 import { useToast } from '../components/ToastContext';
 import { useConfirmation } from '../components/ConfirmationDialog';
@@ -162,15 +162,13 @@ function BulkActionBar({ selectedCount, onClear, onMoveToTrash }) {
 export default function FolderView() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { refreshFolders } = useOutletContext() || {};
+  const { refreshFolders, folders, foldersLoading } = useOutletContext() || {};
   const toast = useToast();
   const { confirm } = useConfirmation();
 
   const [emails, setEmails] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [folderName, setFolderName] = useState('');
-  const [folders, setFolders] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedEmails, setSelectedEmails] = useState(new Set());
 
@@ -180,15 +178,8 @@ export default function FolderView() {
     setSelectedEmails(new Set());
 
     try {
-      const [mailRes, foldersRes] = await Promise.all([
-        getMail(id),
-        getFolders()
-      ]);
-
+      const mailRes = await getMail(id);
       setEmails(mailRes.data);
-      setFolders(foldersRes.data);
-      const current = foldersRes.data.find(f => f.id === parseInt(id));
-      setFolderName(current ? current.name : 'Folder');
     } catch (e) {
       console.error('Failed to load mail:', e);
       setError('Failed to load emails. Please try again.');
@@ -239,7 +230,7 @@ export default function FolderView() {
     });
 
     if (confirmed) {
-      const trashFolder = folders.find(f => f.name === 'Trash');
+      const trashFolder = folders?.find(f => f.name === 'Trash');
       if (!trashFolder) {
         toast.error('Trash folder not found');
         return;
@@ -257,6 +248,9 @@ export default function FolderView() {
       }
     }
   };
+
+  const currentFolder = folders?.find(f => f.id === parseInt(id));
+  const folderName = currentFolder ? currentFolder.name : 'Folder';
 
   const getEmptyStateProps = () => {
     switch (folderName) {
@@ -287,7 +281,7 @@ export default function FolderView() {
     }
   };
 
-  if (loading) {
+  if (loading || (foldersLoading && !folders?.length)) {
     return (
       <div className="h-full flex flex-col bg-white">
         {/* Header skeleton */}
