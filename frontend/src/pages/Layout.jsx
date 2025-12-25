@@ -522,7 +522,7 @@ export default function Layout() {
 
         {/* Page Content */}
         <main className="flex-1 overflow-hidden bg-white">
-          <Outlet context={{ refreshFolders: fetchFolders, unreadCounts }} />
+          <Outlet context={{ refreshFolders: fetchFolders, unreadCounts, folders, foldersLoading }} />
         </main>
       </div>
     </div>
