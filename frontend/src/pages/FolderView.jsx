@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useParams, Link, useNavigate, useOutletContext } from 'react-router-dom';
+import { useParams, Link, useOutletContext } from 'react-router-dom';
 import { getMail, moveMessage } from '../api';
 import { format, isToday, isYesterday, isThisYear } from 'date-fns';
 import { useToast } from '../components/ToastContext';
@@ -12,7 +12,8 @@ import {
 } from 'lucide-react';
 
 // Email list item component
-function EmailListItem({ email, isSelected, onSelect, onNavigate }) {
+// ⚡ Bolt: Memoized to prevent re-renders of all items when one is selected
+const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onSelect }) {
   const formatDate = (timestamp) => {
     const date = new Date(timestamp + 'Z');
     if (isToday(date)) {
@@ -110,7 +111,7 @@ function EmailListItem({ email, isSelected, onSelect, onNavigate }) {
       </div>
     </div>
   );
-}
+});
 
 // Loading skeleton for email list
 function EmailListSkeleton() {
@@ -161,7 +162,6 @@ function BulkActionBar({ selectedCount, onClear, onMoveToTrash }) {
 
 export default function FolderView() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { refreshFolders, folders, foldersLoading } = useOutletContext() || {};
   const toast = useToast();
   const { confirm } = useConfirmation();
@@ -199,7 +199,7 @@ export default function FolderView() {
     refreshFolders?.();
   };
 
-  const toggleEmailSelection = (emailId) => {
+  const toggleEmailSelection = useCallback((emailId) => {
     setSelectedEmails(prev => {
       const newSet = new Set(prev);
       if (newSet.has(emailId)) {
@@ -209,7 +209,7 @@ export default function FolderView() {
       }
       return newSet;
     });
-  };
+  }, []);
 
   const toggleSelectAll = () => {
     if (selectedEmails.size === emails.length) {
@@ -243,7 +243,7 @@ export default function FolderView() {
         toast.success(`${selectedEmails.size} email${selectedEmails.size > 1 ? 's' : ''} moved to Trash`);
         await loadMail(false);
         refreshFolders?.();
-      } catch (e) {
+      } catch {
         toast.error('Failed to delete some emails');
       }
     }
