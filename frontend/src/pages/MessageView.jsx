@@ -331,23 +331,40 @@ export default function MessageView() {
           {/* Reply Bar */}
           <div className="mt-12 pt-6 border-t border-[#E5E8EB]">
             <div className="flex items-center gap-3">
-              <button className="
-                flex items-center gap-2 px-4 py-2.5
-                bg-white border border-[#E5E8EB] rounded-full
-                text-sm font-medium text-[#3D3D3D]
-                hover:bg-[#F6F8FC] hover:shadow-sm
-                transition-all
-              ">
+              <button
+                onClick={() => navigate('/app/compose', {
+                  state: {
+                    to: email.sender,
+                    subject: email.subject.startsWith('Re: ') ? email.subject : `Re: ${email.subject}`,
+                    body: `\n\nOn ${format(new Date(email.timestamp + 'Z'), 'PPP p')}, ${email.sender} wrote:\n> ${email.body.replace(/\n/g, '\n> ')}`
+                  }
+                })}
+                className="
+                  flex items-center gap-2 px-4 py-2.5
+                  bg-white border border-[#E5E8EB] rounded-full
+                  text-sm font-medium text-[#3D3D3D]
+                  hover:bg-[#F6F8FC] hover:shadow-sm
+                  transition-all
+                "
+              >
                 <Reply className="w-4 h-4" />
                 Reply
               </button>
-              <button className="
-                flex items-center gap-2 px-4 py-2.5
-                bg-white border border-[#E5E8EB] rounded-full
-                text-sm font-medium text-[#3D3D3D]
-                hover:bg-[#F6F8FC] hover:shadow-sm
-                transition-all
-              ">
+              <button
+                onClick={() => navigate('/app/compose', {
+                  state: {
+                    subject: email.subject.startsWith('Fwd: ') ? email.subject : `Fwd: ${email.subject}`,
+                    body: `\n\n---------- Forwarded message ---------\nFrom: ${email.sender}\nDate: ${format(new Date(email.timestamp + 'Z'), 'PPP p')}\nSubject: ${email.subject}\nTo: ${email.recipients?.join(', ')}\n\n${email.body}`
+                  }
+                })}
+                className="
+                  flex items-center gap-2 px-4 py-2.5
+                  bg-white border border-[#E5E8EB] rounded-full
+                  text-sm font-medium text-[#3D3D3D]
+                  hover:bg-[#F6F8FC] hover:shadow-sm
+                  transition-all
+                "
+              >
                 <Forward className="w-4 h-4" />
                 Forward
               </button>

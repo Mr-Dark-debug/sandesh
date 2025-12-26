@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { sendMail, checkHealth } from '../api';
 import { useToast } from '../components/ToastContext';
 import { useConfirmation } from '../components/ConfirmationDialog';
@@ -12,13 +12,14 @@ import {
 
 export default function Compose() {
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
   const { confirm } = useConfirmation();
 
-  const [to, setTo] = useState('');
-  const [cc, setCc] = useState('');
-  const [subject, setSubject] = useState('');
-  const [body, setBody] = useState('');
+  const [to, setTo] = useState(location.state?.to || '');
+  const [cc, setCc] = useState(location.state?.cc || '');
+  const [subject, setSubject] = useState(location.state?.subject || '');
+  const [body, setBody] = useState(location.state?.body || '');
   const [sending, setSending] = useState(false);
   const [errors, setErrors] = useState({});
   const [namespace, setNamespace] = useState('local');
