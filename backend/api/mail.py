@@ -5,7 +5,7 @@ Endpoints for email operations.
 """
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from .deps import get_mail_service, get_current_user
 from ..services.mail_service import MailService
 from ..core.entities.user import User
@@ -15,10 +15,10 @@ router = APIRouter()
 
 
 class EmailSendRequest(BaseModel):
-    to: List[str]
-    cc: List[str] = []
-    subject: str
-    body: str
+    to: List[str] = Field(..., max_items=50, description="Max 50 recipients")
+    cc: List[str] = Field(default=[], max_items=50, description="Max 50 CC recipients")
+    subject: str = Field(..., max_length=200, description="Email subject")
+    body: str = Field(..., max_length=100000, description="Email body (max 100KB)")
 
 
 class MoveEmailRequest(BaseModel):

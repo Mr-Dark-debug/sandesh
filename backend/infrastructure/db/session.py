@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine
+from sqlalchemy.pool import NullPool
 from sqlalchemy.orm import sessionmaker, declarative_base
 from ...config import settings
 
@@ -6,15 +7,14 @@ from ...config import settings
 database_url = settings.DATABASE_URL
 
 # For SQLite, we need to handle concurrent access properly
-# Using QueuePool with proper settings for thread safety
+# Using NullPool prevents thread-safety issues with synchronous SQLAlchemy
 engine = create_engine(
     database_url,
     connect_args={
         "check_same_thread": False,
         "timeout": 30,  # Increase timeout to handle concurrent access
     },
-    pool_pre_ping=True,  # Verify connections before use
-    pool_recycle=300,  # Recycle connections every 5 minutes
+    poolclass=NullPool,
     echo=False,
     isolation_level="SERIALIZABLE"  # Default for SQLite
 )
