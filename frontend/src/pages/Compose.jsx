@@ -278,36 +278,39 @@ export default function Compose() {
                   ) : (
                     'Send'
                   )}
-                  <ChevronDown className="w-3 h-3" />
                 </button>
 
                 {/* Formatting tools (placeholders) */}
                 <div className="flex items-center gap-1 ml-2 border-l border-[#E5E8EB] pl-2">
                   <button
-                    className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full"
-                    title="Attach files"
-                    aria-label="Attach files"
+                    className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
+                    title="Attach files (Coming soon)"
+                    aria-label="Attach files (Coming soon)"
+                    disabled
                   >
                     <Paperclip className="w-4 h-4" />
                   </button>
                   <button
-                    className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full"
-                    title="Insert link"
-                    aria-label="Insert link"
+                    className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
+                    title="Insert link (Coming soon)"
+                    aria-label="Insert link (Coming soon)"
+                    disabled
                   >
                     <Link className="w-4 h-4" />
                   </button>
                   <button
-                    className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full"
-                    title="Insert emoji"
-                    aria-label="Insert emoji"
+                    className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
+                    title="Insert emoji (Coming soon)"
+                    aria-label="Insert emoji (Coming soon)"
+                    disabled
                   >
                     <Smile className="w-4 h-4" />
                   </button>
                   <button
-                    className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full"
-                    title="Insert photo"
-                    aria-label="Insert photo"
+                    className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
+                    title="Insert photo (Coming soon)"
+                    aria-label="Insert photo (Coming soon)"
+                    disabled
                   >
                     <Image className="w-4 h-4" />
                   </button>
