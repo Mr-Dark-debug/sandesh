@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { getFolders, createFolder, getMail, checkHealth } from '../api';
+import { getFolders, createFolder, checkHealth } from '../api';
 import { useToast } from '../components/ToastContext';
 import { useConfirmation } from '../components/ConfirmationDialog';
 import { Button, Badge, Skeleton } from '../components/ui';
@@ -21,7 +21,6 @@ export default function Layout() {
   const [foldersLoading, setFoldersLoading] = useState(true);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [namespace, setNamespace] = useState('local');
-  const [instanceName, setInstanceName] = useState('Sandesh');
   const [expandedSections, setExpandedSections] = useState({ manage: true }); // Track expanded sections
 
   const navigate = useNavigate();
@@ -29,34 +28,7 @@ export default function Layout() {
   const toast = useToast();
   const { confirm } = useConfirmation();
 
-  useEffect(() => {
-    const u = localStorage.getItem('user');
-    if (!u) {
-      navigate('/login');
-    } else {
-      setUser(JSON.parse(u));
-      fetchFolders();
-      fetchSystemInfo();
-    }
-  }, [navigate]);
-
-  const fetchSystemInfo = async () => {
-    try {
-      const { data } = await checkHealth();
-      if (data.namespace) setNamespace(data.namespace);
-      if (data.instance_name) setInstanceName(data.instance_name);
-    } catch (e) {
-      console.error('Failed to fetch system info:', e);
-    }
-  };
-
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
-    setShowUserMenu(false);
-  }, [location.pathname]);
-
-  const fetchFolders = async () => {
+  const fetchFolders = useCallback(async () => {
     setFoldersLoading(true);
     try {
       const { data } = await getFolders();
@@ -72,28 +44,46 @@ export default function Layout() {
       });
       setFolders(sorted);
 
-      // Fetch unread counts for each folder
-      fetchUnreadCounts(sorted);
+      // ⚡ Bolt: Unread counts are now included in folder response (N+1 optimization)
+      const counts = {};
+      sorted.forEach(folder => {
+        counts[folder.id] = folder.unread_count || 0;
+      });
+      setUnreadCounts(counts);
+
     } catch (e) {
       console.error('Failed to load folders:', e);
       toast.error('Failed to load folders');
     } finally {
       setFoldersLoading(false);
     }
-  };
+  }, [toast]);
 
-  const fetchUnreadCounts = async (folderList) => {
+  useEffect(() => {
+    const u = localStorage.getItem('user');
+    if (!u) {
+      navigate('/login');
+    } else {
+      setUser(JSON.parse(u));
+      fetchFolders();
+      fetchSystemInfo();
+    }
+  }, [navigate, fetchFolders]);
+
+  const fetchSystemInfo = async () => {
     try {
-      const counts = {};
-      for (const folder of folderList) {
-        const { data } = await getMail(folder.id);
-        counts[folder.id] = data.filter(email => !email.is_read).length;
-      }
-      setUnreadCounts(counts);
+      const { data } = await checkHealth();
+      if (data.namespace) setNamespace(data.namespace);
     } catch (e) {
-      console.error('Failed to fetch unread counts:', e);
+      console.error('Failed to fetch system info:', e);
     }
   };
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setShowUserMenu(false);
+  }, [location.pathname]);
 
   const handleCreateFolder = async (e) => {
     e.preventDefault();
@@ -133,9 +123,6 @@ export default function Layout() {
   };
 
   const isActive = (path) => location.pathname === path;
-
-  // Calculate total unread
-  const totalUnread = Object.values(unreadCounts).reduce((a, b) => a + b, 0);
 
   return (
     <div className="flex h-screen bg-white overflow-hidden">

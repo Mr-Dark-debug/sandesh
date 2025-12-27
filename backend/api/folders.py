@@ -12,6 +12,7 @@ router = APIRouter()
 class FolderResponse(BaseModel):
     id: int
     name: str
+    unread_count: int = 0
 
 
 class FolderCreate(BaseModel):
@@ -27,7 +28,7 @@ def get_folders(
     Get all folders for the current user.
     """
     folders = folder_service.get_user_folders(current_user.id)
-    return [FolderResponse(id=f.id, name=f.name) for f in folders]
+    return [FolderResponse(id=f.id, name=f.name, unread_count=f.unread_count) for f in folders]
 
 
 @router.post("", response_model=FolderResponse)

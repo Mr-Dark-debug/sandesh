@@ -1,7 +1,7 @@
 import json
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select, func, and_
 from .models import UserModel, FolderModel, EmailModel, SystemSettingsModel
 from ...core.entities.user import User, SystemSettings
 from ...core.entities.folder import Folder
@@ -146,9 +146,33 @@ class FolderRepository:
         self.session = session
 
     def get_by_user_id(self, user_id: int) -> List[Folder]:
-        result = self.session.execute(select(FolderModel).where(FolderModel.user_id == user_id))
-        models = result.scalars().all()
-        return [self._to_entity(m) for m in models]
+        """
+        Get all folders for a user with unread email counts.
+        Uses a LEFT JOIN to count unread emails efficiently in one query.
+        """
+        stmt = (
+            select(FolderModel, func.count(EmailModel.id).label("unread_count"))
+            .outerjoin(
+                EmailModel,
+                and_(
+                    EmailModel.folder_id == FolderModel.id,
+                    EmailModel.is_read == False
+                )
+            )
+            .where(FolderModel.user_id == user_id)
+            .group_by(FolderModel.id)
+        )
+
+        result = self.session.execute(stmt)
+        folders = []
+        for row in result:
+            folder_model = row[0]
+            unread_count = row[1]
+            folder_entity = self._to_entity(folder_model)
+            folder_entity.unread_count = unread_count
+            folders.append(folder_entity)
+
+        return folders
 
     def get_by_name_and_user(self, name: str, user_id: int) -> Optional[Folder]:
         result = self.session.execute(
