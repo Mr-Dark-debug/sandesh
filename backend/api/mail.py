@@ -54,7 +54,43 @@ class EmailResponse(BaseModel):
         )
 
 
-@router.get("/mail/{folder_id}", response_model=List[EmailResponse])
+class EmailListResponse(BaseModel):
+    """
+    Lightweight email response for lists.
+    Truncates body to reduce payload size.
+    """
+    id: int
+    sender: str
+    sender_display_name: Optional[str] = None
+    sender_email: Optional[str] = None
+    recipients: List[str]
+    subject: str
+    body: str
+    timestamp: str
+    is_read: bool
+    folder_id: int
+
+    @staticmethod
+    def from_entity(entity):
+        # Truncate body to 100 chars for preview
+        full_body = entity.body or ""
+        preview_body = full_body[:100]
+
+        return EmailListResponse(
+            id=entity.id,
+            sender=entity.sender,
+            sender_display_name=getattr(entity, 'sender_display_name', None),
+            sender_email=getattr(entity, 'sender_email', None),
+            recipients=entity.recipients,
+            subject=entity.subject or "",
+            body=preview_body,
+            timestamp=entity.timestamp.isoformat(),
+            is_read=entity.is_read,
+            folder_id=entity.folder_id
+        )
+
+
+@router.get("/mail/{folder_id}", response_model=List[EmailListResponse])
 def get_mail_in_folder(
     folder_id: int,
     current_user: User = Depends(get_current_user),
@@ -62,10 +98,11 @@ def get_mail_in_folder(
 ):
     """
     Get all emails in a specific folder.
+    Returns lightweight objects with truncated bodies.
     """
     try:
         emails = mail_service.get_folder_emails(folder_id, current_user.id)
-        return [EmailResponse.from_entity(e) for e in emails]
+        return [EmailListResponse.from_entity(e) for e in emails]
     except EntityNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -78,6 +115,7 @@ def get_email(
 ):
     """
     Get a specific email by ID and mark it as read.
+    Returns full email body.
     """
     try:
         email = mail_service.get_email(email_id, current_user.id)
