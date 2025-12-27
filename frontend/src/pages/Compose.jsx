@@ -179,13 +179,14 @@ export default function Compose() {
             {/* Form fields */}
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* To field */}
-              <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB]">
-                <label className="text-sm text-[#8B8B8B] w-12">To</label>
+              <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB] focus-within:bg-[#F6F8FC] focus-within:border-[#0B57D0] transition-colors">
+                <label htmlFor="to-input" className="text-sm text-[#8B8B8B] w-12 cursor-pointer">To</label>
                 <input
+                  id="to-input"
                   type="text"
                   autoFocus
                   className={`
-                    flex-1 text-sm text-[#3D3D3D] outline-none
+                    flex-1 text-sm text-[#3D3D3D] outline-none bg-transparent
                     placeholder:text-[#C0C0C0]
                     ${errors.to ? 'text-[#C4756E]' : ''}
                   `}
@@ -199,7 +200,7 @@ export default function Compose() {
                 />
                 <button
                   onClick={() => setShowCc(!showCc)}
-                  className="text-xs text-[#8B8B8B] hover:text-[#3D3D3D] px-2"
+                  className="text-xs text-[#8B8B8B] hover:text-[#3D3D3D] px-2 focus:text-[#3D3D3D]"
                 >
                   Cc
                 </button>
@@ -213,11 +214,12 @@ export default function Compose() {
 
               {/* CC field (optional) */}
               {showCc && (
-                <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB]">
-                  <label className="text-sm text-[#8B8B8B] w-12">Cc</label>
+                <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB] focus-within:bg-[#F6F8FC] focus-within:border-[#0B57D0] transition-colors">
+                  <label htmlFor="cc-input" className="text-sm text-[#8B8B8B] w-12 cursor-pointer">Cc</label>
                   <input
+                    id="cc-input"
                     type="text"
-                    className="flex-1 text-sm text-[#3D3D3D] outline-none placeholder:text-[#C0C0C0]"
+                    className="flex-1 text-sm text-[#3D3D3D] outline-none placeholder:text-[#C0C0C0] bg-transparent"
                     placeholder={`cc@${namespace}`}
                     value={cc}
                     onChange={e => setCc(e.target.value)}
@@ -227,11 +229,12 @@ export default function Compose() {
               )}
 
               {/* Subject field */}
-              <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB]">
-                <label className="text-sm text-[#8B8B8B] w-12">Subject</label>
+              <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB] focus-within:bg-[#F6F8FC] focus-within:border-[#0B57D0] transition-colors">
+                <label htmlFor="subject-input" className="text-sm text-[#8B8B8B] w-12 cursor-pointer">Subject</label>
                 <input
+                  id="subject-input"
                   type="text"
-                  className="flex-1 text-sm text-[#3D3D3D] outline-none placeholder:text-[#C0C0C0]"
+                  className="flex-1 text-sm text-[#3D3D3D] outline-none placeholder:text-[#C0C0C0] bg-transparent"
                   placeholder="Subject"
                   value={subject}
                   onChange={e => setSubject(e.target.value)}
@@ -240,18 +243,20 @@ export default function Compose() {
               </div>
 
               {/* Body */}
-              <div className="flex-1 overflow-hidden">
+              <div className="flex-1 overflow-hidden transition-colors focus-within:bg-[#F6F8FC]/30">
                 <textarea
+                  id="body-input"
                   className="
                     w-full h-full px-4 py-3
                     text-sm text-[#3D3D3D] leading-relaxed
-                    outline-none resize-none
+                    outline-none resize-none bg-transparent
                     placeholder:text-[#C0C0C0]
                   "
                   placeholder="Compose email"
                   value={body}
                   onChange={e => setBody(e.target.value)}
                   disabled={sending}
+                  aria-label="Email body"
                 />
               </div>
             </div>

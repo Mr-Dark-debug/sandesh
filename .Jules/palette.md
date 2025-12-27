@@ -5,3 +5,7 @@
 ## 2025-05-27 - Honest UI Over "Broken" UI
 **Learning:** Leaving non-functional buttons (like the formatting tools in Compose) as clickable elements creates a "broken" experience where users think the app is buggy.
 **Action:** Explicitly disable future features with clear `cursor-not-allowed` styles and "Coming soon" tooltips. This transforms a "bug" into a "roadmap promise."
+
+## 2025-05-28 - Focus Visibility in Forms
+**Learning:** Default browser focus rings can be jarring or invisible depending on the OS/Browser combination. However, completely removing them (`outline: none`) without adding a custom focus state destroys accessibility for keyboard users.
+**Action:** When using `outline-none`, always replace it with a clear visual indicator like `focus-within:bg-color` or `ring` on the container element to maintain context and accessibility.
