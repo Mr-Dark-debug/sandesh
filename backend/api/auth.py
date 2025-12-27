@@ -1,6 +1,6 @@
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from .deps import get_auth_service, get_db
 from ..services.auth_service import AuthService
 from ..core.entities.user import User
@@ -10,8 +10,8 @@ router = APIRouter()
 
 
 class LoginRequest(BaseModel):
-    username: str
-    password: str
+    username: str = Field(..., max_length=100)
+    password: str = Field(..., max_length=128)
 
 
 class UserResponse(BaseModel):
