@@ -1,7 +1,3 @@
-## 2025-05-24 - Accessibility Gaps in Placeholders
-**Learning:** Placeholder UI elements (like "coming soon" buttons) often lack accessibility attributes, making them confusing for screen reader users who perceive them as broken or unlabeled controls.
-**Action:** Always add `aria-label` to placeholder buttons, even if they are non-functional, or explicitly mark them as disabled/hidden if they shouldn't be interactable.
-
-## 2025-05-27 - Honest UI Over "Broken" UI
-**Learning:** Leaving non-functional buttons (like the formatting tools in Compose) as clickable elements creates a "broken" experience where users think the app is buggy.
-**Action:** Explicitly disable future features with clear `cursor-not-allowed` styles and "Coming soon" tooltips. This transforms a "bug" into a "roadmap promise."
+## 2024-05-23 - Form Accessibility Fundamentals
+**Learning:** Even well-styled forms can fail basic accessibility checks if labels aren't programmatically associated with inputs. Visually placing a label next to an input isn't enough for screen readers.
+**Action:** Always use `htmlFor` on labels and matching `id` on inputs, or use `aria-label` when a visible label isn't desirable. Verify by clicking the label text - it should focus the input.
