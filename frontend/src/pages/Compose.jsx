@@ -180,8 +180,9 @@ export default function Compose() {
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* To field */}
               <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB]">
-                <label className="text-sm text-[#8B8B8B] w-12">To</label>
+                <label htmlFor="to-input" className="text-sm text-[#8B8B8B] w-12">To</label>
                 <input
+                  id="to-input"
                   type="text"
                   autoFocus
                   className={`
@@ -200,6 +201,8 @@ export default function Compose() {
                 <button
                   onClick={() => setShowCc(!showCc)}
                   className="text-xs text-[#8B8B8B] hover:text-[#3D3D3D] px-2"
+                  aria-expanded={showCc}
+                  aria-label="Toggle Cc field"
                 >
                   Cc
                 </button>
@@ -214,8 +217,9 @@ export default function Compose() {
               {/* CC field (optional) */}
               {showCc && (
                 <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB]">
-                  <label className="text-sm text-[#8B8B8B] w-12">Cc</label>
+                  <label htmlFor="cc-input" className="text-sm text-[#8B8B8B] w-12">Cc</label>
                   <input
+                    id="cc-input"
                     type="text"
                     className="flex-1 text-sm text-[#3D3D3D] outline-none placeholder:text-[#C0C0C0]"
                     placeholder={`cc@${namespace}`}
@@ -228,8 +232,9 @@ export default function Compose() {
 
               {/* Subject field */}
               <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB]">
-                <label className="text-sm text-[#8B8B8B] w-12">Subject</label>
+                <label htmlFor="subject-input" className="text-sm text-[#8B8B8B] w-12">Subject</label>
                 <input
+                  id="subject-input"
                   type="text"
                   className="flex-1 text-sm text-[#3D3D3D] outline-none placeholder:text-[#C0C0C0]"
                   placeholder="Subject"
@@ -242,6 +247,7 @@ export default function Compose() {
               {/* Body */}
               <div className="flex-1 overflow-hidden">
                 <textarea
+                  aria-label="Message body"
                   className="
                     w-full h-full px-4 py-3
                     text-sm text-[#3D3D3D] leading-relaxed
