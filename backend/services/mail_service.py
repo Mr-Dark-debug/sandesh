@@ -42,11 +42,14 @@ class MailService:
         return config_settings.NAMESPACE if config_settings else "local"
 
     def get_folder_emails(self, folder_id: int, user_id: int) -> List[Email]:
-        """Get all emails in a folder for a user."""
+        """
+        Get all emails in a folder for a user.
+        Uses optimized preview query (truncated body) for list views.
+        """
         folder = self.folder_repo.get_by_id_and_user(folder_id, user_id)
         if not folder:
             raise EntityNotFoundError("Folder not found")
-        return self.email_repo.get_by_folder(folder_id)
+        return self.email_repo.get_previews_by_folder(folder_id)
 
     def get_email(self, email_id: int, user_id: int) -> Email:
         """Get a specific email and mark it as read."""

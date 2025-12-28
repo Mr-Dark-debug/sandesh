@@ -222,6 +222,49 @@ class EmailRepository:
         models = result.scalars().all()
         return [self._to_entity(m) for m in models]
 
+    def get_previews_by_folder(self, folder_id: int) -> List[Email]:
+        """
+        Optimized query to get email previews for a folder.
+        Truncates body to 100 characters to prevent over-fetching large text data.
+        Returns Email entities with partial body.
+        """
+        stmt = (
+            select(
+                EmailModel.id,
+                EmailModel.owner_id,
+                EmailModel.folder_id,
+                EmailModel.sender,
+                EmailModel.sender_display_name,
+                EmailModel.sender_email,
+                EmailModel.recipients,
+                EmailModel.subject,
+                func.substr(EmailModel.body, 1, 100).label("body"),
+                EmailModel.is_read,
+                EmailModel.timestamp
+            )
+            .where(EmailModel.folder_id == folder_id)
+            .order_by(EmailModel.timestamp.desc())
+        )
+
+        result = self.session.execute(stmt)
+
+        emails = []
+        for row in result:
+             emails.append(Email(
+                 id=row.id,
+                 owner_id=row.owner_id,
+                 folder_id=row.folder_id,
+                 sender=row.sender,
+                 subject=row.subject,
+                 body=row.body,
+                 recipients=json.loads(row.recipients),
+                 is_read=row.is_read,
+                 timestamp=row.timestamp,
+                 sender_display_name=row.sender_display_name,
+                 sender_email=row.sender_email
+             ))
+        return emails
+
     def get_by_id_and_owner(self, email_id: int, owner_id: int) -> Optional[Email]:
         result = self.session.execute(
             select(EmailModel).where(EmailModel.id == email_id, EmailModel.owner_id == owner_id)
