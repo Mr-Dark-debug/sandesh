@@ -100,6 +100,20 @@ export default function MessageView() {
     return name.charAt(0).toUpperCase();
   };
 
+  const formatDateSafe = (timestampString, formatStr) => {
+    try {
+      if (!timestampString) return '';
+      // Ensure we have a valid date string
+      const dateStr = timestampString.endsWith('Z') ? timestampString : timestampString + 'Z';
+      const date = new Date(dateStr);
+      if (isNaN(date.getTime())) return 'Invalid Date';
+      return format(date, formatStr);
+    } catch (e) {
+      console.error('Date formatting error:', e);
+      return 'Invalid Date';
+    }
+  };
+
   if (loading) {
     return (
       <div className="h-full bg-white p-6 overflow-y-auto">
@@ -180,6 +194,7 @@ export default function MessageView() {
                   transition-colors
                 "
                 title="Back"
+                aria-label="Back"
               >
                 <ArrowLeft className="w-5 h-5" />
               </button>
@@ -187,11 +202,13 @@ export default function MessageView() {
               {/* Archive button */}
               <button
                 className="
-                  p-2 rounded-full text-[#6B6B6B]
-                  hover:bg-[#F6F8FC] hover:text-[#3D3D3D]
+                  p-2 rounded-full text-[#C0C0C0]
+                  cursor-not-allowed
                   transition-colors
                 "
-                title="Archive"
+                title="Archive (Coming soon)"
+                aria-label="Archive (Coming soon)"
+                aria-disabled="true"
               >
                 <Archive className="w-5 h-5" />
               </button>
@@ -206,6 +223,7 @@ export default function MessageView() {
                   transition-colors disabled:opacity-50
                 "
                 title="Delete"
+                aria-label="Delete message"
               >
                 <Trash2 className="w-5 h-5" />
               </button>
@@ -263,14 +281,18 @@ export default function MessageView() {
             {/* Right side actions */}
             <div className="flex items-center gap-1">
               <button
+                onClick={() => window.print()}
                 className="p-2 rounded-full text-[#6B6B6B] hover:bg-[#F6F8FC] hover:text-[#3D3D3D]"
                 title="Print"
+                aria-label="Print message"
               >
                 <Printer className="w-5 h-5" />
               </button>
               <button
-                className="p-2 rounded-full text-[#6B6B6B] hover:bg-[#F6F8FC] hover:text-[#D4A855]"
-                title="Star"
+                className="p-2 rounded-full text-[#C0C0C0] cursor-not-allowed"
+                title="Star (Coming soon)"
+                aria-label="Star (Coming soon)"
+                aria-disabled="true"
               >
                 <Star className="w-5 h-5" />
               </button>
@@ -314,8 +336,8 @@ export default function MessageView() {
 
             {/* Date */}
             <div className="text-sm text-[#8B8B8B] text-right">
-              <p>{format(new Date(email.timestamp + 'Z'), 'MMM d, yyyy, h:mm a')}</p>
-              <p className="text-xs mt-0.5">({format(new Date(email.timestamp + 'Z'), 'EEEE')})</p>
+              <p>{formatDateSafe(email.timestamp, 'MMM d, yyyy, h:mm a')}</p>
+              <p className="text-xs mt-0.5">({formatDateSafe(email.timestamp, 'EEEE')})</p>
             </div>
           </div>
 
@@ -336,7 +358,7 @@ export default function MessageView() {
                   state: {
                     to: email.sender,
                     subject: email.subject.startsWith('Re: ') ? email.subject : `Re: ${email.subject}`,
-                    body: `\n\nOn ${format(new Date(email.timestamp + 'Z'), 'PPP p')}, ${email.sender} wrote:\n> ${email.body.replace(/\n/g, '\n> ')}`
+                    body: `\n\nOn ${formatDateSafe(email.timestamp, 'PPP p')}, ${email.sender} wrote:\n> ${email.body.replace(/\n/g, '\n> ')}`
                   }
                 })}
                 className="
@@ -354,7 +376,7 @@ export default function MessageView() {
                 onClick={() => navigate('/app/compose', {
                   state: {
                     subject: email.subject.startsWith('Fwd: ') ? email.subject : `Fwd: ${email.subject}`,
-                    body: `\n\n---------- Forwarded message ---------\nFrom: ${email.sender}\nDate: ${format(new Date(email.timestamp + 'Z'), 'PPP p')}\nSubject: ${email.subject}\nTo: ${email.recipients?.join(', ')}\n\n${email.body}`
+                    body: `\n\n---------- Forwarded message ---------\nFrom: ${email.sender}\nDate: ${formatDateSafe(email.timestamp, 'PPP p')}\nSubject: ${email.subject}\nTo: ${email.recipients?.join(', ')}\n\n${email.body}`
                   }
                 })}
                 className="
