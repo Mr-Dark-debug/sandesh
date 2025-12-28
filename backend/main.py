@@ -94,10 +94,14 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="Sandesh", lifespan=lifespan, docs_url="/api/docs", redoc_url="/api/redoc")
 
 # CORS
+# 🛡️ Sentinel: Fixed insecure CORS configuration.
+# The previous config allowed '*' with credentials=True, which caused the server to reflect any origin.
+# Since we use Bearer tokens (headers) and not cookies for auth, we can disable credentials.
+# This allows us to safely use '*' for origins, maintaining availability while fixing the security vulnerability.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=["*"], # Safe to use '*' because allow_credentials is False
+    allow_credentials=False, # Disable credentials to prevent CSRF/CORS attacks (we use Bearer header)
     allow_methods=["*"],
     allow_headers=["*"],
 )
