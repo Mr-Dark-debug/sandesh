@@ -185,6 +185,8 @@ export default function Compose() {
                   id="to-input"
                   type="text"
                   autoFocus
+                  aria-invalid={!!errors.to}
+                  aria-describedby={errors.to ? "to-error" : undefined}
                   className={`
                     flex-1 text-sm text-[#3D3D3D] outline-none bg-transparent
                     placeholder:text-[#C0C0C0]
@@ -208,7 +210,7 @@ export default function Compose() {
                 </button>
               </div>
               {errors.to && (
-                <div className="px-4 py-1 bg-[#C4756E]/5 flex items-center gap-2">
+                <div id="to-error" className="px-4 py-1 bg-[#C4756E]/5 flex items-center gap-2">
                   <AlertCircle className="w-3 h-3 text-[#C4756E]" />
                   <span className="text-xs text-[#C4756E]">{errors.to}</span>
                 </div>
@@ -221,12 +223,20 @@ export default function Compose() {
                   <input
                     id="cc-input"
                     type="text"
+                    aria-invalid={!!errors.cc}
+                    aria-describedby={errors.cc ? "cc-error" : undefined}
                     className="flex-1 text-sm text-[#3D3D3D] outline-none placeholder:text-[#C0C0C0] bg-transparent"
                     placeholder={`cc@${namespace}`}
                     value={cc}
                     onChange={e => setCc(e.target.value)}
                     disabled={sending}
                   />
+                </div>
+              )}
+              {errors.cc && (
+                <div id="cc-error" className="px-4 py-1 bg-[#C4756E]/5 flex items-center gap-2">
+                  <AlertCircle className="w-3 h-3 text-[#C4756E]" />
+                  <span className="text-xs text-[#C4756E]">{errors.cc}</span>
                 </div>
               )}
 
@@ -323,9 +333,10 @@ export default function Compose() {
 
               <div className="flex items-center gap-1">
                 <button
-                  className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-full"
-                  title="More options"
-                  aria-label="More options"
+                  className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
+                  title="More options (Coming soon)"
+                  aria-label="More options (Coming soon)"
+                  disabled
                 >
                   <MoreVertical className="w-4 h-4" />
                 </button>

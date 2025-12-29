@@ -9,3 +9,7 @@
 ## 2025-05-28 - Focus Visibility in Forms
 **Learning:** Default browser focus rings can be jarring or invisible depending on the OS/Browser combination. However, completely removing them (`outline: none`) without adding a custom focus state destroys accessibility for keyboard users.
 **Action:** When using `outline-none`, always replace it with a clear visual indicator like `focus-within:bg-color` or `ring` on the container element to maintain context and accessibility.
+
+## 2025-10-26 - Form Error Accessibility
+**Learning:** Simply displaying an error message visually is insufficient for screen reader users, who may not be aware that an input field is invalid or where the error description is located.
+**Action:** Always link form inputs to their error messages using `aria-invalid="true"` and `aria-describedby="[error-id]"` to ensure the error context is programmatically associated with the control.
