@@ -64,8 +64,9 @@ class MailService:
                     raise EntityNotFoundError("Email not found")
 
                 if not email.is_read:
+                    # ⚡ Bolt: Use optimized UPDATE query instead of fetch-modify-save cycle
+                    self.email_repo.mark_as_read(email.id)
                     email.is_read = True
-                    self.email_repo.save(email)
 
                 return email
             except OperationalError as e:
