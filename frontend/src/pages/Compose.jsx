@@ -200,7 +200,9 @@ export default function Compose() {
                 />
                 <button
                   onClick={() => setShowCc(!showCc)}
-                  className="text-xs text-[#8B8B8B] hover:text-[#3D3D3D] px-2 focus:text-[#3D3D3D]"
+                  className="text-xs text-[#8B8B8B] hover:text-[#3D3D3D] px-2"
+                  aria-expanded={showCc}
+                  aria-label="Toggle Cc field"
                 >
                   Cc
                 </button>
@@ -245,7 +247,7 @@ export default function Compose() {
               {/* Body */}
               <div className="flex-1 overflow-hidden transition-colors focus-within:bg-[#F6F8FC]/30">
                 <textarea
-                  id="body-input"
+                  aria-label="Message body"
                   className="
                     w-full h-full px-4 py-3
                     text-sm text-[#3D3D3D] leading-relaxed
@@ -256,7 +258,6 @@ export default function Compose() {
                   value={body}
                   onChange={e => setBody(e.target.value)}
                   disabled={sending}
-                  aria-label="Email body"
                 />
               </div>
             </div>
