@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { getFolders, createFolder, checkHealth } from '../api';
 import { useToast } from '../components/ToastContext';
@@ -28,7 +28,33 @@ export default function Layout() {
   const toast = useToast();
   const { confirm } = useConfirmation();
 
-  const fetchFolders = useCallback(async () => {
+  useEffect(() => {
+    const u = localStorage.getItem('user');
+    if (!u) {
+      navigate('/login');
+    } else {
+      setUser(JSON.parse(u));
+      fetchFolders();
+      fetchSystemInfo();
+    }
+  }, [navigate]);
+
+  const fetchSystemInfo = async () => {
+    try {
+      const { data } = await checkHealth();
+      if (data.namespace) setNamespace(data.namespace);
+    } catch (e) {
+      console.error('Failed to fetch system info:', e);
+    }
+  };
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setShowUserMenu(false);
+  }, [location.pathname]);
+
+  const fetchFolders = async () => {
     setFoldersLoading(true);
     try {
       const { data } = await getFolders();
@@ -56,26 +82,6 @@ export default function Layout() {
       toast.error('Failed to load folders');
     } finally {
       setFoldersLoading(false);
-    }
-  }, [toast]);
-
-  useEffect(() => {
-    const u = localStorage.getItem('user');
-    if (!u) {
-      navigate('/login');
-    } else {
-      setUser(JSON.parse(u));
-      fetchFolders();
-      fetchSystemInfo();
-    }
-  }, [navigate, fetchFolders]);
-
-  const fetchSystemInfo = async () => {
-    try {
-      const { data } = await checkHealth();
-      if (data.namespace) setNamespace(data.namespace);
-    } catch (e) {
-      console.error('Failed to fetch system info:', e);
     }
   };
 
@@ -126,6 +132,13 @@ export default function Layout() {
 
   return (
     <div className="flex h-screen bg-white overflow-hidden">
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 px-4 py-2 bg-[#3D3D3D] text-white rounded-lg shadow-lg font-medium"
+      >
+        Skip to content
+      </a>
+
       {/* Sidebar */}
       <aside
         className={`
@@ -197,6 +210,7 @@ export default function Layout() {
                   <Link
                     key={folder.id}
                     to={`/app/folder/${folder.id}`}
+                    aria-current={active ? 'page' : undefined}
                     className={`
                       flex items-center gap-4 px-4 py-2.5 rounded-full
                       text-[14px] font-medium transition-all duration-150
@@ -293,6 +307,7 @@ export default function Layout() {
                 {user?.is_admin && (
                   <Link
                     to="/app/admin"
+                    aria-current={isActive('/app/admin') ? 'page' : undefined}
                     className={`
                       flex items-center gap-4 px-4 py-2.5 rounded-full
                       text-[14px] font-medium transition-all duration-150
@@ -508,7 +523,11 @@ export default function Layout() {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-hidden bg-white">
+        <main
+          id="main-content"
+          className="flex-1 overflow-hidden bg-white focus:outline-none"
+          tabIndex="-1"
+        >
           <Outlet context={{ refreshFolders: fetchFolders, unreadCounts, folders, foldersLoading }} />
         </main>
       </div>
