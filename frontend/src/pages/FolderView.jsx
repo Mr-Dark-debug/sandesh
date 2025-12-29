@@ -40,6 +40,9 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
       {/* Checkbox */}
       <button
         onClick={(e) => { e.stopPropagation(); onSelect(email.id); }}
+        role="checkbox"
+        aria-checked={isSelected}
+        aria-label={`Select message from ${email.sender}`}
         className="
           w-8 h-8 flex items-center justify-center
           text-[#8B8B8B] hover:text-[#3D3D3D]
@@ -57,6 +60,7 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
       {/* Star (placeholder) */}
       <button
         onClick={(e) => e.stopPropagation()}
+        aria-label="Star message"
         className="
           w-8 h-8 flex items-center justify-center
           text-[#8B8B8B] hover:text-[#D4A855]
@@ -100,12 +104,14 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
         <button
           className="w-8 h-8 flex items-center justify-center text-[#8B8B8B] hover:text-[#3D3D3D] rounded hover:bg-[#E5E8EB]"
           title="Archive"
+          aria-label="Archive message"
         >
           <Archive className="w-4 h-4" />
         </button>
         <button
           className="w-8 h-8 flex items-center justify-center text-[#8B8B8B] hover:text-[#C4756E] rounded hover:bg-[#E5E8EB]"
           title="Delete"
+          aria-label="Delete message"
         >
           <Trash2 className="w-4 h-4" />
         </button>
@@ -335,6 +341,9 @@ export default function FolderView() {
           {/* Select all checkbox */}
           <button
             onClick={toggleSelectAll}
+            role="checkbox"
+            aria-checked={selectedEmails.size === emails.length && emails.length > 0 ? true : selectedEmails.size > 0 ? "mixed" : false}
+            aria-label="Select all messages"
             className="
               w-8 h-8 flex items-center justify-center
               text-[#8B8B8B] hover:text-[#3D3D3D]
@@ -363,6 +372,7 @@ export default function FolderView() {
                 transition-colors disabled:opacity-50
               "
               title="Refresh"
+              aria-label="Refresh folder"
             >
               <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
             </button>
