@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 import { Loader2 } from 'lucide-react';
 
 /**
@@ -74,16 +74,24 @@ export function Input({
   label,
   error,
   className = '',
+  id,
   ...props 
 }) {
+  const generatedId = useId();
+  const inputId = id || generatedId;
+  const errorId = `${inputId}-error`;
+
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-[#3D3D3D] mb-1.5">
+        <label htmlFor={inputId} className="block text-sm font-medium text-[#3D3D3D] mb-1.5">
           {label}
         </label>
       )}
       <input
+        id={inputId}
+        aria-invalid={!!error}
+        aria-describedby={error ? errorId : undefined}
         className={`
           w-full px-3.5 py-2.5 text-sm
           bg-white text-[#3D3D3D]
@@ -100,7 +108,7 @@ export function Input({
         {...props}
       />
       {error && (
-        <p className="mt-1.5 text-xs text-[#C4756E]">{error}</p>
+        <p id={errorId} className="mt-1.5 text-xs text-[#C4756E]">{error}</p>
       )}
     </div>
   );
@@ -113,16 +121,24 @@ export function Textarea({
   label,
   error,
   className = '',
+  id,
   ...props 
 }) {
+  const generatedId = useId();
+  const inputId = id || generatedId;
+  const errorId = `${inputId}-error`;
+
   return (
     <div className="w-full">
       {label && (
-        <label className="block text-sm font-medium text-[#3D3D3D] mb-1.5">
+        <label htmlFor={inputId} className="block text-sm font-medium text-[#3D3D3D] mb-1.5">
           {label}
         </label>
       )}
       <textarea
+        id={inputId}
+        aria-invalid={!!error}
+        aria-describedby={error ? errorId : undefined}
         className={`
           w-full px-3.5 py-2.5 text-sm
           bg-white text-[#3D3D3D]
@@ -139,7 +155,7 @@ export function Textarea({
         {...props}
       />
       {error && (
-        <p className="mt-1.5 text-xs text-[#C4756E]">{error}</p>
+        <p id={errorId} className="mt-1.5 text-xs text-[#C4756E]">{error}</p>
       )}
     </div>
   );

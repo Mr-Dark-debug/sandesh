@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { login, checkHealth } from '../api';
+import { Input } from '../components/ui';
 import { Mail, Lock, AlertCircle, Eye, EyeOff, BookOpen, Loader2 } from 'lucide-react';
 
 export default function Login() {
@@ -140,78 +141,56 @@ export default function Login() {
           {/* Login form */}
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* Username */}
-            <div>
-              <label htmlFor="username" className="block text-sm font-medium text-[#3D3D3D] mb-2">
-                Username
-              </label>
-              <div className="relative">
-                <input
-                  id="username"
-                  type="text"
-                  required
-                  autoComplete="username"
-                  autoFocus
-                  className="
-                    w-full pl-11 pr-4 py-3.5 text-sm
-                    bg-[#F6F8FC] text-[#3D3D3D]
-                    border border-[#E5E8EB] rounded-xl
-                    transition-all duration-150
-                    placeholder:text-[#A0A0A0]
-                    focus:outline-none focus:bg-white focus:border-[#A3A380] focus:ring-2 focus:ring-[#A3A380]/10
-                  "
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  disabled={loading}
-                />
-                <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                  <Mail className="w-4 h-4 text-[#8B8B8B]" />
-                </div>
+            <div className="relative">
+              <Input
+                label="Username"
+                id="username"
+                type="text"
+                required
+                autoComplete="username"
+                autoFocus
+                className="pl-11 pr-4 py-3.5 bg-[#F6F8FC] border-[#E5E8EB] focus:ring-[#A3A380]/10 focus:border-[#A3A380]"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                disabled={loading}
+              />
+              <div className="absolute left-4 top-[2.4rem] -translate-y-1/2 pointer-events-none">
+                <Mail className="w-4 h-4 text-[#8B8B8B]" />
               </div>
             </div>
 
             {/* Password */}
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-[#3D3D3D] mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  autoComplete="current-password"
-                  className="
-                    w-full pl-11 pr-12 py-3.5 text-sm
-                    bg-[#F6F8FC] text-[#3D3D3D]
-                    border border-[#E5E8EB] rounded-xl
-                    transition-all duration-150
-                    placeholder:text-[#A0A0A0]
-                    focus:outline-none focus:bg-white focus:border-[#A3A380] focus:ring-2 focus:ring-[#A3A380]/10
-                  "
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={loading}
-                />
-                <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                  <Lock className="w-4 h-4 text-[#8B8B8B]" />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="
-                    absolute right-4 top-1/2 -translate-y-1/2
-                    text-[#8B8B8B] hover:text-[#3D3D3D]
-                    p-1 rounded-md
-                    focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3A380]
-                    transition-colors
-                  "
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
+            <div className="relative">
+              <Input
+                label="Password"
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                required
+                autoComplete="current-password"
+                className="pl-11 pr-12 py-3.5 bg-[#F6F8FC] border-[#E5E8EB] focus:ring-[#A3A380]/10 focus:border-[#A3A380]"
+                placeholder="Enter your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={loading}
+              />
+              <div className="absolute left-4 top-[2.4rem] -translate-y-1/2 pointer-events-none">
+                <Lock className="w-4 h-4 text-[#8B8B8B]" />
               </div>
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="
+                  absolute right-4 top-[2.4rem] -translate-y-1/2
+                  text-[#8B8B8B] hover:text-[#3D3D3D]
+                  p-1 rounded-md
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3A380]
+                  transition-colors
+                "
+                aria-label={showPassword ? "Hide password" : "Show password"}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
 
             {/* Submit */}
