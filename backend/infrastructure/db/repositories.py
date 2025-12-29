@@ -1,7 +1,7 @@
 import json
 from typing import List, Optional
 from sqlalchemy.orm import Session
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, update
 from .models import UserModel, FolderModel, EmailModel, SystemSettingsModel
 from ...core.entities.user import User, SystemSettings
 from ...core.entities.folder import Folder
@@ -271,6 +271,15 @@ class EmailRepository:
         )
         model = result.scalars().first()
         return self._to_entity(model) if model else None
+
+    def mark_as_read(self, email_id: int):
+        """
+        Optimized method to mark an email as read using a single UPDATE statement.
+        Avoids SELECT + UPDATE overhead.
+        """
+        stmt = update(EmailModel).where(EmailModel.id == email_id).values(is_read=True)
+        self.session.execute(stmt)
+        self.session.flush()
 
     def save(self, email: Email) -> Email:
         import time
