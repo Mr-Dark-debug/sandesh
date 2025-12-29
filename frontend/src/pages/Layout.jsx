@@ -173,7 +173,7 @@ export default function Layout() {
         {/* Compose Button */}
         <div className="px-4 py-3">
           <button
-            onClick={() => navigate('/compose')}
+            onClick={() => navigate('/app/compose')}
             className="
               w-full flex items-center gap-3 px-6 py-3.5
               bg-[#D7CE93] hover:bg-[#C9BF7D] 
