@@ -1,10 +1,11 @@
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from pydantic import BaseModel, Field
 from .deps import get_auth_service, get_db
 from ..services.auth_service import AuthService
 from ..core.entities.user import User
 from ..infrastructure.db.repositories import SystemSettingsRepository
+from ..infrastructure.security.rate_limiter import limiter
 
 router = APIRouter()
 
@@ -31,13 +32,26 @@ class Token(BaseModel):
 
 @router.post("/login", response_model=Token)
 def login(
+    request: Request,
     form_data: LoginRequest,
     auth_service: AuthService = Depends(get_auth_service),
     db=Depends(get_db)
 ):
     """
     Authenticate user and return JWT token.
+    Protected by rate limiting: 5 attempts per minute per IP.
     """
+    # Rate Limiting
+    # Use client IP as the key. Fallback to 'unknown' if not present.
+    client_ip = request.client.host if request.client else "unknown"
+
+    # Allow 5 attempts per 60 seconds
+    if not limiter.is_allowed(client_ip, limit=5, window_seconds=60):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many login attempts. Please try again later."
+        )
+
     user = auth_service.authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
