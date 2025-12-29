@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, Link, useOutletContext } from 'react-router-dom';
 import { getMail, moveMessage } from '../api';
 import { format, isToday, isYesterday, isThisYear } from 'date-fns';
@@ -11,21 +11,22 @@ import {
   Archive, Star, CheckSquare, Square, Check
 } from 'lucide-react';
 
+// Helper for date formatting
+const formatDate = (timestamp) => {
+  const date = new Date(timestamp + 'Z');
+  if (isToday(date)) {
+    return format(date, 'h:mm a');
+  } else if (isYesterday(date)) {
+    return 'Yesterday';
+  } else if (isThisYear(date)) {
+    return format(date, 'MMM d');
+  }
+  return format(date, 'MMM d, yyyy');
+};
+
 // Email list item component
 // ⚡ Bolt: Memoized to prevent re-renders of all items when one is selected
 const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onSelect }) {
-  const formatDate = (timestamp) => {
-    const date = new Date(timestamp + 'Z');
-    if (isToday(date)) {
-      return format(date, 'h:mm a');
-    } else if (isYesterday(date)) {
-      return 'Yesterday';
-    } else if (isThisYear(date)) {
-      return format(date, 'MMM d');
-    }
-    return format(date, 'MMM d, yyyy');
-  };
-
   return (
     <div
       className={`
@@ -281,6 +282,10 @@ export default function FolderView() {
     }
   };
 
+  // ⚡ Bolt: Memoize unread count to prevent recalculation on selection changes
+  // Must be called before any conditional returns
+  const unreadCount = useMemo(() => emails.filter(e => !e.is_read).length, [emails]);
+
   if (loading || (foldersLoading && !folders?.length)) {
     return (
       <div className="h-full flex flex-col bg-white">
@@ -321,8 +326,6 @@ export default function FolderView() {
       </div>
     );
   }
-
-  const unreadCount = emails.filter(e => !e.is_read).length;
 
   return (
     <div className="h-full flex flex-col bg-white">
