@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { useParams, Link, useOutletContext } from 'react-router-dom';
+import { useParams, Link, useOutletContext, useNavigate } from 'react-router-dom';
 import { getMail, moveMessage } from '../api';
 import { format, isToday, isYesterday, isThisYear } from 'date-fns';
 import { useToast } from '../components/ToastContext';
@@ -169,6 +169,7 @@ function BulkActionBar({ selectedCount, onClear, onMoveToTrash }) {
 
 export default function FolderView() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { refreshFolders, folders, foldersLoading } = useOutletContext() || {};
   const toast = useToast();
   const { confirm } = useConfirmation();
@@ -265,13 +266,17 @@ export default function FolderView() {
         return {
           icon: Inbox,
           title: 'Your inbox is empty',
-          description: 'Messages you receive will appear here. Send someone an email to get started!'
+          description: 'Messages you receive will appear here. Send someone an email to get started!',
+          action: () => navigate('/app/compose'),
+          actionLabel: 'Compose Message'
         };
       case 'Sent':
         return {
           icon: Send,
           title: 'No sent messages',
-          description: 'Messages you send will appear here. Compose a new message to get started.'
+          description: 'Messages you send will appear here. Compose a new message to get started.',
+          action: () => navigate('/app/compose'),
+          actionLabel: 'Compose Message'
         };
       case 'Trash':
         return {
