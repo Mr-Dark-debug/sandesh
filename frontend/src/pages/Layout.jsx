@@ -365,6 +365,9 @@ export default function Layout() {
                 w-full flex items-center gap-3 p-3 rounded-xl
                 hover:bg-white transition-colors text-left
               "
+              aria-expanded={showUserMenu}
+              aria-haspopup="true"
+              aria-label="User menu"
             >
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D8A48F] to-[#BB8588] flex items-center justify-center shadow-sm">
                 <span className="text-white font-semibold text-sm">
@@ -389,11 +392,14 @@ export default function Layout() {
                   className="fixed inset-0 z-40"
                   onClick={() => setShowUserMenu(false)}
                 />
-                <div className="
-                  absolute bottom-full left-0 right-0 mb-2 z-50
-                  bg-white rounded-xl shadow-lg border border-[#E5E8EB]
-                  py-2 animate-[slideUp_150ms_ease]
-                ">
+                <div
+                  className="
+                    absolute bottom-full left-0 right-0 mb-2 z-50
+                    bg-white rounded-xl shadow-lg border border-[#E5E8EB]
+                    py-2 animate-[slideUp_150ms_ease]
+                  "
+                  role="menu"
+                >
                   <div className="px-4 py-2 border-b border-[#E5E8EB]">
                     <p className="text-sm font-semibold text-[#3D3D3D]">
                       {user?.display_name || user?.username}
@@ -403,6 +409,7 @@ export default function Layout() {
                   <Link
                     to="/app/settings"
                     onClick={() => setShowUserMenu(false)}
+                    role="menuitem"
                     className="
                       w-full flex items-center gap-3 px-4 py-2.5
                       text-sm text-[#3D3D3D] hover:bg-[#F6F8FC]
@@ -416,6 +423,7 @@ export default function Layout() {
                     <Link
                       to="/app/admin/system"
                       onClick={() => setShowUserMenu(false)}
+                      role="menuitem"
                       className="
                         w-full flex items-center gap-3 px-4 py-2.5
                         text-sm text-[#3D3D3D] hover:bg-[#F6F8FC]
@@ -429,6 +437,7 @@ export default function Layout() {
                   <div className="border-t border-[#E5E8EB] my-1" />
                   <button
                     onClick={handleLogout}
+                    role="menuitem"
                     className="
                       w-full flex items-center gap-3 px-4 py-2.5
                       text-sm text-[#C4756E] hover:bg-[#C4756E]/5
@@ -492,6 +501,7 @@ export default function Layout() {
               <input
                 type="text"
                 placeholder="Search in mail"
+                aria-label="Search in mail"
                 className="
                   flex-1 bg-transparent text-sm text-[#3D3D3D]
                   placeholder:text-[#8B8B8B]
