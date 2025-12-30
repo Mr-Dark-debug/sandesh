@@ -4,12 +4,13 @@ Mail API
 Endpoints for email operations.
 """
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field
 from .deps import get_mail_service, get_current_user
 from ..services.mail_service import MailService
 from ..core.entities.user import User
 from ..core.exceptions import EntityNotFoundError
+from ..infrastructure.security.rate_limiter import limiter
 
 router = APIRouter()
 
@@ -154,6 +155,13 @@ def send_mail(
     - Display name from user settings
     - Email address derived from username@namespace
     """
+    # Rate limit: 20 emails per minute per user to prevent spam/abuse
+    if not limiter.is_allowed(f"send_mail:{current_user.username}", limit=20, window_seconds=60):
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Rate limit exceeded: Please wait before sending more emails."
+        )
+
     try:
         mail_service.send_mail(
             sender_user=current_user,
