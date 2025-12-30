@@ -127,6 +127,15 @@ export default function Compose() {
     }
   };
 
+  const handleKeyDown = (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+      e.preventDefault();
+      if (!sending && to.trim()) {
+        handleSubmit();
+      }
+    }
+  };
+
   // Floating compose modal (Gmail-style)
   return (
     <div className="h-full flex items-end justify-end p-4 md:p-6 bg-transparent pointer-events-none">
@@ -198,6 +207,7 @@ export default function Compose() {
                     setTo(e.target.value);
                     if (errors.to) setErrors(prev => ({ ...prev, to: null }));
                   }}
+                  onKeyDown={handleKeyDown}
                   disabled={sending}
                 />
                 <button
@@ -250,6 +260,7 @@ export default function Compose() {
                   placeholder="Subject"
                   value={subject}
                   onChange={e => setSubject(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   disabled={sending}
                 />
               </div>
@@ -267,6 +278,7 @@ export default function Compose() {
                   placeholder="Compose email"
                   value={body}
                   onChange={e => setBody(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   disabled={sending}
                 />
               </div>
@@ -278,6 +290,7 @@ export default function Compose() {
                 {/* Send button */}
                 <button
                   onClick={handleSubmit}
+                  title="Send (Ctrl+Enter)"
                   disabled={sending || !to.trim()}
                   className="
                     flex items-center gap-2 px-5 py-2

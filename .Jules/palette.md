@@ -13,3 +13,7 @@
 ## 2025-10-26 - Form Error Accessibility
 **Learning:** Simply displaying an error message visually is insufficient for screen reader users, who may not be aware that an input field is invalid or where the error description is located.
 **Action:** Always link form inputs to their error messages using `aria-invalid="true"` and `aria-describedby="[error-id]"` to ensure the error context is programmatically associated with the control.
+
+## 2025-10-27 - Keyboard Shortcut Safety
+**Learning:** Implementing keyboard shortcuts like `Ctrl+Enter` to bypass button clicks must strictly mirror the validation logic of the button itself. Bypassing disabled states can lead to duplicate submissions or empty data errors.
+**Action:** Always wrap shortcut handlers in the same guard clauses (e.g., `if (!loading && isValid)`) used by the primary action button.
