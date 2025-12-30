@@ -227,6 +227,11 @@ class EmailRepository:
         Optimized query to get email previews for a folder.
         Truncates body to 100 characters to prevent over-fetching large text data.
         Returns Email entities with partial body.
+
+        Bolt Optimization:
+        - Removed `recipients` from selection to avoid fetching potentially large JSON text.
+        - Returns empty list for recipients since list views don't display them.
+        - Reduces I/O and CPU usage (json.loads) significantly.
         """
         stmt = (
             select(
@@ -236,7 +241,7 @@ class EmailRepository:
                 EmailModel.sender,
                 EmailModel.sender_display_name,
                 EmailModel.sender_email,
-                EmailModel.recipients,
+                # EmailModel.recipients, # Optimization: Skip fetching recipients for list view
                 EmailModel.subject,
                 func.substr(EmailModel.body, 1, 100).label("body"),
                 EmailModel.is_read,
@@ -257,7 +262,7 @@ class EmailRepository:
                  sender=row.sender,
                  subject=row.subject,
                  body=row.body,
-                 recipients=json.loads(row.recipients),
+                 recipients=[], # Optimization: Empty list satisfies contract, saves parsing
                  is_read=row.is_read,
                  timestamp=row.timestamp,
                  sender_display_name=row.sender_display_name,
