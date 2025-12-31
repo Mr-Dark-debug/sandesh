@@ -313,7 +313,8 @@ export default function Compose() {
                     className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
                     title="Attach files (Coming soon)"
                     aria-label="Attach files (Coming soon)"
-                    disabled
+                    aria-disabled="true"
+                    onClick={(e) => e.preventDefault()}
                   >
                     <Paperclip className="w-4 h-4" />
                   </button>
@@ -321,7 +322,8 @@ export default function Compose() {
                     className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
                     title="Insert link (Coming soon)"
                     aria-label="Insert link (Coming soon)"
-                    disabled
+                    aria-disabled="true"
+                    onClick={(e) => e.preventDefault()}
                   >
                     <Link className="w-4 h-4" />
                   </button>
@@ -329,7 +331,8 @@ export default function Compose() {
                     className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
                     title="Insert emoji (Coming soon)"
                     aria-label="Insert emoji (Coming soon)"
-                    disabled
+                    aria-disabled="true"
+                    onClick={(e) => e.preventDefault()}
                   >
                     <Smile className="w-4 h-4" />
                   </button>
@@ -337,7 +340,8 @@ export default function Compose() {
                     className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
                     title="Insert photo (Coming soon)"
                     aria-label="Insert photo (Coming soon)"
-                    disabled
+                    aria-disabled="true"
+                    onClick={(e) => e.preventDefault()}
                   >
                     <Image className="w-4 h-4" />
                   </button>
@@ -349,7 +353,8 @@ export default function Compose() {
                   className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
                   title="More options (Coming soon)"
                   aria-label="More options (Coming soon)"
-                  disabled
+                  aria-disabled="true"
+                  onClick={(e) => e.preventDefault()}
                 >
                   <MoreVertical className="w-4 h-4" />
                 </button>
