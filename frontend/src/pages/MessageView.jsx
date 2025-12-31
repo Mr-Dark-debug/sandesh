@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
+import { useParams, useNavigate, useLocation, useOutletContext } from 'react-router-dom';
 import { getMessage, moveMessage, getFolders } from '../api';
 import { format } from 'date-fns';
 import { useToast } from '../components/ToastContext';
@@ -14,6 +14,7 @@ import {
 export default function MessageView() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const toast = useToast();
   const { confirm } = useConfirmation();
   const { refreshFolders } = useOutletContext() || {};
@@ -60,7 +61,13 @@ export default function MessageView() {
       await moveMessage(id, folderId);
       toast.success(`Moved to ${folderName}`);
       refreshFolders?.();
-      navigate(`/folder/${folderId}`);
+
+      const fromFolderId = location.state?.fromFolderId;
+      if (fromFolderId) {
+        navigate(`/app/folder/${fromFolderId}`);
+      } else {
+        navigate(`/app/folder/${folderId}`);
+      }
     } catch (e) {
       console.error('Failed to move message:', e);
       toast.error('Failed to move message');

@@ -17,3 +17,7 @@
 ## 2025-10-27 - Keyboard Shortcut Safety
 **Learning:** Implementing keyboard shortcuts like `Ctrl+Enter` to bypass button clicks must strictly mirror the validation logic of the button itself. Bypassing disabled states can lead to duplicate submissions or empty data errors.
 **Action:** Always wrap shortcut handlers in the same guard clauses (e.g., `if (!loading && isValid)`) used by the primary action button.
+
+## 2025-10-29 - Context-Aware Navigation
+**Learning:** When moving items between folders (e.g., "Delete" moves to Trash), users expect to return to their original list, not follow the item to its new destination. Forcing a view switch disrupts the triage workflow.
+**Action:** Pass source context (like `fromFolderId`) via router state when navigating to item details, and use it to return the user to their starting point after move/delete actions.
