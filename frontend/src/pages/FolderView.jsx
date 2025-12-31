@@ -26,7 +26,7 @@ const formatDate = (timestamp) => {
 
 // Email list item component
 // ⚡ Bolt: Memoized to prevent re-renders of all items when one is selected
-const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onSelect }) {
+const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onSelect, folderId }) {
   return (
     <div
       className={`
@@ -73,7 +73,8 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
 
       {/* Email Content - Clickable */}
       <Link
-        to={`/message/${email.id}`}
+        to={`/app/message/${email.id}`}
+        state={{ fromFolderId: folderId }}
         className="flex-1 flex items-center gap-3 min-w-0 py-1"
       >
         {/* Sender */}
@@ -420,6 +421,7 @@ export default function FolderView() {
                 email={email}
                 isSelected={selectedEmails.has(email.id)}
                 onSelect={toggleEmailSelection}
+                folderId={id}
               />
             ))}
           </div>
