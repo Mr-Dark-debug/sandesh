@@ -73,18 +73,18 @@ class EmailListResponse(BaseModel):
 
     @staticmethod
     def from_entity(entity):
-        # Truncate body to 100 chars for preview
-        full_body = entity.body or ""
-        preview_body = full_body[:100]
-
+        # Bolt Optimization:
+        # 1. Removed redundant body truncation (DB query uses func.substr(1, 100))
+        # 2. Replaced slower getattr() calls with direct attribute access
+        #    (entity is an Email dataclass, so fields are guaranteed)
         return EmailListResponse(
             id=entity.id,
             sender=entity.sender,
-            sender_display_name=getattr(entity, 'sender_display_name', None),
-            sender_email=getattr(entity, 'sender_email', None),
+            sender_display_name=entity.sender_display_name,
+            sender_email=entity.sender_email,
             recipients=entity.recipients,
             subject=entity.subject or "",
-            body=preview_body,
+            body=entity.body or "",
             timestamp=entity.timestamp.isoformat(),
             is_read=entity.is_read,
             folder_id=entity.folder_id
