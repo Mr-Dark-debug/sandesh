@@ -27,14 +27,25 @@ const formatDate = (timestamp) => {
 // Email list item component
 // ⚡ Bolt: Memoized to prevent re-renders of all items when one is selected
 const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onSelect }) {
+  const [isFocused, setIsFocused] = useState(false);
+
+  const handleFocus = () => setIsFocused(true);
+  const handleBlur = (e) => {
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      setIsFocused(false);
+    }
+  };
+
   return (
     <div
+      onFocus={handleFocus}
+      onBlur={handleBlur}
       className={`
         group flex items-center gap-2 px-4 py-2
         border-b border-[#F0F0F0] last:border-b-0
         transition-colors duration-100
         cursor-pointer
-        ${isSelected ? 'bg-[#D7CE93]/15' : !email.is_read ? 'bg-[#F6F8FC]' : 'bg-white hover:bg-[#F8F9FA]'}
+        ${isSelected ? 'bg-[#D7CE93]/15' : !email.is_read ? 'bg-[#F6F8FC]' : 'bg-white hover:bg-[#F8F9FA] focus-within:bg-[#F8F9FA]'}
       `}
     >
       {/* Checkbox */}
@@ -74,7 +85,7 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
       {/* Email Content - Clickable */}
       <Link
         to={`/message/${email.id}`}
-        className="flex-1 flex items-center gap-3 min-w-0 py-1"
+        className="flex-1 flex items-center gap-3 min-w-0 py-1 rounded-lg"
       >
         {/* Sender */}
         <div className="w-[200px] flex-shrink-0">
@@ -100,7 +111,7 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
       </Link>
 
       {/* Hover Actions */}
-      <div className="hidden group-hover:flex items-center gap-1">
+      <div className={`${isFocused ? 'flex' : 'hidden group-hover:flex'} items-center gap-1`}>
         <button
           className="w-8 h-8 flex items-center justify-center text-[#8B8B8B] hover:text-[#3D3D3D] rounded hover:bg-[#E5E8EB]"
           title="Archive"
