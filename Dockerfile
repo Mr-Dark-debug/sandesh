@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy Backend requirements
 COPY backend/requirements.txt ./
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --timeout 600 --retries 5 --default-timeout=100 --index-url https://pypi.org/simple/ --trusted-host pypi.org -r requirements.txt
 
 # Copy Backend Code
 COPY backend/ ./backend
