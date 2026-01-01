@@ -11,6 +11,7 @@ from .infrastructure.db.session import engine, Base, SessionLocal
 from .infrastructure.db.repositories import UserRepository, FolderRepository, SystemSettingsRepository
 from .infrastructure.db.models import UserModel, SystemSettingsModel
 from .infrastructure.security.password import get_password_hash
+from .infrastructure.security.headers import SecurityHeadersMiddleware
 from .infrastructure.smtp.smtp_server import create_smtp_controller
 from .api import auth, users, folders, mail, system
 from .config import settings
@@ -105,6 +106,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Security Headers
+# 🛡️ Sentinel: Added security headers middleware for defense in depth.
+# Adds X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy, and CSP.
+app.add_middleware(SecurityHeadersMiddleware)
 
 # Compression (minimum size 500 bytes to avoid overhead on small responses)
 app.add_middleware(GZipMiddleware, minimum_size=500)
