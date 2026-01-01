@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { sendMail, checkHealth } from '../api';
 import { useToast } from '../components/ToastContext';
 import { useConfirmation } from '../components/ConfirmationDialog';
-import { Button } from '../components/ui';
+import { Button, ComingSoonButton } from '../components/ui';
 import {
   X, Send, Minus, Maximize2, Paperclip,
   Image, Link, Smile, MoreVertical, Trash2,
@@ -309,50 +309,30 @@ export default function Compose() {
 
                 {/* Formatting tools (placeholders) */}
                 <div className="flex items-center gap-1 ml-2 border-l border-[#E5E8EB] pl-2">
-                  <button
-                    className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
+                  <ComingSoonButton
+                    icon={Paperclip}
                     title="Attach files (Coming soon)"
-                    aria-label="Attach files (Coming soon)"
-                    disabled
-                  >
-                    <Paperclip className="w-4 h-4" />
-                  </button>
-                  <button
-                    className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
+                  />
+                  <ComingSoonButton
+                    icon={Link}
                     title="Insert link (Coming soon)"
-                    aria-label="Insert link (Coming soon)"
-                    disabled
-                  >
-                    <Link className="w-4 h-4" />
-                  </button>
-                  <button
-                    className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
+                  />
+                  <ComingSoonButton
+                    icon={Smile}
                     title="Insert emoji (Coming soon)"
-                    aria-label="Insert emoji (Coming soon)"
-                    disabled
-                  >
-                    <Smile className="w-4 h-4" />
-                  </button>
-                  <button
-                    className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
+                  />
+                  <ComingSoonButton
+                    icon={Image}
                     title="Insert photo (Coming soon)"
-                    aria-label="Insert photo (Coming soon)"
-                    disabled
-                  >
-                    <Image className="w-4 h-4" />
-                  </button>
+                  />
                 </div>
               </div>
 
               <div className="flex items-center gap-1">
-                <button
-                  className="p-2 text-[#C0C0C0] cursor-not-allowed rounded-full"
+                <ComingSoonButton
+                  icon={MoreVertical}
                   title="More options (Coming soon)"
-                  aria-label="More options (Coming soon)"
-                  disabled
-                >
-                  <MoreVertical className="w-4 h-4" />
-                </button>
+                />
                 <button
                   onClick={handleDelete}
                   className="p-2 text-[#6B6B6B] hover:text-[#C4756E] hover:bg-[#C4756E]/10 rounded-full"
