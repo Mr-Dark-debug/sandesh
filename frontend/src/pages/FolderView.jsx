@@ -4,7 +4,7 @@ import { getMail, moveMessage } from '../api';
 import { format, isToday, isYesterday, isThisYear } from 'date-fns';
 import { useToast } from '../components/ToastContext';
 import { useConfirmation } from '../components/ConfirmationDialog';
-import { Skeleton, EmptyState, Badge } from '../components/ui';
+import { Skeleton, EmptyState, Badge, ComingSoonButton } from '../components/ui';
 import {
   Mail, MailOpen, Inbox, Send, Trash2, Folder,
   ChevronDown, RefreshCw, AlertCircle, MoreVertical,
@@ -69,18 +69,11 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
       </button>
 
       {/* Star (placeholder) */}
-      <button
-        onClick={(e) => e.stopPropagation()}
-        aria-label="Star message"
-        className="
-          w-8 h-8 flex items-center justify-center
-          text-[#8B8B8B] hover:text-[#D4A855]
-          rounded hover:bg-[#E5E8EB]
-          transition-colors
-        "
-      >
-        <Star className="w-5 h-5" />
-      </button>
+      <ComingSoonButton
+        icon={Star}
+        title="Star (Coming soon)"
+        className="w-8 h-8 !p-0 flex items-center justify-center rounded"
+      />
 
       {/* Email Content - Clickable */}
       <Link
@@ -112,20 +105,16 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
 
       {/* Hover Actions */}
       <div className={`${isFocused ? 'flex' : 'hidden group-hover:flex'} items-center gap-1`}>
-        <button
-          className="w-8 h-8 flex items-center justify-center text-[#8B8B8B] hover:text-[#3D3D3D] rounded hover:bg-[#E5E8EB]"
-          title="Archive"
-          aria-label="Archive message"
-        >
-          <Archive className="w-4 h-4" />
-        </button>
-        <button
-          className="w-8 h-8 flex items-center justify-center text-[#8B8B8B] hover:text-[#C4756E] rounded hover:bg-[#E5E8EB]"
-          title="Delete"
-          aria-label="Delete message"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+        <ComingSoonButton
+          icon={Archive}
+          title="Archive (Coming soon)"
+          className="w-8 h-8 !p-0 flex items-center justify-center rounded"
+        />
+        <ComingSoonButton
+          icon={Trash2}
+          title="Delete (Coming soon)"
+          className="w-8 h-8 !p-0 flex items-center justify-center rounded hover:text-[#C4756E]"
+        />
       </div>
     </div>
   );
