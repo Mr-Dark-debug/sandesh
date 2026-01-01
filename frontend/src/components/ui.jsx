@@ -400,3 +400,25 @@ export function DropdownItem({ children, icon: Icon, className = '', ...props })
     </button>
   );
 }
+
+/**
+ * Button for features that are coming soon.
+ * Accessible implementation that is discoverable via keyboard but non-functional.
+ */
+export function ComingSoonButton({ icon: Icon, title, className = '' }) {
+  return (
+    <button
+      className={`
+        p-2 text-[#C0C0C0] cursor-not-allowed rounded-full
+        hover:bg-transparent focus:outline-none focus-visible:ring-2 focus-visible:ring-[#A3A380]/20
+        ${className}
+      `}
+      title={title}
+      aria-label={title}
+      aria-disabled="true"
+      onClick={(e) => e.preventDefault()}
+    >
+      <Icon className="w-4 h-4" />
+    </button>
+  );
+}
