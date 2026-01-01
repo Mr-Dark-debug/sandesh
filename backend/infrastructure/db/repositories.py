@@ -253,22 +253,22 @@ class EmailRepository:
 
         result = self.session.execute(stmt)
 
-        emails = []
-        for row in result:
-             emails.append(Email(
-                 id=row.id,
-                 owner_id=row.owner_id,
-                 folder_id=row.folder_id,
-                 sender=row.sender,
-                 subject=row.subject,
-                 body=row.body,
-                 recipients=[], # Optimization: Empty list satisfies contract, saves parsing
-                 is_read=row.is_read,
-                 timestamp=row.timestamp,
-                 sender_display_name=row.sender_display_name,
-                 sender_email=row.sender_email
-             ))
-        return emails
+        return [
+            Email(
+                id=row.id,
+                owner_id=row.owner_id,
+                folder_id=row.folder_id,
+                sender=row.sender,
+                subject=row.subject,
+                body=row.body,
+                recipients=[],  # Optimization: Empty list satisfies contract, saves parsing
+                is_read=row.is_read,
+                timestamp=row.timestamp,
+                sender_display_name=row.sender_display_name,
+                sender_email=row.sender_email
+            )
+            for row in result
+        ]
 
     def get_by_id_and_owner(self, email_id: int, owner_id: int) -> Optional[Email]:
         result = self.session.execute(
