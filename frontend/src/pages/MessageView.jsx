@@ -4,7 +4,7 @@ import { getMessage, moveMessage, getFolders } from '../api';
 import { format } from 'date-fns';
 import { useToast } from '../components/ToastContext';
 import { useConfirmation } from '../components/ConfirmationDialog';
-import { Button, Skeleton, Card } from '../components/ui';
+import { Button, Skeleton, Card, ComingSoonButton } from '../components/ui';
 import {
   ArrowLeft, Trash2, Mail, User, Calendar,
   Folder, AlertCircle, ChevronDown, Archive,
@@ -200,18 +200,10 @@ export default function MessageView() {
               </button>
 
               {/* Archive button */}
-              <button
-                className="
-                  p-2 rounded-full text-[#C0C0C0]
-                  cursor-not-allowed
-                  transition-colors
-                "
+              <ComingSoonButton
+                icon={Archive}
                 title="Archive (Coming soon)"
-                aria-label="Archive (Coming soon)"
-                aria-disabled="true"
-              >
-                <Archive className="w-5 h-5" />
-              </button>
+              />
 
               {/* Delete button */}
               <button
@@ -288,14 +280,10 @@ export default function MessageView() {
               >
                 <Printer className="w-5 h-5" />
               </button>
-              <button
-                className="p-2 rounded-full text-[#C0C0C0] cursor-not-allowed"
+              <ComingSoonButton
+                icon={Star}
                 title="Star (Coming soon)"
-                aria-label="Star (Coming soon)"
-                aria-disabled="true"
-              >
-                <Star className="w-5 h-5" />
-              </button>
+              />
             </div>
           </div>
         </div>
