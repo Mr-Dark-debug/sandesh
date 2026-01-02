@@ -140,6 +140,9 @@ export default function Compose() {
   return (
     <div className="h-full flex items-end justify-end p-4 md:p-6 bg-transparent pointer-events-none">
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="compose-title"
         className={`
           pointer-events-auto
           bg-white rounded-t-lg shadow-2xl border border-[#E5E8EB]
@@ -159,7 +162,7 @@ export default function Compose() {
           "
           onClick={() => isMinimized && setIsMinimized(false)}
         >
-          <h3 className="text-sm font-medium truncate">
+          <h3 id="compose-title" className="text-sm font-medium truncate">
             {subject || 'New Message'}
           </h3>
           <div className="flex items-center gap-1">
