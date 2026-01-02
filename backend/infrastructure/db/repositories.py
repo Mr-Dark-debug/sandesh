@@ -222,7 +222,7 @@ class EmailRepository:
         models = result.scalars().all()
         return [self._to_entity(m) for m in models]
 
-    def get_previews_by_folder(self, folder_id: int) -> List[Email]:
+    def get_previews_by_folder(self, folder_id: int, owner_id: int) -> List[Email]:
         """
         Optimized query to get email previews for a folder.
         Truncates body to 100 characters to prevent over-fetching large text data.
@@ -232,6 +232,7 @@ class EmailRepository:
         - Removed `recipients` from selection to avoid fetching potentially large JSON text.
         - Returns empty list for recipients since list views don't display them.
         - Reduces I/O and CPU usage (json.loads) significantly.
+        - Filters by `owner_id` to allow skipping folder ownership check in service.
         """
         stmt = (
             select(
@@ -247,7 +248,7 @@ class EmailRepository:
                 EmailModel.is_read,
                 EmailModel.timestamp
             )
-            .where(EmailModel.folder_id == folder_id)
+            .where(and_(EmailModel.folder_id == folder_id, EmailModel.owner_id == owner_id))
             .order_by(EmailModel.timestamp.desc())
         )
 
