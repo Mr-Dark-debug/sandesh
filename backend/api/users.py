@@ -5,8 +5,9 @@ Admin endpoints for user management.
 User endpoints for profile management.
 """
 from typing import List, Optional
+import re
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from .deps import get_user_service, get_current_admin, get_current_user, get_db
 from ..services.user_service import UserService
@@ -23,6 +24,14 @@ class UserCreate(BaseModel):
     username: str = Field(..., min_length=3, max_length=30)
     password: str = Field(..., min_length=6)
     display_name: Optional[str] = Field(None, max_length=50)
+
+    @field_validator('display_name')
+    @classmethod
+    def sanitize_display_name(cls, v: Optional[str]) -> Optional[str]:
+        if v:
+            # Security: Prevent Header Injection by removing control characters
+            return re.sub(r'[\r\n]', ' ', v).strip()
+        return v
 
 
 class UserResponse(BaseModel):
@@ -42,6 +51,14 @@ class ProfileUpdate(BaseModel):
     display_name: Optional[str] = Field(None, min_length=1, max_length=50)
     signature: Optional[str] = Field(None, max_length=500)
     avatar_color: Optional[str] = Field(None, pattern=r'^#[0-9A-Fa-f]{6}$')
+
+    @field_validator('display_name')
+    @classmethod
+    def sanitize_display_name(cls, v: Optional[str]) -> Optional[str]:
+        if v:
+            # Security: Prevent Header Injection by removing control characters
+            return re.sub(r'[\r\n]', ' ', v).strip()
+        return v
 
 
 class ProfileResponse(BaseModel):

@@ -4,8 +4,9 @@ Mail API
 Endpoints for email operations.
 """
 from typing import List, Optional
+import re
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from .deps import get_mail_service, get_current_user
 from ..services.mail_service import MailService
 from ..core.entities.user import User
@@ -20,6 +21,14 @@ class EmailSendRequest(BaseModel):
     cc: List[str] = Field(default=[], max_items=50, description="Max 50 CC recipients")
     subject: str = Field(..., max_length=200, description="Email subject")
     body: str = Field(..., max_length=100000, description="Email body (max 100KB)")
+
+    @field_validator('subject')
+    @classmethod
+    def sanitize_subject(cls, v: str) -> str:
+        if v:
+            # Security: Prevent Header Injection in Subject
+            return re.sub(r'[\r\n]', ' ', v).strip()
+        return v
 
 
 class MoveEmailRequest(BaseModel):
