@@ -338,6 +338,7 @@ class EmailRepository:
             recipients=json.loads(model.recipients),
             is_read=model.is_read,
             timestamp=model.timestamp,
-            sender_display_name=model.sender_display_name if hasattr(model, 'sender_display_name') else None,
-            sender_email=model.sender_email if hasattr(model, 'sender_email') else None
+            # ⚡ Bolt: Removed redundant hasattr checks for columns that always exist
+            sender_display_name=model.sender_display_name,
+            sender_email=model.sender_email
         )
