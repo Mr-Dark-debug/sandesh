@@ -44,8 +44,9 @@ class EmailResponse(BaseModel):
         return EmailResponse(
             id=entity.id,
             sender=entity.sender,
-            sender_display_name=getattr(entity, 'sender_display_name', None),
-            sender_email=getattr(entity, 'sender_email', None),
+            # ⚡ Bolt: Direct access is faster than getattr for known fields
+            sender_display_name=entity.sender_display_name,
+            sender_email=entity.sender_email,
             recipients=entity.recipients,
             subject=entity.subject or "",
             body=entity.body or "",
@@ -80,8 +81,9 @@ class EmailListResponse(BaseModel):
         return EmailListResponse(
             id=entity.id,
             sender=entity.sender,
-            sender_display_name=getattr(entity, 'sender_display_name', None),
-            sender_email=getattr(entity, 'sender_email', None),
+            # ⚡ Bolt: Direct access is faster than getattr for known fields
+            sender_display_name=entity.sender_display_name,
+            sender_email=entity.sender_email,
             recipients=entity.recipients,
             subject=entity.subject or "",
             body=preview_body,
