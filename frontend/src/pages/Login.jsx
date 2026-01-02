@@ -132,7 +132,11 @@ export default function Login() {
 
           {/* Error message */}
           {error && (
-            <div className="mb-6 flex items-center gap-3 p-4 bg-[#C4756E]/10 border border-[#C4756E]/20 rounded-xl text-[#C4756E]">
+            <div
+              className="mb-6 flex items-center gap-3 p-4 bg-[#C4756E]/10 border border-[#C4756E]/20 rounded-xl text-[#C4756E]"
+              role="alert"
+              aria-live="assertive"
+            >
               <AlertCircle className="w-5 h-5 flex-shrink-0" />
               <p className="text-sm font-medium">{error}</p>
             </div>

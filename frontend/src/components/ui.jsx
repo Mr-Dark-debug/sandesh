@@ -251,8 +251,10 @@ export function Toast({
         animate-[slideUp_200ms_ease]
         ${className}
       `}
+      role={type === 'error' ? 'alert' : 'status'}
+      aria-live={type === 'error' ? 'assertive' : 'polite'}
     >
-      <span className="w-5 h-5 flex items-center justify-center rounded-full bg-white/20 text-xs font-bold">
+      <span className="w-5 h-5 flex items-center justify-center rounded-full bg-white/20 text-xs font-bold" aria-hidden="true">
         {icon}
       </span>
       <span className="text-sm font-medium">{message}</span>
