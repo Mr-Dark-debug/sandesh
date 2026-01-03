@@ -22,7 +22,8 @@ router = APIRouter()
 class UserCreate(BaseModel):
     """Request to create a new user (admin only)."""
     username: str = Field(..., min_length=3, max_length=30)
-    password: str = Field(..., min_length=6)
+    # 🛡️ Sentinel: Strengthened password policy to min 12 chars (NIST recommendation)
+    password: str = Field(..., min_length=12, max_length=128)
     display_name: Optional[str] = Field(None, max_length=50)
 
     @field_validator('display_name')
