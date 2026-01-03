@@ -287,6 +287,15 @@ class EmailRepository:
         self.session.execute(stmt)
         self.session.flush()
 
+    def move_to_folder(self, email_id: int, folder_id: int):
+        """
+        Optimized method to move an email to a folder using a single UPDATE statement.
+        Avoids SELECT + UPDATE overhead (saves 1 roundtrip).
+        """
+        stmt = update(EmailModel).where(EmailModel.id == email_id).values(folder_id=folder_id)
+        self.session.execute(stmt)
+        self.session.flush()
+
     def save(self, email: Email) -> Email:
         import time
         from sqlalchemy.exc import OperationalError
