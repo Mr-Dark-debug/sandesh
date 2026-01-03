@@ -224,16 +224,21 @@ export default function MessageView() {
               <div className="relative ml-2">
                 <button
                   onClick={() => setShowMoveMenu(!showMoveMenu)}
-                  className="
+                  className={`
                     flex items-center gap-1 px-3 py-1.5 rounded-lg
-                    text-sm text-[#6B6B6B]
-                    hover:bg-[#F6F8FC] hover:text-[#3D3D3D]
-                    transition-colors
-                  "
+                    text-sm transition-colors
+                    ${showMoveMenu
+                      ? 'bg-[#F6F8FC] text-[#3D3D3D]'
+                      : 'text-[#6B6B6B] hover:bg-[#F6F8FC] hover:text-[#3D3D3D]'
+                    }
+                  `}
+                  aria-haspopup="true"
+                  aria-expanded={showMoveMenu}
+                  aria-label="Move to folder"
                 >
                   <Folder className="w-4 h-4" />
                   Move to
-                  <ChevronDown className="w-3 h-3" />
+                  <ChevronDown className={`w-3 h-3 transition-transform ${showMoveMenu ? 'rotate-180' : ''}`} />
                 </button>
 
                 {showMoveMenu && (
@@ -242,17 +247,21 @@ export default function MessageView() {
                       className="fixed inset-0 z-40"
                       onClick={() => setShowMoveMenu(false)}
                     />
-                    <div className="
-                      absolute left-0 top-full mt-1 z-50
-                      w-48 bg-white rounded-lg shadow-lg border border-[#E5E8EB]
-                      py-1 animate-[fadeIn_100ms_ease]
-                    ">
+                    <div
+                      className="
+                        absolute left-0 top-full mt-1 z-50
+                        w-48 bg-white rounded-lg shadow-lg border border-[#E5E8EB]
+                        py-1 animate-[fadeIn_100ms_ease]
+                      "
+                      role="menu"
+                    >
                       {folders
                         .filter(f => f.id !== email.folder_id)
                         .map(folder => (
                           <button
                             key={folder.id}
                             onClick={() => handleMove(folder.id, folder.name)}
+                            role="menuitem"
                             className="
                               w-full flex items-center gap-2.5 px-3 py-2
                               text-sm text-[#3D3D3D] text-left
