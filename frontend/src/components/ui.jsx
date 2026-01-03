@@ -75,6 +75,7 @@ export function Input({
   error,
   className = '',
   id,
+  required,
   ...props 
 }) {
   const generatedId = useId();
@@ -86,10 +87,16 @@ export function Input({
       {label && (
         <label htmlFor={inputId} className="block text-sm font-medium text-[#3D3D3D] mb-1.5">
           {label}
+          {required && (
+            <span className="text-[#C4756E] ml-1" aria-hidden="true" title="Required field">
+              *
+            </span>
+          )}
         </label>
       )}
       <input
         id={inputId}
+        required={required}
         aria-invalid={!!error}
         aria-describedby={error ? errorId : undefined}
         className={`
@@ -122,6 +129,7 @@ export function Textarea({
   error,
   className = '',
   id,
+  required,
   ...props 
 }) {
   const generatedId = useId();
@@ -133,10 +141,16 @@ export function Textarea({
       {label && (
         <label htmlFor={inputId} className="block text-sm font-medium text-[#3D3D3D] mb-1.5">
           {label}
+          {required && (
+            <span className="text-[#C4756E] ml-1" aria-hidden="true" title="Required field">
+              *
+            </span>
+          )}
         </label>
       )}
       <textarea
         id={inputId}
+        required={required}
         aria-invalid={!!error}
         aria-describedby={error ? errorId : undefined}
         className={`
@@ -197,7 +211,7 @@ export function EmptyState({
   className = ''
 }) {
   return (
-    <div className={`flex flex-col items-center justify-center py-16 px-8 text-center ${className}`}>
+    <div className={`flex flex-col items-center justify-center py-16 px-8 text-center animate-[fadeIn_300ms_ease] ${className}`}>
       {Icon && (
         <div className="w-16 h-16 rounded-full bg-[#BB8588]/10 flex items-center justify-center mb-4">
           <Icon className="w-8 h-8 text-[#BB8588]" />
