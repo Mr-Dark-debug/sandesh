@@ -94,8 +94,8 @@ class MailService:
                 if not target_folder:
                     raise EntityNotFoundError("Target folder not found")
 
-                email.folder_id = target_folder.id
-                self.email_repo.save(email)
+                # ⚡ Bolt: Use optimized UPDATE query instead of fetch-modify-save cycle
+                self.email_repo.move_to_folder(email.id, target_folder.id)
                 
                 return  # Success
             except OperationalError as e:
