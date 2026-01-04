@@ -74,7 +74,7 @@ class EmailListResponse(BaseModel):
     sender: str
     sender_display_name: Optional[str] = None
     sender_email: Optional[str] = None
-    recipients: List[str]
+    # recipients: List[str] # ⚡ Bolt: Removed to reduce payload size (unused in list view)
     subject: str
     body: str
     timestamp: str
@@ -93,7 +93,7 @@ class EmailListResponse(BaseModel):
             # ⚡ Bolt: Direct access is faster than getattr for known fields
             sender_display_name=entity.sender_display_name,
             sender_email=entity.sender_email,
-            recipients=entity.recipients,
+            # recipients=entity.recipients, # Optimization: Excluded from list response
             subject=entity.subject or "",
             body=preview_body,
             timestamp=entity.timestamp.isoformat(),
