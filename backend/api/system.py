@@ -4,8 +4,9 @@ System Settings API (Admin Only)
 Endpoints for managing system-wide configuration including namespace.
 """
 from typing import List, Optional
+import re
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from .deps import get_current_admin, get_db
 from ..core.entities.user import User
@@ -30,6 +31,15 @@ class SystemSettingsUpdate(BaseModel):
     instance_name: Optional[str] = Field(None, min_length=1, max_length=50)
     mail_namespace: Optional[str] = Field(None, min_length=2, max_length=20)
     confirm_namespace_change: bool = False
+
+    @field_validator('mail_namespace')
+    @classmethod
+    def validate_namespace(cls, v: Optional[str]) -> Optional[str]:
+        if v:
+            # Security: Allow only lowercase letters, numbers, and hyphens to ensure valid email domain part
+            if not re.match(r'^[a-z][a-z0-9-]*$', v):
+                raise ValueError('Namespace must start with a letter and contain only lowercase letters, numbers, and hyphens')
+        return v
 
 
 class NamespaceChangeWarnings(BaseModel):

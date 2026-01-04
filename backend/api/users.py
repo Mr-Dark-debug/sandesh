@@ -26,6 +26,14 @@ class UserCreate(BaseModel):
     password: str = Field(..., min_length=12, max_length=128)
     display_name: Optional[str] = Field(None, max_length=50)
 
+    @field_validator('username')
+    @classmethod
+    def validate_username(cls, v: str) -> str:
+        # Security: Allow only lowercase alphanumeric and underscore to prevent issues in email generation
+        if not re.match(r'^[a-z0-9_]+$', v):
+            raise ValueError('Username must contain only lowercase letters, numbers, and underscores')
+        return v
+
     @field_validator('display_name')
     @classmethod
     def sanitize_display_name(cls, v: Optional[str]) -> Optional[str]:
