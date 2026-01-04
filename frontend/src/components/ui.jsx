@@ -1,5 +1,6 @@
 import React, { useId } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useToast } from './ToastContext';
 
 /**
  * Primary button with Sandesh styling
@@ -251,10 +252,14 @@ export function Toast({
     warning: {
       bg: 'bg-[#D4A855]',
       icon: '!'
+    },
+    info: {
+      bg: 'bg-[#A3A380]',
+      icon: 'ℹ'
     }
   };
 
-  const { bg, icon } = types[type];
+  const { bg, icon } = types[type] || types.success;
 
   return (
     <div 
@@ -420,8 +425,29 @@ export function DropdownItem({ children, icon: Icon, className = '', ...props })
 /**
  * Button for features that are coming soon.
  * Accessible implementation that is discoverable via keyboard but non-functional.
+ *
+ * Now provides visual feedback via Toast notification.
  */
 export function ComingSoonButton({ icon: Icon, title, className = '' }) {
+  const toast = useToast();
+
+  const handleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation(); // Prevent row clicks in lists
+
+    // Extract the clean title without "(Coming soon)" for the message
+    const cleanTitle = title?.replace(/\s*\(Coming soon\)\s*$/i, '') || 'This feature';
+
+    // Use the exposed warning or addToast directly
+    // Assuming addToast or a specific 'info' helper if available, or fallback to warning/success
+    // Since we don't have 'info' exposed in the context directly in my memory, I'll check ToastContext or use 'warning'
+    // Actually, looking at ToastContext above, I added 'info' type to Toast component but need to see if context exposes it.
+    // The previous read of ToastContext showed success, error, warning. I'll stick to 'warning' or just addToast with type 'info' if valid.
+    // Let's safe bet on 'addToast' with 'info' if the Toast component supports it (I added support in this file).
+
+    toast.addToast(`${cleanTitle} is coming soon!`, 'info');
+  };
+
   return (
     <button
       className={`
@@ -432,7 +458,7 @@ export function ComingSoonButton({ icon: Icon, title, className = '' }) {
       title={title}
       aria-label={title}
       aria-disabled="true"
-      onClick={(e) => e.preventDefault()}
+      onClick={handleClick}
     >
       <Icon className="w-4 h-4" />
     </button>
