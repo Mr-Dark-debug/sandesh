@@ -5,6 +5,7 @@ Endpoints for email operations.
 """
 from typing import List, Optional
 import re
+from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, Field, field_validator
 from .deps import get_mail_service, get_current_user
@@ -44,25 +45,24 @@ class EmailResponse(BaseModel):
     recipients: List[str]
     subject: str
     body: str
-    timestamp: str
+    timestamp: datetime
     is_read: bool
     folder_id: int
 
     @staticmethod
     def from_entity(entity):
-        return EmailResponse(
-            id=entity.id,
-            sender=entity.sender,
-            # ⚡ Bolt: Direct access is faster than getattr for known fields
-            sender_display_name=entity.sender_display_name,
-            sender_email=entity.sender_email,
-            recipients=entity.recipients,
-            subject=entity.subject or "",
-            body=entity.body or "",
-            timestamp=entity.timestamp.isoformat(),
-            is_read=entity.is_read,
-            folder_id=entity.folder_id
-        )
+        return {
+            "id": entity.id,
+            "sender": entity.sender,
+            "sender_display_name": entity.sender_display_name,
+            "sender_email": entity.sender_email,
+            "recipients": entity.recipients,
+            "subject": entity.subject or "",
+            "body": entity.body or "",
+            "timestamp": entity.timestamp,
+            "is_read": entity.is_read,
+            "folder_id": entity.folder_id
+        }
 
 
 class EmailListResponse(BaseModel):
@@ -74,32 +74,12 @@ class EmailListResponse(BaseModel):
     sender: str
     sender_display_name: Optional[str] = None
     sender_email: Optional[str] = None
-    # recipients: List[str] # ⚡ Bolt: Removed to reduce payload size (unused in list view)
+    recipients: List[str] # Restored to maintain API contract
     subject: str
     body: str
-    timestamp: str
+    timestamp: datetime
     is_read: bool
     folder_id: int
-
-    @staticmethod
-    def from_entity(entity):
-        # Truncate body to 100 chars for preview
-        full_body = entity.body or ""
-        preview_body = full_body[:100]
-
-        return EmailListResponse(
-            id=entity.id,
-            sender=entity.sender,
-            # ⚡ Bolt: Direct access is faster than getattr for known fields
-            sender_display_name=entity.sender_display_name,
-            sender_email=entity.sender_email,
-            # recipients=entity.recipients, # Optimization: Excluded from list response
-            subject=entity.subject or "",
-            body=preview_body,
-            timestamp=entity.timestamp.isoformat(),
-            is_read=entity.is_read,
-            folder_id=entity.folder_id
-        )
 
 
 @router.get("/mail/{folder_id}", response_model=List[EmailListResponse])
@@ -114,7 +94,25 @@ def get_mail_in_folder(
     """
     try:
         emails = mail_service.get_folder_emails(folder_id, current_user.id)
-        return [EmailListResponse.from_entity(e) for e in emails]
+        # ⚡ Bolt: Optimized serialization
+        # 1. Use dictionary comprehension to avoid Pydantic model instantiation loop
+        # 2. Pass datetime objects directly (faster than calling .isoformat() in Python)
+        # 3. Ensure body is truncated (defensive coding, though DB should handle it)
+        return [
+            {
+                "id": e.id,
+                "sender": e.sender,
+                "sender_display_name": e.sender_display_name,
+                "sender_email": e.sender_email,
+                "recipients": e.recipients,
+                "subject": e.subject or "",
+                "body": (e.body or "")[:100], # Defensive truncation
+                "timestamp": e.timestamp, # Pydantic handles datetime -> ISO string
+                "is_read": e.is_read,
+                "folder_id": e.folder_id
+            }
+            for e in emails
+        ]
     except EntityNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
 
@@ -131,6 +129,7 @@ def get_email(
     """
     try:
         email = mail_service.get_email(email_id, current_user.id)
+        # ⚡ Bolt: Return dict to leverage Pydantic's optimized validation
         return EmailResponse.from_entity(email)
     except EntityNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
