@@ -214,7 +214,10 @@ export function EmptyState({
   return (
     <div className={`flex flex-col items-center justify-center py-16 px-8 text-center animate-[fadeIn_300ms_ease] ${className}`}>
       {Icon && (
-        <div className="w-16 h-16 rounded-full bg-[#BB8588]/10 flex items-center justify-center mb-4">
+        <div
+          className="w-16 h-16 rounded-full bg-[#BB8588]/10 flex items-center justify-center mb-4"
+          aria-hidden="true"
+        >
           <Icon className="w-8 h-8 text-[#BB8588]" />
         </div>
       )}
@@ -281,6 +284,7 @@ export function Toast({
         <button 
           onClick={onClose}
           className="ml-2 text-white/80 hover:text-white transition-colors"
+          aria-label="Close"
         >
           ✕
         </button>
