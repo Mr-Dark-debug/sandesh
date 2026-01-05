@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { AlertTriangle, Info, Trash2, LogOut, UserMinus, FolderMinus, X } from 'lucide-react';
 
 const ConfirmationContext = createContext(null);
@@ -312,8 +312,16 @@ export function ConfirmationProvider({ children }) {
         });
     }, []);
 
+    // ⚡ Bolt: Memoize context value to prevent unnecessary re-renders of consumers
+    // when dialog state changes.
+    const contextValue = useMemo(() => ({
+        confirm,
+        SEVERITY,
+        CONFIGS: CONFIRMATION_CONFIGS
+    }), [confirm]);
+
     return (
-        <ConfirmationContext.Provider value={{ confirm, SEVERITY, CONFIGS: CONFIRMATION_CONFIGS }}>
+        <ConfirmationContext.Provider value={contextValue}>
             {children}
             <ConfirmationDialog
                 isOpen={dialog.isOpen}
@@ -335,5 +343,3 @@ export function useConfirmation() {
     }
     return context;
 }
-
-export { SEVERITY, CONFIRMATION_CONFIGS };
