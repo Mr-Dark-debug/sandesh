@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { getFolders, createFolder, checkHealth } from '../api';
@@ -23,6 +24,7 @@ export default function Layout() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [namespace, setNamespace] = useState('local');
   const [expandedSections, setExpandedSections] = useState({ manage: true }); // Track expanded sections
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -86,12 +88,6 @@ export default function Layout() {
     }
   };
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
-    setShowUserMenu(false);
-  }, [location.pathname]);
-
   const handleCreateFolder = async (e) => {
     e.preventDefault();
     if (!newFolderName.trim()) return;
@@ -131,6 +127,12 @@ export default function Layout() {
 
   const isActive = (path) => location.pathname === path;
 
+  // Determine if sidebar should be hidden from screen readers/keyboard
+  // On mobile: hidden if menu is closed
+  // On desktop: hidden if sidebar is closed
+  // But CSS handles display/visibility via classes
+  // We need to apply 'invisible' or 'visibility: hidden' when closed on desktop to remove from tab order
+
   return (
     <div className="flex h-screen bg-white overflow-hidden">
       <a
@@ -143,16 +145,22 @@ export default function Layout() {
       {/* Sidebar */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-40 w-[280px] 
+          fixed inset-y-0 left-0 z-40
           bg-[#F6F8FC] border-r border-[#E5E8EB]
-          transform transition-transform duration-200 ease-in-out
-          ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
-          md:relative md:translate-x-0
+          transform transition-all duration-200 ease-in-out
           flex flex-col
+
+          /* Mobile: controlled by mobileMenuOpen */
+          ${mobileMenuOpen ? 'translate-x-0 w-[280px]' : '-translate-x-full w-[280px]'}
+
+          /* Desktop: controlled by isSidebarOpen */
+          md:translate-x-0 md:relative
+          ${isSidebarOpen ? 'md:w-[280px]' : 'md:w-0 md:border-r-0 overflow-hidden md:invisible'}
         `}
+        aria-hidden={mobileMenuOpen ? "false" : (isSidebarOpen ? "false" : "true")}
       >
         {/* Logo Header */}
-        <div className="h-16 flex items-center justify-between px-4">
+        <div className="h-16 flex items-center justify-between px-4 min-w-[280px]">
           <Link to="/app/" className="flex items-center gap-3 px-2">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#A3A380] to-[#8B8B68] flex items-center justify-center shadow-sm">
               <Mail className="w-5 h-5 text-white" />
@@ -164,7 +172,7 @@ export default function Layout() {
           </Link>
           <button
             onClick={() => setMobileMenuOpen(false)}
-            className="p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-white rounded-lg"
+            className="md:hidden p-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-white rounded-lg"
             aria-label="Close menu"
           >
             <X className="w-5 h-5" />
@@ -172,7 +180,7 @@ export default function Layout() {
         </div>
 
         {/* Compose Button */}
-        <div className="px-4 py-3">
+        <div className="px-4 py-3 min-w-[280px]">
           <button
             onClick={() => navigate('/app/compose')}
             className="
@@ -189,7 +197,7 @@ export default function Layout() {
         </div>
 
         {/* Folders List */}
-        <nav className="flex-1 overflow-y-auto px-3 py-2">
+        <nav className="flex-1 overflow-y-auto px-3 py-2 min-w-[280px]">
           {foldersLoading ? (
             // Loading skeletons
             <div className="space-y-1">
@@ -355,7 +363,7 @@ export default function Layout() {
         </nav>
 
         {/* User Footer */}
-        <div className="p-3 border-t border-[#E5E8EB]">
+        <div className="p-3 border-t border-[#E5E8EB] min-w-[280px]">
           <div className="relative">
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
@@ -480,9 +488,10 @@ export default function Layout() {
 
           {/* Desktop sidebar toggle button */}
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
             className="hidden md:block p-2 -ml-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-lg"
-            aria-label="Toggle sidebar"
+            aria-label={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+            aria-expanded={isSidebarOpen}
           >
             <Menu className="w-6 h-6" />
           </button>
