@@ -294,6 +294,7 @@ export default function Compose() {
                 <button
                   onClick={handleSubmit}
                   title="Send (Ctrl+Enter)"
+                  aria-label={sending ? "Sending..." : "Send"}
                   disabled={sending || !to.trim()}
                   className="
                     flex items-center gap-2 px-5 py-2
