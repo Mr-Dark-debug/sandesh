@@ -82,5 +82,7 @@ class SandeshSMTPHandler:
 
 def create_smtp_controller(hostname="0.0.0.0", port=2525):
     handler = SandeshSMTPHandler()
-    controller = Controller(handler, hostname=hostname, port=port)
+    # 🛡️ Sentinel: Set strict data size limit (200KB) to prevent DoS via large emails.
+    # This aligns with the API limit of 100KB body + headers overhead.
+    controller = Controller(handler, hostname=hostname, port=port, data_size_limit=204800)
     return controller
