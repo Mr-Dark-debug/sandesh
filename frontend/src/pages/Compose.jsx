@@ -172,7 +172,11 @@ export default function Compose() {
               title={isMinimized ? 'Expand' : 'Minimize'}
               aria-label={isMinimized ? 'Expand' : 'Minimize'}
             >
-              <Minus className="w-4 h-4" />
+              {isMinimized ? (
+                <Maximize2 className="w-4 h-4" />
+              ) : (
+                <Minus className="w-4 h-4" />
+              )}
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); handleClose(); }}
@@ -305,7 +309,10 @@ export default function Compose() {
                   "
                 >
                   {sending ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Sending...
+                    </>
                   ) : (
                     'Send'
                   )}
