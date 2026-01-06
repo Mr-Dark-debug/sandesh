@@ -7,3 +7,8 @@
 **Vulnerability:** The internal SMTP server (port 2525) used default `aiosmtpd` settings with a 33MB message size limit, while the API correctly enforced a 100KB body limit. This discrepancy allowed a local attacker to bypass API limits and potentially exhaust server memory or disk space by connecting directly to the SMTP port.
 **Learning:** Security controls at the API layer (e.g., Pydantic validators) are insufficient if underlying services (like SMTP) have different, more permissive defaults. Consistency across all entry points is crucial.
 **Prevention:** Explicitly configured `data_size_limit=204800` (200KB) on the SMTP Controller to align with API constraints and prevent Denial of Service attacks.
+
+## 2024-05-26 - Folder Name Input Validation
+**Vulnerability:** The folder creation endpoint lacked input length limits and character validation, allowing users to create folders with extremely long names (potential DoS/UI break) or confusing characters.
+**Learning:** Even simple string fields in internal APIs need constraints. Pydantic's default behavior allows strings of any length, so explicit `max_length` and regex validation are necessary to preserve data integrity and prevent resource exhaustion.
+**Prevention:** Added strict `max_length=50` and alphanumeric+ regex validation to the `FolderCreate` model.
