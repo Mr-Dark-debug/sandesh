@@ -5,3 +5,7 @@
 ## 2024-05-24 - [Optimize Email List Fetch]
 **Learning:** The `get_previews_by_folder` query was fetching the `recipients` column (JSON text) and parsing it for every email in the list, even though the frontend list view does not display recipients. This caused unnecessary I/O and CPU overhead, especially for folders with many emails.
 **Action:** Removed `recipients` from the SELECT statement in `EmailRepository.get_previews_by_folder` and passed an empty list to the entity. Benchmarks showed a ~47% reduction in processing time for the query.
+
+## 2025-01-06 - [Redundant State in Layout]
+**Learning:** The `Layout.jsx` component was maintaining a separate `unreadCounts` state that was derived from `folders` data which already contained the unread counts. This caused an extra re-render on every folder fetch and added unnecessary complexity.
+**Action:** Removed `unreadCounts` state and updated the render loop to use `folder.unread_count` directly. This eliminates one state update and simplifies the component logic.

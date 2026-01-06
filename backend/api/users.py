@@ -100,7 +100,8 @@ def _to_response(user: User) -> UserResponse:
         display_name=user.display_name,
         email_address=user.email_address,
         is_admin=user.is_admin,
-        is_active=user.is_active if hasattr(user, 'is_active') else True,
+        # ⚡ Bolt: Removed redundant hasattr check
+        is_active=user.is_active,
         avatar_color=user.avatar_color,
         signature=user.signature
     )
