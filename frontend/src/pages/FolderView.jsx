@@ -83,7 +83,7 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
         {/* Sender */}
         <div className="w-[200px] flex-shrink-0">
           <p className={`text-sm truncate ${!email.is_read ? 'font-semibold text-[#3D3D3D]' : 'text-[#3D3D3D]'}`}>
-            {email.sender_display_name || (email.sender?.includes('<') ? email.sender.split('<')[0].trim() : email.sender?.split('@')[0]) || email.sender}
+            {email.sender_display_name || email.sender}
           </p>
         </div>
 
