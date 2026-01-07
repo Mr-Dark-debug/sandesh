@@ -142,11 +142,14 @@ function BulkActionBar({ selectedCount, onClear, onMoveToTrash }) {
   if (selectedCount === 0) return null;
 
   return (
-    <div className="
-      flex items-center gap-4 px-4 py-2
-      bg-[#F6F8FC] border-b border-[#E5E8EB]
-      animate-[slideUp_150ms_ease]
-    ">
+    <div
+      className="
+        flex items-center gap-4 px-4 py-2
+        bg-[#F6F8FC] border-b border-[#E5E8EB]
+        animate-[slideUp_150ms_ease]
+      "
+      role="status"
+    >
       <button
         onClick={onClear}
         className="flex items-center gap-2 text-sm text-[#3D3D3D] hover:bg-[#E5E8EB] px-3 py-1.5 rounded-lg"
