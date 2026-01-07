@@ -132,12 +132,13 @@ class UserRepository:
             username=model.username,
             password_hash=model.password_hash,
             is_admin=model.is_admin,
-            is_active=model.is_active if hasattr(model, 'is_active') else True,
-            display_name=model.display_name if hasattr(model, 'display_name') else None,
-            signature=model.signature if hasattr(model, 'signature') else None,
-            avatar_color=model.avatar_color if hasattr(model, 'avatar_color') else "#A3A380",
-            created_at=model.created_at if hasattr(model, 'created_at') else None,
-            updated_at=model.updated_at if hasattr(model, 'updated_at') else None
+            # ⚡ Bolt: Removed redundant hasattr checks for columns that always exist
+            is_active=model.is_active,
+            display_name=model.display_name,
+            signature=model.signature,
+            avatar_color=model.avatar_color or "#A3A380",
+            created_at=model.created_at,
+            updated_at=model.updated_at
         )
 
 

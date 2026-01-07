@@ -14,7 +14,6 @@ import {
 
 export default function Layout() {
   const [folders, setFolders] = useState([]);
-  const [unreadCounts, setUnreadCounts] = useState({});
   const [newFolderName, setNewFolderName] = useState('');
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [creatingFolderLoading, setCreatingFolderLoading] = useState(false);
@@ -73,12 +72,9 @@ export default function Layout() {
       });
       setFolders(sorted);
 
-      // ⚡ Bolt: Unread counts are now included in folder response (N+1 optimization)
-      const counts = {};
-      sorted.forEach(folder => {
-        counts[folder.id] = folder.unread_count || 0;
-      });
-      setUnreadCounts(counts);
+      // ⚡ Bolt: Removed redundant unreadCounts state calculation.
+      // Unread counts are already present in the 'folder' object (folder.unread_count).
+      // This prevents an extra re-render and redundant iteration.
 
     } catch (e) {
       console.error('Failed to load folders:', e);
@@ -213,7 +209,8 @@ export default function Layout() {
               {folders.map(folder => {
                 const Icon = getIcon(folder.name);
                 const active = isActive(`/app/folder/${folder.id}`);
-                const unreadCount = unreadCounts[folder.id] || 0;
+                // ⚡ Bolt: Use unread_count directly from folder object
+                const unreadCount = folder.unread_count || 0;
 
                 return (
                   <Link
@@ -544,7 +541,7 @@ export default function Layout() {
           className="flex-1 overflow-hidden bg-white focus:outline-none"
           tabIndex="-1"
         >
-          <Outlet context={{ refreshFolders: fetchFolders, unreadCounts, folders, foldersLoading }} />
+          <Outlet context={{ refreshFolders: fetchFolders, folders, foldersLoading }} />
         </main>
       </div>
     </div>
