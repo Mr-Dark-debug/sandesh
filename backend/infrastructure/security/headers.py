@@ -11,7 +11,7 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     - X-Frame-Options: DENY
     - X-XSS-Protection: 1; mode=block
     - Referrer-Policy: strict-origin-when-cross-origin
-    - Content-Security-Policy: frame-ancestors 'none';
+    - Content-Security-Policy: ... (Strict Policy)
     """
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         response = await call_next(request)
@@ -28,9 +28,23 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # Control referrer information
         response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
 
-        # Basic CSP to prevent embedding
-        # We start conservative to avoid breaking inline scripts/styles in development
+        # CSP: Restrict sources to self, allow data images (avatars), disallow objects/iframes
+        # script-src 'unsafe-inline' is retained for compatibility with some React runtimes/builds
+        # but external sources are strictly blocked.
+        csp_policy = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline'; "
+            "style-src 'self' 'unsafe-inline'; "
+            "img-src 'self' data:; "
+            "font-src 'self'; "
+            "connect-src 'self'; "
+            "frame-ancestors 'none'; "
+            "object-src 'none'; "
+            "base-uri 'self'; "
+            "form-action 'self';"
+        )
+
         if "Content-Security-Policy" not in response.headers:
-             response.headers["Content-Security-Policy"] = "frame-ancestors 'none';"
+             response.headers["Content-Security-Policy"] = csp_policy
 
         return response
