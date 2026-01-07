@@ -1,6 +1,7 @@
 from typing import List
+import re
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from .deps import get_folder_service, get_current_user
 from ..services.folder_service import FolderService
 from ..core.entities.user import User
@@ -16,7 +17,20 @@ class FolderResponse(BaseModel):
 
 
 class FolderCreate(BaseModel):
-    name: str
+    name: str = Field(..., min_length=1, max_length=50, description="Folder name")
+
+    @field_validator('name')
+    @classmethod
+    def validate_name(cls, v: str) -> str:
+        # Security: Prevent weird characters in folder names
+        # Expanded to allow dots and parenthesis for versions/grouping
+        stripped = v.strip()
+        if not stripped:
+            raise ValueError('Folder name cannot be empty or whitespace only')
+
+        if not re.match(r'^[a-zA-Z0-9 _\-.\(\)]+$', v):
+            raise ValueError('Folder name must contain only letters, numbers, spaces, underscores, hyphens, dots, and parentheses')
+        return stripped
 
 
 @router.get("", response_model=List[FolderResponse])
