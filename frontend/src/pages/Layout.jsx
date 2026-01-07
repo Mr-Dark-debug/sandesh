@@ -232,12 +232,9 @@ export default function Layout() {
                     <Icon className={`w-5 h-5 ${active ? 'text-[#3D3D3D]' : 'text-[#6B6B6B]'}`} />
                     <span className="flex-1">{folder.name}</span>
                     {unreadCount > 0 && (
-                      <span className={`
-                        text-xs font-semibold min-w-[20px] text-center
-                        ${active ? 'text-[#3D3D3D]' : 'text-[#6B6B6B]'}
-                      `}>
+                      <Badge variant="unread" className="ml-auto">
                         {unreadCount}
-                      </span>
+                      </Badge>
                     )}
                   </Link>
                 );
@@ -507,12 +504,14 @@ export default function Layout() {
               <Search className="w-5 h-5 text-[#8B8B8B]" />
               <input
                 type="text"
-                placeholder="Search in mail"
+                placeholder="Search (Coming soon)"
                 aria-label="Search in mail"
+                disabled
+                title="Search is coming soon"
                 className="
                   flex-1 bg-transparent text-sm text-[#3D3D3D]
                   placeholder:text-[#8B8B8B]
-                  focus:outline-none
+                  focus:outline-none cursor-not-allowed
                 "
               />
             </div>
