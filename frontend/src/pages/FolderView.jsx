@@ -1,28 +1,14 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, Link, useOutletContext, useNavigate } from 'react-router-dom';
 import { getMail, moveMessage } from '../api';
-import { format, isToday, isYesterday, isThisYear } from 'date-fns';
 import { useToast } from '../components/ToastContext';
 import { useConfirmation } from '../components/ConfirmationDialog';
-import { Skeleton, EmptyState, Badge, ComingSoonButton } from '../components/ui';
+import { Skeleton, EmptyState, Badge, ComingSoonButton, DateDisplay } from '../components/ui';
 import {
   Mail, MailOpen, Inbox, Send, Trash2, Folder,
   ChevronDown, RefreshCw, AlertCircle, MoreVertical,
   Archive, Star, CheckSquare, Square, Check
 } from 'lucide-react';
-
-// Helper for date formatting
-const formatDate = (timestamp) => {
-  const date = new Date(timestamp + 'Z');
-  if (isToday(date)) {
-    return format(date, 'h:mm a');
-  } else if (isYesterday(date)) {
-    return 'Yesterday';
-  } else if (isThisYear(date)) {
-    return format(date, 'MMM d');
-  }
-  return format(date, 'MMM d, yyyy');
-};
 
 // Email list item component
 // ⚡ Bolt: Memoized to prevent re-renders of all items when one is selected
@@ -98,9 +84,10 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
         </div>
 
         {/* Date */}
-        <time className={`text-xs flex-shrink-0 ${!email.is_read ? 'font-semibold text-[#3D3D3D]' : 'text-[#8B8B8B]'}`}>
-          {formatDate(email.timestamp)}
-        </time>
+        <DateDisplay
+          timestamp={email.timestamp}
+          className={`text-xs flex-shrink-0 ${!email.is_read ? 'font-semibold text-[#3D3D3D]' : 'text-[#8B8B8B]'}`}
+        />
       </Link>
 
       {/* Hover Actions */}
