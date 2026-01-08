@@ -25,8 +25,9 @@ export default function Compose() {
   const [namespace, setNamespace] = useState('local');
   const [showCc, setShowCc] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isMac, setIsMac] = useState(false);
 
-  // Get namespace for hints
+  // Get namespace for hints and detect platform
   useEffect(() => {
     checkHealth()
       .then(({ data }) => {
@@ -35,6 +36,8 @@ export default function Compose() {
         }
       })
       .catch(() => { });
+
+    setIsMac(navigator.platform.toUpperCase().indexOf('MAC') >= 0);
   }, []);
 
   const hasContent = to || cc || subject || body;
@@ -297,7 +300,7 @@ export default function Compose() {
                 {/* Send button */}
                 <button
                   onClick={handleSubmit}
-                  title="Send (Ctrl+Enter)"
+                  title={`Send (${isMac ? '⌘' : 'Ctrl'}+Enter)`}
                   aria-label={sending ? "Sending..." : "Send"}
                   disabled={sending || !to.trim()}
                   className="
@@ -305,7 +308,7 @@ export default function Compose() {
                     bg-[#0B57D0] hover:bg-[#0842A0] text-white
                     rounded-full text-sm font-medium
                     disabled:opacity-50 disabled:cursor-not-allowed
-                    transition-colors
+                    transition-colors group
                   "
                 >
                   {sending ? (
@@ -314,7 +317,16 @@ export default function Compose() {
                       Sending...
                     </>
                   ) : (
-                    'Send'
+                    <>
+                      Send
+                      <span
+                        className="hidden sm:inline-block ml-1 text-[10px] font-normal opacity-70 group-hover:opacity-100 transition-opacity"
+                        aria-hidden="true"
+                        title={`Press ${isMac ? '⌘' : 'Ctrl'}+Enter to send`}
+                      >
+                        {isMac ? '⌘↵' : 'Ctrl+↵'}
+                      </span>
+                    </>
                   )}
                 </button>
 
