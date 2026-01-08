@@ -1,84 +1,76 @@
+from playwright.sync_api import sync_playwright, expect
+import time
 
-import json
-from playwright.sync_api import sync_playwright
-
-def run():
+def verify_folder_view():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=True)
-        # Use specific viewport to ensure visibility
+        # Use a defined viewport to prevent visibility issues
         context = browser.new_context(viewport={'width': 1280, 'height': 720})
         page = context.new_page()
 
-        # 1. Setup LocalStorage with mock user and data
-        # We need a user to bypass login
-        user = {
-            "id": 1,
-            "username": "palette",
-            "is_admin": False,
-            "display_name": "Palette Artist"
-        }
+        # 1. Login
+        # Inject user token and object into localStorage to bypass login screen
+        # Using the admin user defined in environment variables or default
+        user = '{"id": 1, "username": "admin", "is_admin": true, "display_name": "Admin User", "token": "fake-token"}'
 
         # Navigate to a public page first to set localStorage
         page.goto("http://localhost:5173/login")
 
-        page.evaluate(f"""() => {{
-            localStorage.setItem('token', 'mock-token');
-            localStorage.setItem('user', JSON.stringify({json.dumps(user)}));
-        }}""")
+        page.evaluate(f"localStorage.setItem('user', '{user}')")
+        page.evaluate("localStorage.setItem('token', 'fake-token')")
 
-        # 2. Mock API responses
-        # We need to mock /api/health and /api/folders to render the Layout
+        # 2. Go to Inbox
+        # We assume the user is logged in now
+        page.goto("http://localhost:5173/app/folder/1")
+
+        # Mock API response for folders since we can't easily auth with backend in this script
+        # without real token. But wait, we need real integration?
+        # The script failed because "Inbox" link wasn't found. This means folders weren't loaded.
+        # If backend rejects "fake-token", then folders won't load.
+
+        # Strategy: Mock the /api/folders response to verify Frontend behavior independent of Backend Auth
+        page.route("**/api/folders", lambda route: route.fulfill(
+            status=200,
+            content_type="application/json",
+            body='[{"id": 1, "name": "Inbox", "unread_count": 2, "user_id": 1}, {"id": 2, "name": "Sent", "unread_count": 0, "user_id": 1}]'
+        ))
 
         page.route("**/api/health", lambda route: route.fulfill(
             status=200,
             content_type="application/json",
-            body=json.dumps({"status": "ok", "namespace": "test-env"})
+            body='{"status": "ok", "namespace": "local"}'
         ))
 
-        page.route("**/api/folders", lambda route: route.fulfill(
+        page.route("**/api/mail/1", lambda route: route.fulfill(
             status=200,
             content_type="application/json",
-            body=json.dumps([
-                {"id": 1, "name": "Inbox", "unread_count": 5},
-                {"id": 2, "name": "Sent", "unread_count": 0},
-                {"id": 3, "name": "Drafts", "unread_count": 2},
-                {"id": 4, "name": "Trash", "unread_count": 0}
-            ])
+            body='[]'
         ))
 
-        # Mock /api/mail/1 (Inbox) to avoid errors when landing on default route
-        page.route("**/api/mail/*", lambda route: route.fulfill(
-            status=200,
-            content_type="application/json",
-            body=json.dumps([])
-        ))
+        # Reload page to trigger mock
+        page.reload()
 
-        # 3. Navigate to App
-        page.goto("http://localhost:5173/app")
+        # 3. Wait for folder list to load
+        # The 'Inbox' link in the sidebar should be visible
+        inbox_link = page.get_by_role("link", name="Inbox")
+        expect(inbox_link).to_be_visible(timeout=10000)
 
-        # 4. Wait for Layout to load
-        # Check for the sidebar elements
-        page.wait_for_selector("text=Inbox")
+        # 4. Verify Layout elements
+        # Check if the Sidebar is present
+        sidebar = page.locator("aside")
+        expect(sidebar).to_be_visible()
 
-        # 5. Verify Unread Badge
-        # We expect "5" to be in a badge.
-        # The badge has classes 'bg-[#D8A48F]' and 'text-white'
-        # We can try to take a screenshot of the sidebar
+        # Check if "Compose" button is present in the sidebar
+        # Using specific class or hierarchy to distinguish from empty state button
+        compose_btn = page.locator("aside button").filter(has_text="Compose")
+        expect(compose_btn).to_be_visible()
 
-        # Wait a bit for animations
-        page.wait_for_timeout(1000)
-
-        # 6. Verify Search Bar
-        # Check if search input is disabled
-        search_input = page.get_by_placeholder("Search (Coming soon)")
-        if not search_input.is_disabled():
-            print("Error: Search input is not disabled")
-
-        # Take screenshot
-        page.screenshot(path=".jules-verification/layout_verification.png")
-        print("Screenshot saved to .jules-verification/layout_verification.png")
+        # 5. Take screenshot
+        # This confirms the layout is rendering correctly with the optimization
+        page.screenshot(path=".jules-verification/verification.png")
+        print("Screenshot saved to .jules-verification/verification.png")
 
         browser.close()
 
 if __name__ == "__main__":
-    run()
+    verify_folder_view()

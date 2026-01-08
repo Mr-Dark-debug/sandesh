@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { getFolders, createFolder, checkHealth } from '../api';
 import { useToast } from '../components/ToastContext';
@@ -30,6 +30,31 @@ export default function Layout() {
   const toast = useToast();
   const { confirm } = useConfirmation();
 
+  // ⚡ Bolt: Wrapped in useCallback to maintain referential stability
+  // This prevents unnecessary context updates when other Layout state changes
+  const fetchFolders = useCallback(async () => {
+    setFoldersLoading(true);
+    try {
+      const { data } = await getFolders();
+      // Sort: Inbox, Sent, Trash, then others alphabetically
+      const sorted = data.sort((a, b) => {
+        const order = ['Inbox', 'Sent', 'Trash'];
+        const aIdx = order.indexOf(a.name);
+        const bIdx = order.indexOf(b.name);
+        if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+        if (aIdx !== -1) return -1;
+        if (bIdx !== -1) return 1;
+        return a.name.localeCompare(b.name);
+      });
+      setFolders(sorted);
+    } catch (e) {
+      console.error('Failed to load folders:', e);
+      toast.error('Failed to load folders');
+    } finally {
+      setFoldersLoading(false);
+    }
+  }, [toast]); // Dependencies: toast is from context, others are stable
+
   useEffect(() => {
     const u = localStorage.getItem('user');
     if (!u) {
@@ -39,7 +64,7 @@ export default function Layout() {
       fetchFolders();
       fetchSystemInfo();
     }
-  }, [navigate]);
+  }, [navigate, fetchFolders]);
 
   const fetchSystemInfo = async () => {
     try {
@@ -55,34 +80,6 @@ export default function Layout() {
     setMobileMenuOpen(false);
     setShowUserMenu(false);
   }, [location.pathname]);
-
-  const fetchFolders = async () => {
-    setFoldersLoading(true);
-    try {
-      const { data } = await getFolders();
-      // Sort: Inbox, Sent, Trash, then others alphabetically
-      const sorted = data.sort((a, b) => {
-        const order = ['Inbox', 'Sent', 'Trash'];
-        const aIdx = order.indexOf(a.name);
-        const bIdx = order.indexOf(b.name);
-        if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
-        if (aIdx !== -1) return -1;
-        if (bIdx !== -1) return 1;
-        return a.name.localeCompare(b.name);
-      });
-      setFolders(sorted);
-
-      // ⚡ Bolt: Removed redundant unreadCounts state calculation.
-      // Unread counts are already present in the 'folder' object (folder.unread_count).
-      // This prevents an extra re-render and redundant iteration.
-
-    } catch (e) {
-      console.error('Failed to load folders:', e);
-      toast.error('Failed to load folders');
-    } finally {
-      setFoldersLoading(false);
-    }
-  };
 
   const handleCreateFolder = async (e) => {
     e.preventDefault();
@@ -123,12 +120,15 @@ export default function Layout() {
 
   const isActive = (path) => location.pathname === path;
 
-  // Determine if sidebar should be hidden from screen readers/keyboard
-  // On mobile: hidden if menu is closed
-  // On desktop: hidden if sidebar is closed
-  // But CSS handles display/visibility via classes
-  // We need to apply 'invisible' or 'visibility: hidden' when closed on desktop to remove from tab order
+  // ⚡ Bolt: Memoize context value to prevent unnecessary re-renders of child routes (FolderView)
+  // when Layout UI state changes (sidebar, menu, inputs)
+  const contextValue = useMemo(() => ({
+    refreshFolders: fetchFolders,
+    folders,
+    foldersLoading
+  }), [fetchFolders, folders, foldersLoading]);
 
+  // Determine if sidebar should be hidden from screen readers/keyboard
   return (
     <div className="flex h-screen bg-white overflow-hidden">
       <a
@@ -541,7 +541,7 @@ export default function Layout() {
           className="flex-1 overflow-hidden bg-white focus:outline-none"
           tabIndex="-1"
         >
-          <Outlet context={{ refreshFolders: fetchFolders, folders, foldersLoading }} />
+          <Outlet context={contextValue} />
         </main>
       </div>
     </div>
