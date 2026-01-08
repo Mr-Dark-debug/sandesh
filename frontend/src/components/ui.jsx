@@ -1,6 +1,7 @@
 import React, { useId } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useToast } from './ToastContext';
+import { format, isToday, isYesterday, isThisYear } from 'date-fns';
 
 /**
  * Primary button with Sandesh styling
@@ -442,13 +443,6 @@ export function ComingSoonButton({ icon: Icon, title, className = '' }) {
     // Extract the clean title without "(Coming soon)" for the message
     const cleanTitle = title?.replace(/\s*\(Coming soon\)\s*$/i, '') || 'This feature';
 
-    // Use the exposed warning or addToast directly
-    // Assuming addToast or a specific 'info' helper if available, or fallback to warning/success
-    // Since we don't have 'info' exposed in the context directly in my memory, I'll check ToastContext or use 'warning'
-    // Actually, looking at ToastContext above, I added 'info' type to Toast component but need to see if context exposes it.
-    // The previous read of ToastContext showed success, error, warning. I'll stick to 'warning' or just addToast with type 'info' if valid.
-    // Let's safe bet on 'addToast' with 'info' if the Toast component supports it (I added support in this file).
-
     toast.addToast(`${cleanTitle} is coming soon!`, 'info');
   };
 
@@ -466,5 +460,53 @@ export function ComingSoonButton({ icon: Icon, title, className = '' }) {
     >
       <Icon className="w-4 h-4" />
     </button>
+  );
+}
+
+/**
+ * Accessible date display with tooltip for full timestamp.
+ */
+export function DateDisplay({ timestamp, className = '' }) {
+  // Safe date parsing
+  const getDate = () => {
+    try {
+      if (!timestamp) return null;
+      // Ensure we have a valid date string (append Z if missing to treat as UTC)
+      const dateStr = timestamp.endsWith('Z') ? timestamp : timestamp + 'Z';
+      const date = new Date(dateStr);
+      return isNaN(date.getTime()) ? null : date;
+    } catch {
+      return null;
+    }
+  };
+
+  const date = getDate();
+
+  if (!date) {
+    return <time className={className}>Invalid Date</time>;
+  }
+
+  let display;
+  if (isToday(date)) {
+    display = format(date, 'h:mm a');
+  } else if (isYesterday(date)) {
+    display = 'Yesterday';
+  } else if (isThisYear(date)) {
+    display = format(date, 'MMM d');
+  } else {
+    display = format(date, 'MMM d, yyyy');
+  }
+
+  const fullDate = format(date, 'PPPP p'); // e.g., "Friday, April 29th, 2022 at 5:00 PM"
+
+  return (
+    <time
+      dateTime={date.toISOString()}
+      title={fullDate}
+      className={`cursor-help ${className}`}
+      aria-label={`Received on ${fullDate}`}
+    >
+      {display}
+    </time>
   );
 }
