@@ -1,14 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { sendMail, checkHealth } from '../api';
-import { useToast } from '../components/ToastContext';
-import { useConfirmation } from '../components/ConfirmationDialog';
-import { Button, ComingSoonButton } from '../components/ui';
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { sendMail, checkHealth } from "../api";
+import { useToast } from "../components/ToastContext";
+import { useConfirmation } from "../components/ConfirmationDialog";
+import { Button, ComingSoonButton } from "../components/ui";
 import {
-  X, Send, Minus, Maximize2, Paperclip,
-  Image, Link, Smile, MoreVertical, Trash2,
-  AlertCircle, ChevronDown, Loader2
-} from 'lucide-react';
+  X,
+  Send,
+  Minus,
+  Maximize2,
+  Paperclip,
+  Image,
+  Link,
+  Smile,
+  MoreVertical,
+  Trash2,
+  AlertCircle,
+  ChevronDown,
+  Loader2,
+} from "lucide-react";
 
 export default function Compose() {
   const navigate = useNavigate();
@@ -16,13 +26,13 @@ export default function Compose() {
   const toast = useToast();
   const { confirm } = useConfirmation();
 
-  const [to, setTo] = useState(location.state?.to || '');
-  const [cc, setCc] = useState(location.state?.cc || '');
-  const [subject, setSubject] = useState(location.state?.subject || '');
-  const [body, setBody] = useState(location.state?.body || '');
+  const [to, setTo] = useState(location.state?.to || "");
+  const [cc, setCc] = useState(location.state?.cc || "");
+  const [subject, setSubject] = useState(location.state?.subject || "");
+  const [body, setBody] = useState(location.state?.body || "");
   const [sending, setSending] = useState(false);
   const [errors, setErrors] = useState({});
-  const [namespace, setNamespace] = useState('local');
+  const [namespace, setNamespace] = useState("local");
   const [showCc, setShowCc] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
 
@@ -34,7 +44,7 @@ export default function Compose() {
           setNamespace(data.namespace);
         }
       })
-      .catch(() => { });
+      .catch(() => {});
   }, []);
 
   const hasContent = to || cc || subject || body;
@@ -42,27 +52,33 @@ export default function Compose() {
   const validateEmail = (email) => {
     const trimmed = email.trim();
     if (!trimmed) return false;
-    return trimmed.includes('@');
+    return trimmed.includes("@");
   };
 
   const validateForm = () => {
     const newErrors = {};
 
-    const toList = to.split(',').map(s => s.trim()).filter(Boolean);
+    const toList = to
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
     if (toList.length === 0) {
-      newErrors.to = 'Please add at least one recipient';
+      newErrors.to = "Please add at least one recipient";
     } else {
-      const invalidEmails = toList.filter(email => !validateEmail(email));
+      const invalidEmails = toList.filter((email) => !validateEmail(email));
       if (invalidEmails.length > 0) {
         newErrors.to = `Invalid format. Use username@${namespace}`;
       }
     }
 
     if (cc.trim()) {
-      const ccList = cc.split(',').map(s => s.trim()).filter(Boolean);
-      const invalidCc = ccList.filter(email => !validateEmail(email));
+      const ccList = cc
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const invalidCc = ccList.filter((email) => !validateEmail(email));
       if (invalidCc.length > 0) {
-        newErrors.cc = 'Invalid format';
+        newErrors.cc = "Invalid format";
       }
     }
 
@@ -79,22 +95,29 @@ export default function Compose() {
 
     setSending(true);
 
-    const toList = to.split(',').map(s => s.trim()).filter(Boolean);
-    const ccList = cc.split(',').map(s => s.trim()).filter(Boolean);
+    const toList = to
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const ccList = cc
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
 
     try {
       await sendMail({
         to: toList,
         cc: ccList,
-        subject: subject.trim() || '(No Subject)',
-        body
+        subject: subject.trim() || "(No Subject)",
+        body,
       });
 
-      toast.success('Message sent!');
-      navigate('/');
+      toast.success("Message sent!");
+      navigate("/");
     } catch (e) {
-      console.error('Failed to send email:', e);
-      const message = e.response?.data?.detail || 'Failed to send. Please try again.';
+      console.error("Failed to send email:", e);
+      const message =
+        e.response?.data?.detail || "Failed to send. Please try again.";
       toast.error(message);
     } finally {
       setSending(false);
@@ -103,7 +126,7 @@ export default function Compose() {
 
   const handleClose = async () => {
     if (hasContent) {
-      const confirmed = await confirm('DISCARD_DRAFT');
+      const confirmed = await confirm("DISCARD_DRAFT");
       if (confirmed) {
         navigate(-1);
       }
@@ -114,12 +137,12 @@ export default function Compose() {
 
   const handleDelete = async () => {
     if (hasContent) {
-      const confirmed = await confirm('DISCARD_DRAFT');
+      const confirmed = await confirm("DISCARD_DRAFT");
       if (confirmed) {
-        setTo('');
-        setCc('');
-        setSubject('');
-        setBody('');
+        setTo("");
+        setCc("");
+        setSubject("");
+        setBody("");
         navigate(-1);
       }
     } else {
@@ -128,7 +151,7 @@ export default function Compose() {
   };
 
   const handleKeyDown = (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
       e.preventDefault();
       if (!sending && to.trim()) {
         handleSubmit();
@@ -149,7 +172,7 @@ export default function Compose() {
           w-full max-w-2xl
           flex flex-col
           animate-[slideUp_200ms_ease]
-          ${isMinimized ? 'h-12' : 'h-[80vh] max-h-[600px]'}
+          ${isMinimized ? "h-12" : "h-[80vh] max-h-[600px]"}
           transition-all duration-200
         `}
       >
@@ -163,14 +186,17 @@ export default function Compose() {
           onClick={() => isMinimized && setIsMinimized(false)}
         >
           <h3 id="compose-title" className="text-sm font-medium truncate">
-            {subject || 'New Message'}
+            {subject || "New Message"}
           </h3>
           <div className="flex items-center gap-1">
             <button
-              onClick={(e) => { e.stopPropagation(); setIsMinimized(!isMinimized); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMinimized(!isMinimized);
+              }}
               className="p-1.5 hover:bg-white/10 rounded transition-colors"
-              title={isMinimized ? 'Expand' : 'Minimize'}
-              aria-label={isMinimized ? 'Expand' : 'Minimize'}
+              title={isMinimized ? "Expand" : "Minimize"}
+              aria-label={isMinimized ? "Expand" : "Minimize"}
             >
               {isMinimized ? (
                 <Maximize2 className="w-4 h-4" />
@@ -179,7 +205,10 @@ export default function Compose() {
               )}
             </button>
             <button
-              onClick={(e) => { e.stopPropagation(); handleClose(); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClose();
+              }}
               className="p-1.5 hover:bg-white/10 rounded transition-colors"
               title="Close"
               aria-label="Close"
@@ -196,7 +225,12 @@ export default function Compose() {
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* To field */}
               <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB] focus-within:bg-[#F6F8FC] focus-within:border-[#0B57D0] transition-colors">
-                <label htmlFor="to-input" className="text-sm text-[#8B8B8B] w-12 cursor-pointer">To</label>
+                <label
+                  htmlFor="to-input"
+                  className="text-sm text-[#8B8B8B] w-12 cursor-pointer"
+                >
+                  To
+                </label>
                 <input
                   id="to-input"
                   type="text"
@@ -206,13 +240,13 @@ export default function Compose() {
                   className={`
                     flex-1 text-sm text-[#3D3D3D] outline-none bg-transparent
                     placeholder:text-[#C0C0C0]
-                    ${errors.to ? 'text-[#C4756E]' : ''}
+                    ${errors.to ? "text-[#C4756E]" : ""}
                   `}
                   placeholder={`recipient@${namespace}`}
                   value={to}
-                  onChange={e => {
+                  onChange={(e) => {
                     setTo(e.target.value);
-                    if (errors.to) setErrors(prev => ({ ...prev, to: null }));
+                    if (errors.to) setErrors((prev) => ({ ...prev, to: null }));
                   }}
                   onKeyDown={handleKeyDown}
                   disabled={sending}
@@ -227,7 +261,10 @@ export default function Compose() {
                 </button>
               </div>
               {errors.to && (
-                <div id="to-error" className="px-4 py-1 bg-[#C4756E]/5 flex items-center gap-2">
+                <div
+                  id="to-error"
+                  className="px-4 py-1 bg-[#C4756E]/5 flex items-center gap-2"
+                >
                   <AlertCircle className="w-3 h-3 text-[#C4756E]" />
                   <span className="text-xs text-[#C4756E]">{errors.to}</span>
                 </div>
@@ -236,7 +273,12 @@ export default function Compose() {
               {/* CC field (optional) */}
               {showCc && (
                 <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB] focus-within:bg-[#F6F8FC] focus-within:border-[#0B57D0] transition-colors">
-                  <label htmlFor="cc-input" className="text-sm text-[#8B8B8B] w-12 cursor-pointer">Cc</label>
+                  <label
+                    htmlFor="cc-input"
+                    className="text-sm text-[#8B8B8B] w-12 cursor-pointer"
+                  >
+                    Cc
+                  </label>
                   <input
                     id="cc-input"
                     type="text"
@@ -245,13 +287,16 @@ export default function Compose() {
                     className="flex-1 text-sm text-[#3D3D3D] outline-none placeholder:text-[#C0C0C0] bg-transparent"
                     placeholder={`cc@${namespace}`}
                     value={cc}
-                    onChange={e => setCc(e.target.value)}
+                    onChange={(e) => setCc(e.target.value)}
                     disabled={sending}
                   />
                 </div>
               )}
               {errors.cc && (
-                <div id="cc-error" className="px-4 py-1 bg-[#C4756E]/5 flex items-center gap-2">
+                <div
+                  id="cc-error"
+                  className="px-4 py-1 bg-[#C4756E]/5 flex items-center gap-2"
+                >
                   <AlertCircle className="w-3 h-3 text-[#C4756E]" />
                   <span className="text-xs text-[#C4756E]">{errors.cc}</span>
                 </div>
@@ -259,14 +304,19 @@ export default function Compose() {
 
               {/* Subject field */}
               <div className="flex items-center px-4 py-2 border-b border-[#E5E8EB] focus-within:bg-[#F6F8FC] focus-within:border-[#0B57D0] transition-colors">
-                <label htmlFor="subject-input" className="text-sm text-[#8B8B8B] w-12 cursor-pointer">Subject</label>
+                <label
+                  htmlFor="subject-input"
+                  className="text-sm text-[#8B8B8B] w-12 cursor-pointer"
+                >
+                  Subject
+                </label>
                 <input
                   id="subject-input"
                   type="text"
                   className="flex-1 text-sm text-[#3D3D3D] outline-none placeholder:text-[#C0C0C0] bg-transparent"
                   placeholder="Subject"
                   value={subject}
-                  onChange={e => setSubject(e.target.value)}
+                  onChange={(e) => setSubject(e.target.value)}
                   onKeyDown={handleKeyDown}
                   disabled={sending}
                 />
@@ -284,7 +334,7 @@ export default function Compose() {
                   "
                   placeholder="Compose email"
                   value={body}
-                  onChange={e => setBody(e.target.value)}
+                  onChange={(e) => setBody(e.target.value)}
                   onKeyDown={handleKeyDown}
                   disabled={sending}
                 />
@@ -314,7 +364,7 @@ export default function Compose() {
                       Sending...
                     </>
                   ) : (
-                    'Send'
+                    "Send"
                   )}
                 </button>
 

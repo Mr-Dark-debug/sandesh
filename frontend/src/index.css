@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
 /* ========================================
    SANDESH DESIGN SYSTEM
@@ -8,37 +8,37 @@
 
 :root {
   /* 60% Dominant - Arctic Daisy */
-  --color-arctic-daisy: #EFE8CE;
-  --color-arctic-daisy-dark: #E5DCC0;
-  
+  --color-arctic-daisy: #efe8ce;
+  --color-arctic-daisy-dark: #e5dcc0;
+
   /* 30% Secondary - Olive Petal */
-  --color-olive-petal: #A3A380;
-  --color-olive-petal-light: #B8B89A;
-  --color-olive-petal-dark: #8B8B68;
-  
+  --color-olive-petal: #a3a380;
+  --color-olive-petal-light: #b8b89a;
+  --color-olive-petal-dark: #8b8b68;
+
   /* 10% Accent - Golden Clover (Primary Actions) */
-  --color-golden-clover: #D7CE93;
-  --color-golden-clover-dark: #C9BF7D;
-  
+  --color-golden-clover: #d7ce93;
+  --color-golden-clover-dark: #c9bf7d;
+
   /* 10% Accent - Rose Blush (Secondary Actions) */
-  --color-rose-blush: #D8A48F;
-  --color-rose-blush-dark: #CA917A;
-  
+  --color-rose-blush: #d8a48f;
+  --color-rose-blush-dark: #ca917a;
+
   /* Peach Blossom - Empty States */
-  --color-peach-blossom: #BB8588;
-  --color-peach-blossom-light: #D4A5A8;
-  
+  --color-peach-blossom: #bb8588;
+  --color-peach-blossom-light: #d4a5a8;
+
   /* Text Colors */
-  --color-text-primary: #3D3D3D;
-  --color-text-secondary: #6B6B6B;
-  --color-text-muted: #8B8B8B;
-  --color-text-inverted: #FFFFFF;
-  
+  --color-text-primary: #3d3d3d;
+  --color-text-secondary: #6b6b6b;
+  --color-text-muted: #8b8b8b;
+  --color-text-inverted: #ffffff;
+
   /* Utility Colors */
-  --color-success: #7A9B6D;
-  --color-error: #C4756E;
-  --color-warning: #D4A855;
-  
+  --color-success: #7a9b6d;
+  --color-error: #c4756e;
+  --color-warning: #d4a855;
+
   /* Transitions */
   --transition-fast: 150ms ease;
   --transition-normal: 200ms ease;
@@ -54,7 +54,11 @@
 }
 
 html {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family:
+    "Inter",
+    system-ui,
+    -apple-system,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -70,16 +74,29 @@ body {
    TYPOGRAPHY
    ======================================== */
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 600;
   line-height: 1.3;
   color: var(--color-text-primary);
 }
 
-h1 { font-size: 1.75rem; }
-h2 { font-size: 1.5rem; }
-h3 { font-size: 1.25rem; }
-h4 { font-size: 1.125rem; }
+h1 {
+  font-size: 1.75rem;
+}
+h2 {
+  font-size: 1.5rem;
+}
+h3 {
+  font-size: 1.25rem;
+}
+h4 {
+  font-size: 1.125rem;
+}
 
 p {
   margin: 0;
@@ -190,7 +207,9 @@ select:focus-visible {
   border-radius: 8px;
   background: white;
   color: var(--color-text-primary);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition:
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast);
 }
 
 .sandesh-input:focus {
@@ -208,24 +227,33 @@ select:focus-visible {
    ======================================== */
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(8px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .animate-fade-in {
@@ -257,6 +285,10 @@ select:focus-visible {
 }
 
 @keyframes skeleton-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }

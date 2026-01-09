@@ -1,20 +1,40 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import {
-    Book, ChevronRight, ChevronDown, Home, HelpCircle, Users, Settings,
-    Mail, Folder, Send, Shield, AlertTriangle, MessageSquare, Wrench,
-    BookOpen, Zap, Info, Lock, List, X, Menu, ExternalLink, ArrowLeft
-} from 'lucide-react';
+  Book,
+  ChevronRight,
+  ChevronDown,
+  Home,
+  HelpCircle,
+  Users,
+  Settings,
+  Mail,
+  Folder,
+  Send,
+  Shield,
+  AlertTriangle,
+  MessageSquare,
+  Wrench,
+  BookOpen,
+  Zap,
+  Info,
+  Lock,
+  List,
+  X,
+  Menu,
+  ExternalLink,
+  ArrowLeft,
+} from "lucide-react";
 
 // ============================================
 // DOCUMENTATION CONTENT
 // ============================================
 
 const DOCS_CONTENT = {
-    'welcome': {
-        title: 'Welcome to सनdesh',
-        icon: Home,
-        content: `
+  welcome: {
+    title: "Welcome to सनdesh",
+    icon: Home,
+    content: `
 # Welcome to सनdesh
 
 **सनdesh** (Sandesh) is a local-first email system designed for private networks. It gives you a complete email experience without requiring internet connectivity, external servers, or third-party services.
@@ -45,13 +65,13 @@ We built सनdesh with three principles:
 
 Ready to get started? Continue to the [Quick Start](#/docs/quick-start) guide.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'what-is-sandesh': {
-        title: 'What is सनdesh?',
-        icon: Info,
-        content: `
+  "what-is-sandesh": {
+    title: "What is सनdesh?",
+    icon: Info,
+    content: `
 # What is सनdesh?
 
 सनdesh is a **self-hosted, local email system** that runs entirely on your network. It provides:
@@ -108,13 +128,13 @@ Because everything is local, emails arrive immediately. No spam filters, no dela
 
 This is by design. सनdesh is focused on **private, local communication**.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'quick-start': {
-        title: 'Quick Start',
-        icon: Zap,
-        content: `
+  "quick-start": {
+    title: "Quick Start",
+    icon: Zap,
+    content: `
 # Quick Start
 
 Get productive with सनdesh in 5 minutes.
@@ -165,13 +185,13 @@ Send your users:
 
 > 💡 **Tip**: Change your admin password immediately after first login.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'identity': {
-        title: 'Understanding Identity & Email Addresses',
-        icon: Users,
-        content: `
+  identity: {
+    title: "Understanding Identity & Email Addresses",
+    icon: Users,
+    content: `
 # Understanding Identity & Email Addresses
 
 This is the most important concept in सनdesh. Read this page carefully.
@@ -235,13 +255,13 @@ This combines:
 
 > 💡 **Why this format?** This ensures recipients know who you are (Display Name) and where the email came from (Email Address) without any ambiguity.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'user-settings': {
-        title: 'User Settings',
-        icon: Wrench,
-        content: `
+  "user-settings": {
+    title: "User Settings",
+    icon: Wrench,
+    content: `
 # User Settings
 
 Manage your personal profile and preferences.
@@ -284,13 +304,13 @@ Manage your personal profile and preferences.
 
 > ❓ **Need to change these?** Contact your administrator. They may need to create a new account for you.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'using-sandesh': {
-        title: 'Using सनdesh',
-        icon: Mail,
-        content: `
+  "using-sandesh": {
+    title: "Using सनdesh",
+    icon: Mail,
+    content: `
 # Using सनdesh
 
 This guide covers the everyday user experience of reading and organizing mail.
@@ -347,13 +367,13 @@ Emails are automatically marked as read when you open them.
 2. The email moves to the **Trash** folder.
 3. To permanently delete, go to Trash and delete it again.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'email-features': {
-        title: 'Email Features & Behavior',
-        icon: Send,
-        content: `
+  "email-features": {
+    title: "Email Features & Behavior",
+    icon: Send,
+    content: `
 # Email Features & Behavior
 
 Understanding the capabilities of the system.
@@ -393,13 +413,13 @@ If you try to send to a user that **does not exist**:
 - **Sent Folder**: Every email you send is saved here.
 - **No Quotas**: There are currently no storage limits enforced, but please be respectful of disk space.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'email-lifecycle': {
-        title: 'Email Lifecycle',
-        icon: Zap,
-        content: `
+  "email-lifecycle": {
+    title: "Email Lifecycle",
+    icon: Zap,
+    content: `
 # Email Lifecycle
 
 What happens when you send an email? Here is the journey of a message in सनdesh.
@@ -448,13 +468,13 @@ Because सनdesh is local-only, failure is rare. It usually means:
 
 In these cases, the email **remains in your Sent folder** as proof you sent it, but it never reaches a destination.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'folders': {
-        title: 'Folder & Inbox Management',
-        icon: Folder,
-        content: `
+  folders: {
+    title: "Folder & Inbox Management",
+    icon: Folder,
+    content: `
 # Folder & Inbox Management
 
 Keep your mailbox clean and organized.
@@ -485,13 +505,13 @@ You can create your own folders to organize projects or topics.
 - To permanently delete, you must delete it **from** the Trash.
 - Currently, Trash is not auto-emptied. You must do it manually.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'compose': {
-        title: 'Compose & Sending Email',
-        icon: Send,
-        content: `
+  compose: {
+    title: "Compose & Sending Email",
+    icon: Send,
+    content: `
 # Compose & Sending Email
 
 How to write and send messages.
@@ -520,13 +540,13 @@ To prevent accidental data loss:
 - **Self-Email**: You can send email to yourself (\`yourname@namespace\`) to test features or keep notes.
 - **Signatures**: Set a signature in Settings to avoid typing your name every time.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'confirmation-safety': {
-        title: 'Confirmation & Safety',
-        icon: Shield,
-        content: `
+  "confirmation-safety": {
+    title: "Confirmation & Safety",
+    icon: Shield,
+    content: `
 # Confirmation & Safety
 
 Why does सनdesh ask "Are you sure?"
@@ -556,13 +576,13 @@ We believe software should be **forgiving**. However, some actions are destructi
 ## Summary
 If you see a popup dialog, **pause and read it**. It usually means data is about to be permanently changed or removed.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'admin-guide': {
-        title: 'Admin Guide',
-        icon: Shield,
-        content: `
+  "admin-guide": {
+    title: "Admin Guide",
+    icon: Shield,
+    content: `
 # Admin Guide
 
 For operators and system administrators.
@@ -606,13 +626,13 @@ For operators and system administrators.
 2. **Secure the Admin Password**: It has full control over the system.
 3. **Backup**: Regularly backup the \`/data\` folder (Docker volume).
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'namespace': {
-        title: 'System Settings & Namespace',
-        icon: Settings,
-        content: `
+  namespace: {
+    title: "System Settings & Namespace",
+    icon: Settings,
+    content: `
 # System Settings & Namespace
 
 Configuring the core identity of your instance.
@@ -642,13 +662,13 @@ Changing this setting updates the derived email address for **everyone**.
 ## Intance Name
 This is purely cosmetic. It changes the title on the Login page and browser tab. Use it to brand your internal tool (e.g., "Acme Corp Mail").
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'limitations': {
-        title: 'Limitations & Design Choices',
-        icon: AlertTriangle,
-        content: `
+  limitations: {
+    title: "Limitations & Design Choices",
+    icon: AlertTriangle,
+    content: `
 # Limitations & Design Choices
 
 To trust a system, you must know what it **cannot** do.
@@ -691,13 +711,13 @@ To trust a system, you must know what it **cannot** do.
 - **Reason**: No external email to send a reset link to!
 - **Solution**: Admins must manually reset passwords.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'security': {
-        title: 'Security & Privacy Model',
-        icon: Lock,
-        content: `
+  security: {
+    title: "Security & Privacy Model",
+    icon: Lock,
+    content: `
 # Security & Privacy Model
 
 ---
@@ -717,13 +737,13 @@ To trust a system, you must know what it **cannot** do.
 
 > 🛡️ **Recommendation**: Only run सनdesh on a trusted private network (LAN/VPN) or behind a secure authentication proxy.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'faq': {
-        title: 'FAQ',
-        icon: MessageSquare,
-        content: `
+  faq: {
+    title: "FAQ",
+    icon: MessageSquare,
+    content: `
 # Frequently Asked Questions
 
 ---
@@ -749,13 +769,13 @@ To trust a system, you must know what it **cannot** do.
 **Q: I forgot my password.**
 **A**: Ask your administrator to reset it.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'troubleshooting': {
-        title: 'Troubleshooting',
-        icon: Wrench,
-        content: `
+  troubleshooting: {
+    title: "Troubleshooting",
+    icon: Wrench,
+    content: `
 # Troubleshooting
 
 Common issues and solutions.
@@ -778,13 +798,13 @@ Common issues and solutions.
 **Issue**: System Settings won't save.
 - **Fix**: Refresh the page. Ensure you are logged in as Admin.
     `,
-        lastUpdated: 'December 24, 2025'
-    },
+    lastUpdated: "December 24, 2025",
+  },
 
-    'glossary': {
-        title: 'Glossary',
-        icon: BookOpen,
-        content: `
+  glossary: {
+    title: "Glossary",
+    icon: BookOpen,
+    content: `
 # Glossary
 
 Terms used in user documentation.
@@ -809,8 +829,8 @@ The "domain" part of your email address (e.g., \`@sandesh\`). Set by Admin.
 ### Username
 Your unique login ID. **Not Editable**.
     `,
-        lastUpdated: 'December 24, 2025'
-    }
+    lastUpdated: "December 24, 2025",
+  },
 };
 
 // ============================================
@@ -818,54 +838,54 @@ Your unique login ID. **Not Editable**.
 // ============================================
 
 const NAV_SECTIONS = [
-    {
-        title: 'Getting Started',
-        items: [
-            { id: 'welcome', title: 'Welcome to सनdesh' },
-            { id: 'what-is-sandesh', title: 'What is सनdesh?' },
-            { id: 'quick-start', title: 'Quick Start' },
-        ]
-    },
-    {
-        title: 'Core Concepts',
-        items: [
-            { id: 'identity', title: 'Identity & Email Addresses' },
-            { id: 'email-lifecycle', title: 'Email Lifecycle' },
-        ]
-    },
-    {
-        title: 'User Guide',
-        items: [
-            { id: 'using-sandesh', title: 'Inbox & Reading' },
-            { id: 'user-settings', title: 'User Settings' },
-            { id: 'compose', title: 'Compose & Sending' },
-            { id: 'email-features', title: 'Features & Behavior' },
-            { id: 'folders', title: 'Folders & Organization' },
-            { id: 'confirmation-safety', title: 'Confirmation & Safety' },
-        ]
-    },
-    {
-        title: 'Administration',
-        items: [
-            { id: 'admin-guide', title: 'Admin Guide' },
-            { id: 'namespace', title: 'System Settings' },
-        ]
-    },
-    {
-        title: 'Security & Privacy',
-        items: [
-            { id: 'security', title: 'Security Model' },
-            { id: 'limitations', title: 'Limitations & Choices' },
-        ]
-    },
-    {
-        title: 'Reference',
-        items: [
-            { id: 'faq', title: 'FAQ' },
-            { id: 'troubleshooting', title: 'Troubleshooting' },
-            { id: 'glossary', title: 'Glossary' },
-        ]
-    }
+  {
+    title: "Getting Started",
+    items: [
+      { id: "welcome", title: "Welcome to सनdesh" },
+      { id: "what-is-sandesh", title: "What is सनdesh?" },
+      { id: "quick-start", title: "Quick Start" },
+    ],
+  },
+  {
+    title: "Core Concepts",
+    items: [
+      { id: "identity", title: "Identity & Email Addresses" },
+      { id: "email-lifecycle", title: "Email Lifecycle" },
+    ],
+  },
+  {
+    title: "User Guide",
+    items: [
+      { id: "using-sandesh", title: "Inbox & Reading" },
+      { id: "user-settings", title: "User Settings" },
+      { id: "compose", title: "Compose & Sending" },
+      { id: "email-features", title: "Features & Behavior" },
+      { id: "folders", title: "Folders & Organization" },
+      { id: "confirmation-safety", title: "Confirmation & Safety" },
+    ],
+  },
+  {
+    title: "Administration",
+    items: [
+      { id: "admin-guide", title: "Admin Guide" },
+      { id: "namespace", title: "System Settings" },
+    ],
+  },
+  {
+    title: "Security & Privacy",
+    items: [
+      { id: "security", title: "Security Model" },
+      { id: "limitations", title: "Limitations & Choices" },
+    ],
+  },
+  {
+    title: "Reference",
+    items: [
+      { id: "faq", title: "FAQ" },
+      { id: "troubleshooting", title: "Troubleshooting" },
+      { id: "glossary", title: "Glossary" },
+    ],
+  },
 ];
 
 // ============================================
@@ -873,230 +893,282 @@ const NAV_SECTIONS = [
 // ============================================
 
 function renderMarkdown(content) {
-    if (!content) return null;
+  if (!content) return null;
 
-    // Process content line by line
-    const lines = content.trim().split('\n');
-    const elements = [];
-    let inCodeBlock = false;
-    let codeContent = [];
-    let codeLanguage = '';
-    let inTable = false;
-    let tableRows = [];
-    let listItems = [];
-    let listType = null;
+  // Process content line by line
+  const lines = content.trim().split("\n");
+  const elements = [];
+  let inCodeBlock = false;
+  let codeContent = [];
+  let codeLanguage = "";
+  let inTable = false;
+  let tableRows = [];
+  let listItems = [];
+  let listType = null;
 
-    const flushList = () => {
-        if (listItems.length > 0) {
-            if (listType === 'ul') {
-                elements.push(
-                    <ul key={`ul-${elements.length}`} className="list-disc list-inside space-y-1 mb-4 text-[#4A4A4A]">
-                        {listItems.map((item, i) => <li key={i} dangerouslySetInnerHTML={{ __html: processInline(item) }} />)}
-                    </ul>
-                );
-            } else {
-                elements.push(
-                    <ol key={`ol-${elements.length}`} className="list-decimal list-inside space-y-1 mb-4 text-[#4A4A4A]">
-                        {listItems.map((item, i) => <li key={i} dangerouslySetInnerHTML={{ __html: processInline(item) }} />)}
-                    </ol>
-                );
-            }
-            listItems = [];
-            listType = null;
-        }
-    };
-
-    const flushTable = () => {
-        if (tableRows.length > 0) {
-            const headerRow = tableRows[0];
-            const bodyRows = tableRows.slice(2); // Skip header and separator
-            elements.push(
-                <div key={`table-${elements.length}`} className="overflow-x-auto mb-4">
-                    <table className="min-w-full text-sm border border-[#E5E8EB] rounded-lg overflow-hidden">
-                        <thead className="bg-[#F6F8FC]">
-                            <tr>
-                                {headerRow.map((cell, i) => (
-                                    <th key={i} className="px-4 py-2 text-left font-medium text-[#3D3D3D] border-b border-[#E5E8EB]">
-                                        {cell}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white">
-                            {bodyRows.map((row, i) => (
-                                <tr key={i} className={i % 2 === 1 ? 'bg-[#F6F8FC]/50' : ''}>
-                                    {row.map((cell, j) => (
-                                        <td key={j} className="px-4 py-2 text-[#4A4A4A] border-b border-[#E5E8EB]" dangerouslySetInnerHTML={{ __html: processInline(cell) }} />
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            );
-            tableRows = [];
-            inTable = false;
-        }
-    };
-
-    const processInline = (text) => {
-        return text
-            .replace(/\*\*(.+?)\*\*/g, '<strong class="font-semibold text-[#3D3D3D]">$1</strong>')
-            .replace(/\*(.+?)\*/g, '<em>$1</em>')
-            .replace(/`(.+?)`/g, '<code class="px-1.5 py-0.5 bg-[#F6F8FC] text-[#A3A380] rounded text-sm font-mono">$1</code>')
-            .replace(/\[(.+?)\]\(#\/docs\/(.+?)\)/g, '<a href="#/docs/$2" class="text-[#A3A380] hover:text-[#8B8B68] underline">$1</a>')
-            .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" class="text-[#A3A380] hover:text-[#8B8B68] underline" target="_blank" rel="noopener">$1</a>');
-    };
-
-    for (let i = 0; i < lines.length; i++) {
-        const line = lines[i];
-
-        // Code blocks
-        if (line.startsWith('```')) {
-            if (inCodeBlock) {
-                elements.push(
-                    <pre key={`code-${elements.length}`} className="bg-[#2D2D2D] text-[#E5E5E5] p-4 rounded-lg overflow-x-auto mb-4 text-sm font-mono">
-                        <code>{codeContent.join('\n')}</code>
-                    </pre>
-                );
-                codeContent = [];
-                inCodeBlock = false;
-            } else {
-                flushList();
-                flushTable();
-                inCodeBlock = true;
-                codeLanguage = line.slice(3);
-            }
-            continue;
-        }
-
-        if (inCodeBlock) {
-            codeContent.push(line);
-            continue;
-        }
-
-        // Table rows
-        if (line.startsWith('|')) {
-            flushList();
-            inTable = true;
-            const cells = line.split('|').slice(1, -1).map(c => c.trim());
-            tableRows.push(cells);
-            continue;
-        } else if (inTable) {
-            flushTable();
-        }
-
-        // Headers
-        if (line.startsWith('# ')) {
-            flushList();
-            elements.push(
-                <h1 key={`h1-${elements.length}`} className="text-3xl font-bold text-[#3D3D3D] mb-6 pb-3 border-b border-[#E5E8EB]">
-                    {line.slice(2)}
-                </h1>
-            );
-            continue;
-        }
-        if (line.startsWith('## ')) {
-            flushList();
-            elements.push(
-                <h2 key={`h2-${elements.length}`} className="text-2xl font-bold text-[#3D3D3D] mt-8 mb-4">
-                    {line.slice(3)}
-                </h2>
-            );
-            continue;
-        }
-        if (line.startsWith('### ')) {
-            flushList();
-            elements.push(
-                <h3 key={`h3-${elements.length}`} className="text-xl font-semibold text-[#3D3D3D] mt-6 mb-3">
-                    {line.slice(4)}
-                </h3>
-            );
-            continue;
-        }
-
-        // Horizontal rule
-        if (line === '---') {
-            flushList();
-            elements.push(<hr key={`hr-${elements.length}`} className="my-8 border-[#E5E8EB]" />);
-            continue;
-        }
-
-        // Blockquotes
-        if (line.startsWith('> ')) {
-            flushList();
-            const content = line.slice(2);
-            const isWarning = content.includes('⚠️');
-            const isInfo = content.includes('💡');
-            const isGuide = content.includes('🛡️');
-            const isQuestion = content.includes('❓');
-
-            let bg = 'bg-[#F6F8FC]';
-            let border = 'border-[#A3A380]';
-            let text = 'text-[#4A4A4A]';
-
-            if (isWarning) {
-                bg = 'bg-[#FEF3C7]';
-                border = 'border-[#F59E0B]';
-                text = 'text-[#92400E]';
-            } else if (isInfo) {
-                bg = 'bg-[#E0F2FE]';
-                border = 'border-[#0EA5E9]';
-                text = 'text-[#0369A1]';
-            } else if (isGuide || isQuestion) {
-                bg = 'bg-[#ECFCCB]';
-                border = 'border-[#84CC16]';
-                text = 'text-[#365314]';
-            }
-
-            elements.push(
-                <blockquote
-                    key={`quote-${elements.length}`}
-                    className={`pl-4 py-3 pr-4 mb-4 rounded-r-lg border-l-4 ${bg} ${border} ${text}`}
-                    dangerouslySetInnerHTML={{ __html: processInline(content) }}
-                />
-            );
-            continue;
-        }
-
-        // Lists
-        if (line.match(/^[-*] /)) {
-            listType = 'ul';
-            listItems.push(line.slice(2));
-            continue;
-        }
-        if (line.match(/^\d+\. /)) {
-            listType = 'ol';
-            listItems.push(line.replace(/^\d+\. /, ''));
-            continue;
-        }
-
-        // Flush list if we hit non-list content
-        if (listItems.length > 0 && line.trim() !== '') {
-            flushList();
-        }
-
-        // Empty line
-        if (line.trim() === '') {
-            flushList();
-            continue;
-        }
-
-        // Regular paragraph
+  const flushList = () => {
+    if (listItems.length > 0) {
+      if (listType === "ul") {
         elements.push(
-            <p
-                key={`p-${elements.length}`}
-                className="text-[#4A4A4A] mb-4 leading-relaxed"
-                dangerouslySetInnerHTML={{ __html: processInline(line) }}
-            />
+          <ul
+            key={`ul-${elements.length}`}
+            className="list-disc list-inside space-y-1 mb-4 text-[#4A4A4A]"
+          >
+            {listItems.map((item, i) => (
+              <li
+                key={i}
+                dangerouslySetInnerHTML={{ __html: processInline(item) }}
+              />
+            ))}
+          </ul>,
         );
+      } else {
+        elements.push(
+          <ol
+            key={`ol-${elements.length}`}
+            className="list-decimal list-inside space-y-1 mb-4 text-[#4A4A4A]"
+          >
+            {listItems.map((item, i) => (
+              <li
+                key={i}
+                dangerouslySetInnerHTML={{ __html: processInline(item) }}
+              />
+            ))}
+          </ol>,
+        );
+      }
+      listItems = [];
+      listType = null;
+    }
+  };
+
+  const flushTable = () => {
+    if (tableRows.length > 0) {
+      const headerRow = tableRows[0];
+      const bodyRows = tableRows.slice(2); // Skip header and separator
+      elements.push(
+        <div key={`table-${elements.length}`} className="overflow-x-auto mb-4">
+          <table className="min-w-full text-sm border border-[#E5E8EB] rounded-lg overflow-hidden">
+            <thead className="bg-[#F6F8FC]">
+              <tr>
+                {headerRow.map((cell, i) => (
+                  <th
+                    key={i}
+                    className="px-4 py-2 text-left font-medium text-[#3D3D3D] border-b border-[#E5E8EB]"
+                  >
+                    {cell}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="bg-white">
+              {bodyRows.map((row, i) => (
+                <tr key={i} className={i % 2 === 1 ? "bg-[#F6F8FC]/50" : ""}>
+                  {row.map((cell, j) => (
+                    <td
+                      key={j}
+                      className="px-4 py-2 text-[#4A4A4A] border-b border-[#E5E8EB]"
+                      dangerouslySetInnerHTML={{ __html: processInline(cell) }}
+                    />
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>,
+      );
+      tableRows = [];
+      inTable = false;
+    }
+  };
+
+  const processInline = (text) => {
+    return text
+      .replace(
+        /\*\*(.+?)\*\*/g,
+        '<strong class="font-semibold text-[#3D3D3D]">$1</strong>',
+      )
+      .replace(/\*(.+?)\*/g, "<em>$1</em>")
+      .replace(
+        /`(.+?)`/g,
+        '<code class="px-1.5 py-0.5 bg-[#F6F8FC] text-[#A3A380] rounded text-sm font-mono">$1</code>',
+      )
+      .replace(
+        /\[(.+?)\]\(#\/docs\/(.+?)\)/g,
+        '<a href="#/docs/$2" class="text-[#A3A380] hover:text-[#8B8B68] underline">$1</a>',
+      )
+      .replace(
+        /\[(.+?)\]\((.+?)\)/g,
+        '<a href="$2" class="text-[#A3A380] hover:text-[#8B8B68] underline" target="_blank" rel="noopener">$1</a>',
+      );
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+
+    // Code blocks
+    if (line.startsWith("```")) {
+      if (inCodeBlock) {
+        elements.push(
+          <pre
+            key={`code-${elements.length}`}
+            className="bg-[#2D2D2D] text-[#E5E5E5] p-4 rounded-lg overflow-x-auto mb-4 text-sm font-mono"
+          >
+            <code>{codeContent.join("\n")}</code>
+          </pre>,
+        );
+        codeContent = [];
+        inCodeBlock = false;
+      } else {
+        flushList();
+        flushTable();
+        inCodeBlock = true;
+        codeLanguage = line.slice(3);
+      }
+      continue;
     }
 
-    // Flush remaining
-    flushList();
-    flushTable();
+    if (inCodeBlock) {
+      codeContent.push(line);
+      continue;
+    }
 
-    return elements;
+    // Table rows
+    if (line.startsWith("|")) {
+      flushList();
+      inTable = true;
+      const cells = line
+        .split("|")
+        .slice(1, -1)
+        .map((c) => c.trim());
+      tableRows.push(cells);
+      continue;
+    } else if (inTable) {
+      flushTable();
+    }
+
+    // Headers
+    if (line.startsWith("# ")) {
+      flushList();
+      elements.push(
+        <h1
+          key={`h1-${elements.length}`}
+          className="text-3xl font-bold text-[#3D3D3D] mb-6 pb-3 border-b border-[#E5E8EB]"
+        >
+          {line.slice(2)}
+        </h1>,
+      );
+      continue;
+    }
+    if (line.startsWith("## ")) {
+      flushList();
+      elements.push(
+        <h2
+          key={`h2-${elements.length}`}
+          className="text-2xl font-bold text-[#3D3D3D] mt-8 mb-4"
+        >
+          {line.slice(3)}
+        </h2>,
+      );
+      continue;
+    }
+    if (line.startsWith("### ")) {
+      flushList();
+      elements.push(
+        <h3
+          key={`h3-${elements.length}`}
+          className="text-xl font-semibold text-[#3D3D3D] mt-6 mb-3"
+        >
+          {line.slice(4)}
+        </h3>,
+      );
+      continue;
+    }
+
+    // Horizontal rule
+    if (line === "---") {
+      flushList();
+      elements.push(
+        <hr key={`hr-${elements.length}`} className="my-8 border-[#E5E8EB]" />,
+      );
+      continue;
+    }
+
+    // Blockquotes
+    if (line.startsWith("> ")) {
+      flushList();
+      const content = line.slice(2);
+      const isWarning = content.includes("⚠️");
+      const isInfo = content.includes("💡");
+      const isGuide = content.includes("🛡️");
+      const isQuestion = content.includes("❓");
+
+      let bg = "bg-[#F6F8FC]";
+      let border = "border-[#A3A380]";
+      let text = "text-[#4A4A4A]";
+
+      if (isWarning) {
+        bg = "bg-[#FEF3C7]";
+        border = "border-[#F59E0B]";
+        text = "text-[#92400E]";
+      } else if (isInfo) {
+        bg = "bg-[#E0F2FE]";
+        border = "border-[#0EA5E9]";
+        text = "text-[#0369A1]";
+      } else if (isGuide || isQuestion) {
+        bg = "bg-[#ECFCCB]";
+        border = "border-[#84CC16]";
+        text = "text-[#365314]";
+      }
+
+      elements.push(
+        <blockquote
+          key={`quote-${elements.length}`}
+          className={`pl-4 py-3 pr-4 mb-4 rounded-r-lg border-l-4 ${bg} ${border} ${text}`}
+          dangerouslySetInnerHTML={{ __html: processInline(content) }}
+        />,
+      );
+      continue;
+    }
+
+    // Lists
+    if (line.match(/^[-*] /)) {
+      listType = "ul";
+      listItems.push(line.slice(2));
+      continue;
+    }
+    if (line.match(/^\d+\. /)) {
+      listType = "ol";
+      listItems.push(line.replace(/^\d+\. /, ""));
+      continue;
+    }
+
+    // Flush list if we hit non-list content
+    if (listItems.length > 0 && line.trim() !== "") {
+      flushList();
+    }
+
+    // Empty line
+    if (line.trim() === "") {
+      flushList();
+      continue;
+    }
+
+    // Regular paragraph
+    elements.push(
+      <p
+        key={`p-${elements.length}`}
+        className="text-[#4A4A4A] mb-4 leading-relaxed"
+        dangerouslySetInnerHTML={{ __html: processInline(line) }}
+      />,
+    );
+  }
+
+  // Flush remaining
+  flushList();
+  flushTable();
+
+  return elements;
 }
 
 // ============================================
@@ -1104,227 +1176,257 @@ function renderMarkdown(content) {
 // ============================================
 
 export default function Documentation() {
-    const [sidebarOpen, setSidebarOpen] = useState(true);
-    const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
-    const [expandedSections, setExpandedSections] = useState(
-        NAV_SECTIONS.reduce((acc, section) => ({ ...acc, [section.title]: true }), {})
-    );
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [expandedSections, setExpandedSections] = useState(
+    NAV_SECTIONS.reduce(
+      (acc, section) => ({ ...acc, [section.title]: true }),
+      {},
+    ),
+  );
 
-    // Get current page from hash
-    const [currentPage, setCurrentPage] = useState('welcome');
+  // Get current page from hash
+  const [currentPage, setCurrentPage] = useState("welcome");
 
-    useEffect(() => {
-        const handleHashChange = () => {
-            const hash = window.location.hash;
-            if (hash.startsWith('#/docs/')) {
-                setCurrentPage(hash.replace('#/docs/', ''));
-            } else if (hash === '#/docs' || hash === '') {
-                setCurrentPage('welcome');
-            }
-        };
-
-        handleHashChange();
-        window.addEventListener('hashchange', handleHashChange);
-        return () => window.removeEventListener('hashchange', handleHashChange);
-    }, []);
-
-    const pageContent = DOCS_CONTENT[currentPage];
-    const PageIcon = pageContent?.icon || Book;
-
-    const toggleSection = (title) => {
-        setExpandedSections(prev => ({ ...prev, [title]: !prev[title] }));
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash.startsWith("#/docs/")) {
+        setCurrentPage(hash.replace("#/docs/", ""));
+      } else if (hash === "#/docs" || hash === "") {
+        setCurrentPage("welcome");
+      }
     };
 
-    const navigateTo = (id) => {
-        window.location.hash = `/docs/${id}`;
-        setMobileSidebarOpen(false);
-    };
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
 
-    return (
-        <div className="min-h-screen bg-white flex">
-            {/* Mobile sidebar overlay */}
-            {mobileSidebarOpen && (
-                <div
-                    className="fixed inset-0 bg-black/30 z-40 lg:hidden"
-                    onClick={() => setMobileSidebarOpen(false)}
-                />
-            )}
+  const pageContent = DOCS_CONTENT[currentPage];
+  const PageIcon = pageContent?.icon || Book;
 
-            {/* Sidebar */}
-            <aside className={`
+  const toggleSection = (title) => {
+    setExpandedSections((prev) => ({ ...prev, [title]: !prev[title] }));
+  };
+
+  const navigateTo = (id) => {
+    window.location.hash = `/docs/${id}`;
+    setMobileSidebarOpen(false);
+  };
+
+  return (
+    <div className="min-h-screen bg-white flex">
+      {/* Mobile sidebar overlay */}
+      {mobileSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/30 z-40 lg:hidden"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={`
         fixed lg:sticky top-0 left-0 z-50 lg:z-0
         w-72 h-screen bg-[#F9FAFB] border-r border-[#E5E8EB]
         transform transition-transform duration-200
-        ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        ${mobileSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}
         flex flex-col
-      `}>
-                {/* Header */}
-                <div className="p-4 border-b border-[#E5E8EB]">
-                    <div className="flex items-center justify-between">
-                        <Link to="/" className="flex items-center gap-2 text-[#3D3D3D] hover:text-[#A3A380]">
-                            <ArrowLeft className="w-4 h-4" />
-                            <span className="text-sm">Back to App</span>
-                        </Link>
-                        <button
-                            onClick={() => setMobileSidebarOpen(false)}
-                            className="lg:hidden p-1 text-[#6B6B6B] hover:text-[#3D3D3D]"
-                        >
-                            <X className="w-5 h-5" />
-                        </button>
-                    </div>
-                    <div className="mt-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#A3A380] to-[#8B8B68] flex items-center justify-center">
-                            <Book className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="font-bold text-[#3D3D3D]">सनdesh Docs</h1>
-                            <p className="text-xs text-[#8B8B8B]">Documentation</p>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Navigation */}
-                <nav className="flex-1 overflow-y-auto p-4">
-                    {NAV_SECTIONS.map((section) => (
-                        <div key={section.title} className="mb-4">
-                            <button
-                                onClick={() => toggleSection(section.title)}
-                                className="flex items-center justify-between w-full px-2 py-1.5 text-xs font-semibold text-[#8B8B8B] uppercase tracking-wider hover:text-[#3D3D3D]"
-                            >
-                                {section.title}
-                                <ChevronDown className={`w-4 h-4 transition-transform ${expandedSections[section.title] ? '' : '-rotate-90'}`} />
-                            </button>
-
-                            {expandedSections[section.title] && (
-                                <div className="mt-1 space-y-0.5">
-                                    {section.items.map((item) => (
-                                        <button
-                                            key={item.id}
-                                            onClick={() => navigateTo(item.id)}
-                                            className={`
-                        w-full text-left px-3 py-2 text-sm rounded-lg transition-colors
-                        ${currentPage === item.id
-                                                    ? 'bg-[#A3A380]/10 text-[#A3A380] font-medium'
-                                                    : 'text-[#4A4A4A] hover:bg-[#E5E8EB] hover:text-[#3D3D3D]'
-                                                }
-                      `}
-                                        >
-                                            {item.title}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    ))}
-                </nav>
-
-                {/* Footer */}
-                <div className="p-4 border-t border-[#E5E8EB]">
-                    <p className="text-xs text-[#8B8B8B]">
-                        सनdesh Documentation<br />
-                        Last updated: December 2025
-                    </p>
-                </div>
-            </aside>
-
-            {/* Main content */}
-            <main className="flex-1 min-w-0">
-                {/* Mobile header */}
-                <header className="lg:hidden sticky top-0 bg-white border-b border-[#E5E8EB] px-4 py-3 flex items-center gap-3 z-30">
-                    <button
-                        onClick={() => setMobileSidebarOpen(true)}
-                        className="p-2 -ml-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-lg"
-                    >
-                        <Menu className="w-5 h-5" />
-                    </button>
-                    <div className="flex items-center gap-2">
-                        <Book className="w-5 h-5 text-[#A3A380]" />
-                        <span className="font-semibold text-[#3D3D3D]">सनdesh Docs</span>
-                    </div>
-                </header>
-
-                {/* Content */}
-                <div className="max-w-3xl mx-auto px-6 py-8 lg:py-12">
-                    {/* Breadcrumb */}
-                    <div className="flex items-center gap-2 text-sm text-[#8B8B8B] mb-6">
-                        <button
-                            onClick={() => navigateTo('welcome')}
-                            className="hover:text-[#A3A380]"
-                        >
-                            Docs
-                        </button>
-                        <ChevronRight className="w-4 h-4" />
-                        <span className="text-[#3D3D3D] font-medium">{pageContent?.title || 'Page'}</span>
-                    </div>
-
-                    {/* Page content */}
-                    <article className="prose prose-slate max-w-none">
-                        {pageContent ? (
-                            <>
-                                {renderMarkdown(pageContent.content)}
-                                {pageContent.lastUpdated && (
-                                    <div className="mt-8 pt-4 border-t border-[#E5E8EB] text-xs text-[#8B8B8B] italic">
-                                        Last updated: {pageContent.lastUpdated}
-                                    </div>
-                                )}
-                            </>
-                        ) : (
-                            <div className="text-center py-12">
-                                <HelpCircle className="w-12 h-12 text-[#E5E8EB] mx-auto mb-4" />
-                                <h2 className="text-xl font-semibold text-[#3D3D3D] mb-2">Page Not Found</h2>
-                                <p className="text-[#8B8B8B] mb-4">The documentation page you're looking for doesn't exist.</p>
-                                <button
-                                    onClick={() => navigateTo('welcome')}
-                                    className="text-[#A3A380] hover:text-[#8B8B68]"
-                                >
-                                    Go to Welcome page
-                                </button>
-                            </div>
-                        )}
-                    </article>
-
-                    {/* Navigation footer */}
-                    {pageContent && (
-                        <div className="mt-12 pt-8 border-t border-[#E5E8EB]">
-                            <div className="flex items-center justify-between">
-                                {/* Previous */}
-                                {(() => {
-                                    const allItems = NAV_SECTIONS.flatMap(s => s.items);
-                                    const currentIndex = allItems.findIndex(i => i.id === currentPage);
-                                    const prevItem = currentIndex > 0 ? allItems[currentIndex - 1] : null;
-
-                                    return prevItem ? (
-                                        <button
-                                            onClick={() => navigateTo(prevItem.id)}
-                                            className="flex items-center gap-2 text-sm text-[#6B6B6B] hover:text-[#A3A380]"
-                                        >
-                                            <ArrowLeft className="w-4 h-4" />
-                                            <span>{prevItem.title}</span>
-                                        </button>
-                                    ) : <div />;
-                                })()}
-
-                                {/* Next */}
-                                {(() => {
-                                    const allItems = NAV_SECTIONS.flatMap(s => s.items);
-                                    const currentIndex = allItems.findIndex(i => i.id === currentPage);
-                                    const nextItem = currentIndex < allItems.length - 1 ? allItems[currentIndex + 1] : null;
-
-                                    return nextItem ? (
-                                        <button
-                                            onClick={() => navigateTo(nextItem.id)}
-                                            className="flex items-center gap-2 text-sm text-[#6B6B6B] hover:text-[#A3A380]"
-                                        >
-                                            <span>{nextItem.title}</span>
-                                            <ChevronRight className="w-4 h-4" />
-                                        </button>
-                                    ) : <div />;
-                                })()}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </main>
+      `}
+      >
+        {/* Header */}
+        <div className="p-4 border-b border-[#E5E8EB]">
+          <div className="flex items-center justify-between">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-[#3D3D3D] hover:text-[#A3A380]"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm">Back to App</span>
+            </Link>
+            <button
+              onClick={() => setMobileSidebarOpen(false)}
+              className="lg:hidden p-1 text-[#6B6B6B] hover:text-[#3D3D3D]"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="mt-4 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#A3A380] to-[#8B8B68] flex items-center justify-center">
+              <Book className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="font-bold text-[#3D3D3D]">सनdesh Docs</h1>
+              <p className="text-xs text-[#8B8B8B]">Documentation</p>
+            </div>
+          </div>
         </div>
-    );
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto p-4">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.title} className="mb-4">
+              <button
+                onClick={() => toggleSection(section.title)}
+                className="flex items-center justify-between w-full px-2 py-1.5 text-xs font-semibold text-[#8B8B8B] uppercase tracking-wider hover:text-[#3D3D3D]"
+              >
+                {section.title}
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${expandedSections[section.title] ? "" : "-rotate-90"}`}
+                />
+              </button>
+
+              {expandedSections[section.title] && (
+                <div className="mt-1 space-y-0.5">
+                  {section.items.map((item) => (
+                    <button
+                      key={item.id}
+                      onClick={() => navigateTo(item.id)}
+                      className={`
+                        w-full text-left px-3 py-2 text-sm rounded-lg transition-colors
+                        ${
+                          currentPage === item.id
+                            ? "bg-[#A3A380]/10 text-[#A3A380] font-medium"
+                            : "text-[#4A4A4A] hover:bg-[#E5E8EB] hover:text-[#3D3D3D]"
+                        }
+                      `}
+                    >
+                      {item.title}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </nav>
+
+        {/* Footer */}
+        <div className="p-4 border-t border-[#E5E8EB]">
+          <p className="text-xs text-[#8B8B8B]">
+            सनdesh Documentation
+            <br />
+            Last updated: December 2025
+          </p>
+        </div>
+      </aside>
+
+      {/* Main content */}
+      <main className="flex-1 min-w-0">
+        {/* Mobile header */}
+        <header className="lg:hidden sticky top-0 bg-white border-b border-[#E5E8EB] px-4 py-3 flex items-center gap-3 z-30">
+          <button
+            onClick={() => setMobileSidebarOpen(true)}
+            className="p-2 -ml-2 text-[#6B6B6B] hover:text-[#3D3D3D] hover:bg-[#F6F8FC] rounded-lg"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+          <div className="flex items-center gap-2">
+            <Book className="w-5 h-5 text-[#A3A380]" />
+            <span className="font-semibold text-[#3D3D3D]">सनdesh Docs</span>
+          </div>
+        </header>
+
+        {/* Content */}
+        <div className="max-w-3xl mx-auto px-6 py-8 lg:py-12">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-sm text-[#8B8B8B] mb-6">
+            <button
+              onClick={() => navigateTo("welcome")}
+              className="hover:text-[#A3A380]"
+            >
+              Docs
+            </button>
+            <ChevronRight className="w-4 h-4" />
+            <span className="text-[#3D3D3D] font-medium">
+              {pageContent?.title || "Page"}
+            </span>
+          </div>
+
+          {/* Page content */}
+          <article className="prose prose-slate max-w-none">
+            {pageContent ? (
+              <>
+                {renderMarkdown(pageContent.content)}
+                {pageContent.lastUpdated && (
+                  <div className="mt-8 pt-4 border-t border-[#E5E8EB] text-xs text-[#8B8B8B] italic">
+                    Last updated: {pageContent.lastUpdated}
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <HelpCircle className="w-12 h-12 text-[#E5E8EB] mx-auto mb-4" />
+                <h2 className="text-xl font-semibold text-[#3D3D3D] mb-2">
+                  Page Not Found
+                </h2>
+                <p className="text-[#8B8B8B] mb-4">
+                  The documentation page you're looking for doesn't exist.
+                </p>
+                <button
+                  onClick={() => navigateTo("welcome")}
+                  className="text-[#A3A380] hover:text-[#8B8B68]"
+                >
+                  Go to Welcome page
+                </button>
+              </div>
+            )}
+          </article>
+
+          {/* Navigation footer */}
+          {pageContent && (
+            <div className="mt-12 pt-8 border-t border-[#E5E8EB]">
+              <div className="flex items-center justify-between">
+                {/* Previous */}
+                {(() => {
+                  const allItems = NAV_SECTIONS.flatMap((s) => s.items);
+                  const currentIndex = allItems.findIndex(
+                    (i) => i.id === currentPage,
+                  );
+                  const prevItem =
+                    currentIndex > 0 ? allItems[currentIndex - 1] : null;
+
+                  return prevItem ? (
+                    <button
+                      onClick={() => navigateTo(prevItem.id)}
+                      className="flex items-center gap-2 text-sm text-[#6B6B6B] hover:text-[#A3A380]"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      <span>{prevItem.title}</span>
+                    </button>
+                  ) : (
+                    <div />
+                  );
+                })()}
+
+                {/* Next */}
+                {(() => {
+                  const allItems = NAV_SECTIONS.flatMap((s) => s.items);
+                  const currentIndex = allItems.findIndex(
+                    (i) => i.id === currentPage,
+                  );
+                  const nextItem =
+                    currentIndex < allItems.length - 1
+                      ? allItems[currentIndex + 1]
+                      : null;
+
+                  return nextItem ? (
+                    <button
+                      onClick={() => navigateTo(nextItem.id)}
+                      className="flex items-center gap-2 text-sm text-[#6B6B6B] hover:text-[#A3A380]"
+                    >
+                      <span>{nextItem.title}</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  ) : (
+                    <div />
+                  );
+                })()}
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
 }
