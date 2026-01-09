@@ -1,23 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { login, checkHealth } from '../api';
-import { Input } from '../components/ui';
-import { Mail, Lock, AlertCircle, Eye, EyeOff, BookOpen, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { login, checkHealth } from "../api";
+import { Input } from "../components/ui";
+import {
+  Mail,
+  Lock,
+  AlertCircle,
+  Eye,
+  EyeOff,
+  BookOpen,
+  Loader2,
+} from "lucide-react";
 
 export default function Login() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [namespace, setNamespace] = useState('local');
+  const [namespace, setNamespace] = useState("local");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
   // Check if already logged in
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
-      navigate('/app');
+      navigate("/app");
     }
 
     // Get namespace from health endpoint
@@ -27,26 +35,26 @@ export default function Login() {
           setNamespace(data.namespace);
         }
       })
-      .catch(() => { });
+      .catch(() => {});
   }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const { data } = await login(username, password);
-      localStorage.setItem('token', data.access_token);
-      localStorage.setItem('user', JSON.stringify(data.user));
-      navigate('/app');
+      localStorage.setItem("token", data.access_token);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      navigate("/app");
     } catch (err) {
       if (err.response?.status === 401) {
-        setError('Invalid username or password');
+        setError("Invalid username or password");
       } else if (!err.response) {
-        setError('Unable to connect to server');
+        setError("Unable to connect to server");
       } else {
-        setError('An error occurred. Please try again.');
+        setError("An error occurred. Please try again.");
       }
     } finally {
       setLoading(false);
@@ -76,30 +84,59 @@ export default function Login() {
                 Simple, secure email for your local network.
               </h2>
               <p className="text-[#6B6B6B] leading-relaxed">
-                Sandesh is a privacy-first email system that works entirely on your local network.
-                No internet required, no data leaves your premises.
+                Sandesh is a privacy-first email system that works entirely on
+                your local network. No internet required, no data leaves your
+                premises.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4 pt-6">
               <div className="p-4 rounded-xl bg-white shadow-sm">
                 <div className="w-10 h-10 rounded-lg bg-[#D7CE93]/20 flex items-center justify-center mb-3">
-                  <svg className="w-5 h-5 text-[#A3A380]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  <svg
+                    className="w-5 h-5 text-[#A3A380]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
                   </svg>
                 </div>
-                <p className="text-sm font-semibold text-[#3D3D3D]">100% Private</p>
-                <p className="text-xs text-[#8B8B8B] mt-1">Data never leaves your network</p>
+                <p className="text-sm font-semibold text-[#3D3D3D]">
+                  100% Private
+                </p>
+                <p className="text-xs text-[#8B8B8B] mt-1">
+                  Data never leaves your network
+                </p>
               </div>
 
               <div className="p-4 rounded-xl bg-white shadow-sm">
                 <div className="w-10 h-10 rounded-lg bg-[#D7CE93]/20 flex items-center justify-center mb-3">
-                  <svg className="w-5 h-5 text-[#A3A380]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  <svg
+                    className="w-5 h-5 text-[#A3A380]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
                   </svg>
                 </div>
-                <p className="text-sm font-semibold text-[#3D3D3D]">Zero Setup</p>
-                <p className="text-xs text-[#8B8B8B] mt-1">Works out of the box</p>
+                <p className="text-sm font-semibold text-[#3D3D3D]">
+                  Zero Setup
+                </p>
+                <p className="text-xs text-[#8B8B8B] mt-1">
+                  Works out of the box
+                </p>
               </div>
             </div>
           </div>
@@ -122,9 +159,7 @@ export default function Login() {
 
           {/* Form header */}
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-[#3D3D3D] mb-2">
-              Sign in
-            </h2>
+            <h2 className="text-2xl font-bold text-[#3D3D3D] mb-2">Sign in</h2>
             <p className="text-[#6B6B6B]">
               Enter your credentials to access your mailbox
             </p>
@@ -169,7 +204,7 @@ export default function Login() {
               <Input
                 label="Password"
                 id="password"
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 required
                 autoComplete="current-password"
                 className="pl-11 pr-12 py-3.5 bg-[#F6F8FC] border-[#E5E8EB] focus:ring-[#A3A380]/10 focus:border-[#A3A380]"
@@ -193,7 +228,11 @@ export default function Login() {
                 "
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
-                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                {showPassword ? (
+                  <EyeOff className="w-4 h-4" />
+                ) : (
+                  <Eye className="w-4 h-4" />
+                )}
               </button>
             </div>
 
@@ -217,7 +256,7 @@ export default function Login() {
                   Signing in...
                 </>
               ) : (
-                'Sign in'
+                "Sign in"
               )}
             </button>
           </form>
@@ -225,7 +264,8 @@ export default function Login() {
           {/* Footer */}
           <div className="mt-8 pt-6 border-t border-[#F0F0F0]">
             <p className="text-center text-xs text-[#8B8B8B] mb-3">
-              Connected to <span className="font-medium text-[#A3A380]">@{namespace}</span>
+              Connected to{" "}
+              <span className="font-medium text-[#A3A380]">@{namespace}</span>
             </p>
             <div className="text-center">
               <Link

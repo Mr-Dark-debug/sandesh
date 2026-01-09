@@ -1,32 +1,58 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { useParams, Link, useOutletContext, useNavigate } from 'react-router-dom';
-import { getMail, moveMessage } from '../api';
-import { format, isToday, isYesterday, isThisYear } from 'date-fns';
-import { useToast } from '../components/ToastContext';
-import { useConfirmation } from '../components/ConfirmationDialog';
-import { Skeleton, EmptyState, Badge, ComingSoonButton } from '../components/ui';
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import {
-  Mail, MailOpen, Inbox, Send, Trash2, Folder,
-  ChevronDown, RefreshCw, AlertCircle, MoreVertical,
-  Archive, Star, CheckSquare, Square, Check
-} from 'lucide-react';
+  useParams,
+  Link,
+  useOutletContext,
+  useNavigate,
+} from "react-router-dom";
+import { getMail, moveMessage } from "../api";
+import { format, isToday, isYesterday, isThisYear } from "date-fns";
+import { useToast } from "../components/ToastContext";
+import { useConfirmation } from "../components/ConfirmationDialog";
+import {
+  Skeleton,
+  EmptyState,
+  Badge,
+  ComingSoonButton,
+} from "../components/ui";
+import {
+  Mail,
+  MailOpen,
+  Inbox,
+  Send,
+  Trash2,
+  Folder,
+  ChevronDown,
+  RefreshCw,
+  AlertCircle,
+  MoreVertical,
+  Archive,
+  Star,
+  CheckSquare,
+  Square,
+  Check,
+} from "lucide-react";
 
 // Helper for date formatting
 const formatDate = (timestamp) => {
-  const date = new Date(timestamp + 'Z');
+  const date = new Date(timestamp + "Z");
   if (isToday(date)) {
-    return format(date, 'h:mm a');
+    return format(date, "h:mm a");
   } else if (isYesterday(date)) {
-    return 'Yesterday';
+    return "Yesterday";
   } else if (isThisYear(date)) {
-    return format(date, 'MMM d');
+    return format(date, "MMM d");
   }
-  return format(date, 'MMM d, yyyy');
+  return format(date, "MMM d, yyyy");
 };
 
 // Email list item component
 // ⚡ Bolt: Memoized to prevent re-renders of all items when one is selected
-const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onSelect }) {
+const EmailListItem = React.memo(function EmailListItem({
+  email,
+  isSelected,
+  onSelect,
+}) {
   const [isFocused, setIsFocused] = useState(false);
 
   const handleFocus = () => setIsFocused(true);
@@ -45,12 +71,15 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
         border-b border-[#F0F0F0] last:border-b-0
         transition-colors duration-100
         cursor-pointer
-        ${isSelected ? 'bg-[#D7CE93]/15' : !email.is_read ? 'bg-[#F6F8FC]' : 'bg-white hover:bg-[#F8F9FA] focus-within:bg-[#F8F9FA]'}
+        ${isSelected ? "bg-[#D7CE93]/15" : !email.is_read ? "bg-[#F6F8FC]" : "bg-white hover:bg-[#F8F9FA] focus-within:bg-[#F8F9FA]"}
       `}
     >
       {/* Checkbox */}
       <button
-        onClick={(e) => { e.stopPropagation(); onSelect(email.id); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onSelect(email.id);
+        }}
         role="checkbox"
         aria-checked={isSelected}
         aria-label={`Select message from ${email.sender}`}
@@ -82,15 +111,23 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
       >
         {/* Sender */}
         <div className="w-[200px] flex-shrink-0">
-          <p className={`text-sm truncate ${!email.is_read ? 'font-semibold text-[#3D3D3D]' : 'text-[#3D3D3D]'}`}>
-            {email.sender_display_name || (email.sender?.includes('<') ? email.sender.split('<')[0].trim() : email.sender?.split('@')[0]) || email.sender}
+          <p
+            className={`text-sm truncate ${!email.is_read ? "font-semibold text-[#3D3D3D]" : "text-[#3D3D3D]"}`}
+          >
+            {email.sender_display_name ||
+              (email.sender?.includes("<")
+                ? email.sender.split("<")[0].trim()
+                : email.sender?.split("@")[0]) ||
+              email.sender}
           </p>
         </div>
 
         {/* Subject & Preview */}
         <div className="flex-1 flex items-baseline gap-2 min-w-0">
-          <span className={`text-sm truncate ${!email.is_read ? 'font-semibold text-[#3D3D3D]' : 'text-[#3D3D3D]'}`}>
-            {email.subject || '(No Subject)'}
+          <span
+            className={`text-sm truncate ${!email.is_read ? "font-semibold text-[#3D3D3D]" : "text-[#3D3D3D]"}`}
+          >
+            {email.subject || "(No Subject)"}
           </span>
           <span className="text-sm text-[#8B8B8B] truncate hidden md:inline">
             - {email.body?.substring(0, 80)}
@@ -98,13 +135,17 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
         </div>
 
         {/* Date */}
-        <time className={`text-xs flex-shrink-0 ${!email.is_read ? 'font-semibold text-[#3D3D3D]' : 'text-[#8B8B8B]'}`}>
+        <time
+          className={`text-xs flex-shrink-0 ${!email.is_read ? "font-semibold text-[#3D3D3D]" : "text-[#8B8B8B]"}`}
+        >
           {formatDate(email.timestamp)}
         </time>
       </Link>
 
       {/* Hover Actions */}
-      <div className={`${isFocused ? 'flex' : 'hidden group-hover:flex'} items-center gap-1`}>
+      <div
+        className={`${isFocused ? "flex" : "hidden group-hover:flex"} items-center gap-1`}
+      >
         <ComingSoonButton
           icon={Archive}
           title="Archive (Coming soon)"
@@ -124,8 +165,11 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
 function EmailListSkeleton() {
   return (
     <div>
-      {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-        <div key={i} className="flex items-center gap-4 px-4 py-3 border-b border-[#F0F0F0]">
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+        <div
+          key={i}
+          className="flex items-center gap-4 px-4 py-3 border-b border-[#F0F0F0]"
+        >
           <Skeleton className="w-5 h-5 rounded" />
           <Skeleton className="w-5 h-5 rounded" />
           <Skeleton className="w-32 h-4" />
@@ -142,11 +186,13 @@ function BulkActionBar({ selectedCount, onClear, onMoveToTrash }) {
   if (selectedCount === 0) return null;
 
   return (
-    <div className="
+    <div
+      className="
       flex items-center gap-4 px-4 py-2
       bg-[#F6F8FC] border-b border-[#E5E8EB]
       animate-[slideUp_150ms_ease]
-    ">
+    "
+    >
       <button
         onClick={onClear}
         className="flex items-center gap-2 text-sm text-[#3D3D3D] hover:bg-[#E5E8EB] px-3 py-1.5 rounded-lg"
@@ -180,22 +226,25 @@ export default function FolderView() {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedEmails, setSelectedEmails] = useState(new Set());
 
-  const loadMail = useCallback(async (showLoading = true) => {
-    if (showLoading) setLoading(true);
-    setError(null);
-    setSelectedEmails(new Set());
+  const loadMail = useCallback(
+    async (showLoading = true) => {
+      if (showLoading) setLoading(true);
+      setError(null);
+      setSelectedEmails(new Set());
 
-    try {
-      const mailRes = await getMail(id);
-      setEmails(mailRes.data);
-    } catch (e) {
-      console.error('Failed to load mail:', e);
-      setError('Failed to load emails. Please try again.');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, [id]);
+      try {
+        const mailRes = await getMail(id);
+        setEmails(mailRes.data);
+      } catch (e) {
+        console.error("Failed to load mail:", e);
+        setError("Failed to load emails. Please try again.");
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
+      }
+    },
+    [id],
+  );
 
   useEffect(() => {
     loadMail();
@@ -208,7 +257,7 @@ export default function FolderView() {
   };
 
   const toggleEmailSelection = useCallback((emailId) => {
-    setSelectedEmails(prev => {
+    setSelectedEmails((prev) => {
       const newSet = new Set(prev);
       if (newSet.has(emailId)) {
         newSet.delete(emailId);
@@ -223,7 +272,7 @@ export default function FolderView() {
     if (selectedEmails.size === emails.length) {
       setSelectedEmails(new Set());
     } else {
-      setSelectedEmails(new Set(emails.map(e => e.id)));
+      setSelectedEmails(new Set(emails.map((e) => e.id)));
     }
   };
 
@@ -231,16 +280,16 @@ export default function FolderView() {
     if (selectedEmails.size === 0) return;
 
     const confirmed = await confirm({
-      title: `Delete ${selectedEmails.size} email${selectedEmails.size > 1 ? 's' : ''}`,
-      description: `${selectedEmails.size} email${selectedEmails.size > 1 ? 's' : ''} will be moved to Trash.`,
-      confirmText: 'Delete',
-      severity: 'warning'
+      title: `Delete ${selectedEmails.size} email${selectedEmails.size > 1 ? "s" : ""}`,
+      description: `${selectedEmails.size} email${selectedEmails.size > 1 ? "s" : ""} will be moved to Trash.`,
+      confirmText: "Delete",
+      severity: "warning",
     });
 
     if (confirmed) {
-      const trashFolder = folders?.find(f => f.name === 'Trash');
+      const trashFolder = folders?.find((f) => f.name === "Trash");
       if (!trashFolder) {
-        toast.error('Trash folder not found');
+        toast.error("Trash folder not found");
         return;
       }
 
@@ -248,54 +297,61 @@ export default function FolderView() {
         for (const emailId of selectedEmails) {
           await moveMessage(emailId, trashFolder.id);
         }
-        toast.success(`${selectedEmails.size} email${selectedEmails.size > 1 ? 's' : ''} moved to Trash`);
+        toast.success(
+          `${selectedEmails.size} email${selectedEmails.size > 1 ? "s" : ""} moved to Trash`,
+        );
         await loadMail(false);
         refreshFolders?.();
       } catch {
-        toast.error('Failed to delete some emails');
+        toast.error("Failed to delete some emails");
       }
     }
   };
 
-  const currentFolder = folders?.find(f => f.id === parseInt(id));
-  const folderName = currentFolder ? currentFolder.name : 'Folder';
+  const currentFolder = folders?.find((f) => f.id === parseInt(id));
+  const folderName = currentFolder ? currentFolder.name : "Folder";
 
   const getEmptyStateProps = () => {
     switch (folderName) {
-      case 'Inbox':
+      case "Inbox":
         return {
           icon: Inbox,
-          title: 'Your inbox is empty',
-          description: 'Messages you receive will appear here. Send someone an email to get started!',
-          action: () => navigate('/app/compose'),
-          actionLabel: 'Compose Message'
+          title: "Your inbox is empty",
+          description:
+            "Messages you receive will appear here. Send someone an email to get started!",
+          action: () => navigate("/app/compose"),
+          actionLabel: "Compose Message",
         };
-      case 'Sent':
+      case "Sent":
         return {
           icon: Send,
-          title: 'No sent messages',
-          description: 'Messages you send will appear here. Compose a new message to get started.',
-          action: () => navigate('/app/compose'),
-          actionLabel: 'Compose Message'
+          title: "No sent messages",
+          description:
+            "Messages you send will appear here. Compose a new message to get started.",
+          action: () => navigate("/app/compose"),
+          actionLabel: "Compose Message",
         };
-      case 'Trash':
+      case "Trash":
         return {
           icon: Trash2,
-          title: 'Trash is empty',
-          description: 'Deleted messages will appear here.'
+          title: "Trash is empty",
+          description: "Deleted messages will appear here.",
         };
       default:
         return {
           icon: Folder,
-          title: 'This folder is empty',
-          description: 'Move messages here to organize your mail.'
+          title: "This folder is empty",
+          description: "Move messages here to organize your mail.",
         };
     }
   };
 
   // ⚡ Bolt: Memoize unread count to prevent recalculation on selection changes
   // Must be called before any conditional returns
-  const unreadCount = useMemo(() => emails.filter(e => !e.is_read).length, [emails]);
+  const unreadCount = useMemo(
+    () => emails.filter((e) => !e.is_read).length,
+    [emails],
+  );
 
   if (loading || (foldersLoading && !folders?.length)) {
     return (
@@ -320,7 +376,9 @@ export default function FolderView() {
           <div className="w-16 h-16 rounded-full bg-[#C4756E]/10 flex items-center justify-center mx-auto mb-4">
             <AlertCircle className="w-8 h-8 text-[#C4756E]" />
           </div>
-          <h3 className="text-lg font-semibold text-[#3D3D3D] mb-2">Unable to load emails</h3>
+          <h3 className="text-lg font-semibold text-[#3D3D3D] mb-2">
+            Unable to load emails
+          </h3>
           <p className="text-sm text-[#6B6B6B] mb-6">{error}</p>
           <button
             onClick={() => loadMail()}
@@ -347,7 +405,13 @@ export default function FolderView() {
           <button
             onClick={toggleSelectAll}
             role="checkbox"
-            aria-checked={selectedEmails.size === emails.length && emails.length > 0 ? true : selectedEmails.size > 0 ? "mixed" : false}
+            aria-checked={
+              selectedEmails.size === emails.length && emails.length > 0
+                ? true
+                : selectedEmails.size > 0
+                  ? "mixed"
+                  : false
+            }
             aria-label="Select all messages"
             className="
               w-8 h-8 flex items-center justify-center
@@ -379,7 +443,9 @@ export default function FolderView() {
               title="Refresh"
               aria-label="Refresh folder"
             >
-              <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+              <RefreshCw
+                className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`}
+              />
             </button>
           </div>
         </div>
@@ -387,7 +453,9 @@ export default function FolderView() {
         <div className="flex items-center gap-2">
           <span className="text-sm text-[#8B8B8B]">
             {emails.length > 0 ? (
-              <>1-{emails.length} of {emails.length}</>
+              <>
+                1-{emails.length} of {emails.length}
+              </>
             ) : null}
           </span>
         </div>
@@ -414,7 +482,7 @@ export default function FolderView() {
           <EmptyState {...getEmptyStateProps()} className="h-full" />
         ) : (
           <div>
-            {emails.map(email => (
+            {emails.map((email) => (
               <EmailListItem
                 key={email.id}
                 email={email}

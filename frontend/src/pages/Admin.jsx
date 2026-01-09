@@ -1,13 +1,23 @@
-import React, { useEffect, useState } from 'react';
-import { getUsers, createUser } from '../api';
-import { useToast } from '../components/ToastContext';
-import { useConfirmation } from '../components/ConfirmationDialog';
-import { Skeleton, EmptyState, Badge } from '../components/ui';
+import React, { useEffect, useState } from "react";
+import { getUsers, createUser } from "../api";
+import { useToast } from "../components/ToastContext";
+import { useConfirmation } from "../components/ConfirmationDialog";
+import { Skeleton, EmptyState, Badge } from "../components/ui";
 import {
-  UserPlus, Shield, Users, AlertCircle,
-  User, Crown, Settings, Mail, Search,
-  MoreVertical, Eye, EyeOff, Check
-} from 'lucide-react';
+  UserPlus,
+  Shield,
+  Users,
+  AlertCircle,
+  User,
+  Crown,
+  Settings,
+  Mail,
+  Search,
+  MoreVertical,
+  Eye,
+  EyeOff,
+  Check,
+} from "lucide-react";
 
 export default function Admin() {
   const toast = useToast();
@@ -17,9 +27,9 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [creating, setCreating] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -36,11 +46,11 @@ export default function Admin() {
       const { data } = await getUsers();
       setUsers(data);
     } catch (e) {
-      console.error('Failed to load users:', e);
+      console.error("Failed to load users:", e);
       if (e.response?.status === 403) {
-        setError('You do not have permission to access this page');
+        setError("You do not have permission to access this page");
       } else {
-        setError('Failed to load users');
+        setError("Failed to load users");
       }
     } finally {
       setLoading(false);
@@ -51,23 +61,25 @@ export default function Admin() {
     const errors = {};
 
     if (!username.trim()) {
-      errors.username = 'Username is required';
+      errors.username = "Username is required";
     } else if (username.length < 3) {
-      errors.username = 'Minimum 3 characters';
+      errors.username = "Minimum 3 characters";
     } else if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      errors.username = 'Letters, numbers, underscores only';
-    } else if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
-      errors.username = 'Username already exists';
+      errors.username = "Letters, numbers, underscores only";
+    } else if (
+      users.some((u) => u.username.toLowerCase() === username.toLowerCase())
+    ) {
+      errors.username = "Username already exists";
     }
 
     if (!password) {
-      errors.password = 'Password is required';
+      errors.password = "Password is required";
     } else if (password.length < 6) {
-      errors.password = 'Minimum 6 characters';
+      errors.password = "Minimum 6 characters";
     }
 
     if (password !== confirmPassword) {
-      errors.confirmPassword = 'Passwords do not match';
+      errors.confirmPassword = "Passwords do not match";
     }
 
     setFormErrors(errors);
@@ -83,10 +95,10 @@ export default function Admin() {
 
     // Confirm user creation
     const confirmed = await confirm({
-      title: 'Create User Account',
+      title: "Create User Account",
       description: `A new user account "${username}" will be created. They will be able to send and receive emails in the local namespace.`,
-      confirmText: 'Create User',
-      severity: 'info'
+      confirmText: "Create User",
+      severity: "info",
     });
 
     if (!confirmed) return;
@@ -94,15 +106,15 @@ export default function Admin() {
     setCreating(true);
     try {
       await createUser(username.trim(), password);
-      setUsername('');
-      setPassword('');
-      setConfirmPassword('');
+      setUsername("");
+      setPassword("");
+      setConfirmPassword("");
       setShowForm(false);
       toast.success(`User "${username}" created successfully`);
       await loadUsers();
     } catch (e) {
-      console.error('Failed to create user:', e);
-      const message = e.response?.data?.detail || 'Failed to create user';
+      console.error("Failed to create user:", e);
+      const message = e.response?.data?.detail || "Failed to create user";
       toast.error(message);
     } finally {
       setCreating(false);
@@ -110,9 +122,9 @@ export default function Admin() {
   };
 
   const resetForm = () => {
-    setUsername('');
-    setPassword('');
-    setConfirmPassword('');
+    setUsername("");
+    setPassword("");
+    setConfirmPassword("");
     setFormErrors({});
     setShowForm(false);
   };
@@ -124,7 +136,9 @@ export default function Admin() {
           <div className="w-16 h-16 rounded-full bg-[#C4756E]/10 flex items-center justify-center mx-auto mb-4">
             <Shield className="w-8 h-8 text-[#C4756E]" />
           </div>
-          <h3 className="text-lg font-semibold text-[#3D3D3D] mb-2">Access Denied</h3>
+          <h3 className="text-lg font-semibold text-[#3D3D3D] mb-2">
+            Access Denied
+          </h3>
           <p className="text-sm text-[#6B6B6B]">{error}</p>
         </div>
       </div>
@@ -141,8 +155,12 @@ export default function Admin() {
               <Settings className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-[#3D3D3D]">Admin Console</h1>
-              <p className="text-sm text-[#6B6B6B]">Manage users and system settings</p>
+              <h1 className="text-2xl font-bold text-[#3D3D3D]">
+                Admin Console
+              </h1>
+              <p className="text-sm text-[#6B6B6B]">
+                Manage users and system settings
+              </p>
             </div>
           </div>
 
@@ -196,23 +214,33 @@ export default function Admin() {
                         border rounded-lg
                         transition-colors
                         focus:outline-none focus:ring-2 focus:ring-[#A3A380]/20
-                        ${formErrors.username
-                          ? 'border-[#C4756E] focus:border-[#C4756E]'
-                          : 'border-[#E5E8EB] focus:border-[#A3A380]'
+                        ${
+                          formErrors.username
+                            ? "border-[#C4756E] focus:border-[#C4756E]"
+                            : "border-[#E5E8EB] focus:border-[#A3A380]"
                         }
                       `}
                       placeholder="e.g., alice"
                       value={username}
-                      onChange={e => {
-                        setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''));
+                      onChange={(e) => {
+                        setUsername(
+                          e.target.value
+                            .toLowerCase()
+                            .replace(/[^a-z0-9_]/g, ""),
+                        );
                         if (formErrors.username) {
-                          setFormErrors(prev => ({ ...prev, username: null }));
+                          setFormErrors((prev) => ({
+                            ...prev,
+                            username: null,
+                          }));
                         }
                       }}
                       disabled={creating}
                     />
                     {formErrors.username && (
-                      <p className="mt-1 text-xs text-[#C4756E]">{formErrors.username}</p>
+                      <p className="mt-1 text-xs text-[#C4756E]">
+                        {formErrors.username}
+                      </p>
                     )}
                     {username && !formErrors.username && (
                       <p className="mt-1 text-xs text-[#8B8B8B]">
@@ -228,7 +256,7 @@ export default function Admin() {
                     </label>
                     <div className="relative">
                       <input
-                        type={showPassword ? 'text' : 'password'}
+                        type={showPassword ? "text" : "password"}
                         autoComplete="new-password"
                         className={`
                           w-full px-3 py-2.5 pr-10 text-sm
@@ -236,17 +264,21 @@ export default function Admin() {
                           border rounded-lg
                           transition-colors
                           focus:outline-none focus:ring-2 focus:ring-[#A3A380]/20
-                          ${formErrors.password
-                            ? 'border-[#C4756E] focus:border-[#C4756E]'
-                            : 'border-[#E5E8EB] focus:border-[#A3A380]'
+                          ${
+                            formErrors.password
+                              ? "border-[#C4756E] focus:border-[#C4756E]"
+                              : "border-[#E5E8EB] focus:border-[#A3A380]"
                           }
                         `}
                         placeholder="Min 6 characters"
                         value={password}
-                        onChange={e => {
+                        onChange={(e) => {
                           setPassword(e.target.value);
                           if (formErrors.password) {
-                            setFormErrors(prev => ({ ...prev, password: null }));
+                            setFormErrors((prev) => ({
+                              ...prev,
+                              password: null,
+                            }));
                           }
                         }}
                         disabled={creating}
@@ -256,11 +288,17 @@ export default function Admin() {
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8B8B8B] hover:text-[#3D3D3D]"
                       >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        {showPassword ? (
+                          <EyeOff className="w-4 h-4" />
+                        ) : (
+                          <Eye className="w-4 h-4" />
+                        )}
                       </button>
                     </div>
                     {formErrors.password && (
-                      <p className="mt-1 text-xs text-[#C4756E]">{formErrors.password}</p>
+                      <p className="mt-1 text-xs text-[#C4756E]">
+                        {formErrors.password}
+                      </p>
                     )}
                   </div>
 
@@ -270,7 +308,7 @@ export default function Admin() {
                       Confirm Password
                     </label>
                     <input
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       autoComplete="new-password"
                       className={`
                         w-full px-3 py-2.5 text-sm
@@ -278,34 +316,47 @@ export default function Admin() {
                         border rounded-lg
                         transition-colors
                         focus:outline-none focus:ring-2 focus:ring-[#A3A380]/20
-                        ${formErrors.confirmPassword
-                          ? 'border-[#C4756E] focus:border-[#C4756E]'
-                          : 'border-[#E5E8EB] focus:border-[#A3A380]'
+                        ${
+                          formErrors.confirmPassword
+                            ? "border-[#C4756E] focus:border-[#C4756E]"
+                            : "border-[#E5E8EB] focus:border-[#A3A380]"
                         }
                       `}
                       placeholder="Re-enter password"
                       value={confirmPassword}
-                      onChange={e => {
+                      onChange={(e) => {
                         setConfirmPassword(e.target.value);
                         if (formErrors.confirmPassword) {
-                          setFormErrors(prev => ({ ...prev, confirmPassword: null }));
+                          setFormErrors((prev) => ({
+                            ...prev,
+                            confirmPassword: null,
+                          }));
                         }
                       }}
                       disabled={creating}
                     />
                     {formErrors.confirmPassword && (
-                      <p className="mt-1 text-xs text-[#C4756E]">{formErrors.confirmPassword}</p>
-                    )}
-                    {confirmPassword && password === confirmPassword && !formErrors.confirmPassword && (
-                      <p className="mt-1 text-xs text-[#7A9B6D] flex items-center gap-1">
-                        <Check className="w-3 h-3" /> Passwords match
+                      <p className="mt-1 text-xs text-[#C4756E]">
+                        {formErrors.confirmPassword}
                       </p>
                     )}
+                    {confirmPassword &&
+                      password === confirmPassword &&
+                      !formErrors.confirmPassword && (
+                        <p className="mt-1 text-xs text-[#7A9B6D] flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Passwords match
+                        </p>
+                      )}
                   </div>
 
                   <button
                     type="submit"
-                    disabled={creating || !username.trim() || !password || !confirmPassword}
+                    disabled={
+                      creating ||
+                      !username.trim() ||
+                      !password ||
+                      !confirmPassword
+                    }
                     className="
                       w-full flex items-center justify-center gap-2
                       px-4 py-2.5 mt-2
@@ -317,9 +368,24 @@ export default function Admin() {
                   >
                     {creating ? (
                       <>
-                        <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        <svg
+                          className="w-4 h-4 animate-spin"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                        >
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                          />
                         </svg>
                         Creating...
                       </>
@@ -336,7 +402,7 @@ export default function Admin() {
           )}
 
           {/* Users List */}
-          <div className={showForm ? 'lg:col-span-2' : 'lg:col-span-3'}>
+          <div className={showForm ? "lg:col-span-2" : "lg:col-span-3"}>
             <div className="bg-white rounded-xl border border-[#E5E8EB] overflow-hidden">
               {/* Header */}
               <div className="flex items-center justify-between px-5 py-4 border-b border-[#E5E8EB] bg-[#FAFAFA]">
@@ -350,7 +416,7 @@ export default function Admin() {
               {/* Content */}
               {loading ? (
                 <div className="p-5 space-y-4">
-                  {[1, 2, 3].map(i => (
+                  {[1, 2, 3].map((i) => (
                     <div key={i} className="flex items-center gap-4">
                       <Skeleton className="w-10 h-10 rounded-full" />
                       <div className="space-y-2">
@@ -370,7 +436,7 @@ export default function Admin() {
                 />
               ) : (
                 <div className="divide-y divide-[#F0F0F0]">
-                  {users.map(user => (
+                  {users.map((user) => (
                     <div
                       key={user.id}
                       className="flex items-center justify-between px-5 py-4 hover:bg-[#FAFAFA] transition-colors"
@@ -379,9 +445,10 @@ export default function Admin() {
                         <div
                           className={`
                             w-10 h-10 rounded-full flex items-center justify-center shadow-sm
-                            ${user.is_admin
-                              ? 'bg-gradient-to-br from-[#D7CE93] to-[#C9BF7D]'
-                              : 'bg-gradient-to-br from-[#D8A48F] to-[#BB8588]'
+                            ${
+                              user.is_admin
+                                ? "bg-gradient-to-br from-[#D7CE93] to-[#C9BF7D]"
+                                : "bg-gradient-to-br from-[#D8A48F] to-[#BB8588]"
                             }
                           `}
                         >
