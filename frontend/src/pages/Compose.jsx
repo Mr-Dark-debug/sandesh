@@ -298,6 +298,7 @@ export default function Compose() {
                 <button
                   onClick={handleSubmit}
                   title="Send (Ctrl+Enter)"
+                  aria-keyshortcuts="Control+Enter Meta+Enter"
                   aria-label={sending ? "Sending..." : "Send"}
                   disabled={sending || !to.trim()}
                   className="
