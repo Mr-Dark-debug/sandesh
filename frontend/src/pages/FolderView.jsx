@@ -187,7 +187,7 @@ export default function FolderView() {
 
     try {
       const mailRes = await getMail(id);
-      setEmails(mailRes.data);
+      setEmails(mailRes.data || []);
     } catch (e) {
       console.error('Failed to load mail:', e);
       setError('Failed to load emails. Please try again.');
@@ -295,7 +295,7 @@ export default function FolderView() {
 
   // ⚡ Bolt: Memoize unread count to prevent recalculation on selection changes
   // Must be called before any conditional returns
-  const unreadCount = useMemo(() => emails.filter(e => !e.is_read).length, [emails]);
+  const unreadCount = useMemo(() => (Array.isArray(emails) ? emails : []).filter(e => !e.is_read).length, [emails]);
 
   if (loading || (foldersLoading && !folders?.length)) {
     return (

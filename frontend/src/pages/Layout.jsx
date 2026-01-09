@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
 import { getFolders, createFolder, checkHealth } from '../api';
 import { useToast } from '../components/ToastContext';
@@ -30,33 +30,18 @@ export default function Layout() {
   const toast = useToast();
   const { confirm } = useConfirmation();
 
-  useEffect(() => {
-    const u = localStorage.getItem('user');
-    if (!u) {
-      navigate('/login');
-    } else {
-      setUser(JSON.parse(u));
-      fetchFolders();
-      fetchSystemInfo();
-    }
-  }, [navigate]);
-
-  const fetchSystemInfo = async () => {
+  const fetchSystemInfo = useCallback(async () => {
     try {
       const { data } = await checkHealth();
       if (data.namespace) setNamespace(data.namespace);
     } catch (e) {
       console.error('Failed to fetch system info:', e);
     }
-  };
+  }, []);
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMobileMenuOpen(false);
-    setShowUserMenu(false);
-  }, [location.pathname]);
-
-  const fetchFolders = async () => {
+  // ⚡ Bolt: Wrap in useCallback to prevent context consumers (FolderView) from re-rendering
+  // when Layout state changes (e.g. menu toggles)
+  const fetchFolders = useCallback(async () => {
     setFoldersLoading(true);
     try {
       const { data } = await getFolders();
@@ -82,7 +67,24 @@ export default function Layout() {
     } finally {
       setFoldersLoading(false);
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    const u = localStorage.getItem('user');
+    if (!u) {
+      navigate('/login');
+    } else {
+      setUser(JSON.parse(u));
+      fetchFolders();
+      fetchSystemInfo();
+    }
+  }, [navigate, fetchFolders, fetchSystemInfo]);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+    setShowUserMenu(false);
+  }, [location.pathname]);
 
   const handleCreateFolder = async (e) => {
     e.preventDefault();
@@ -541,7 +543,8 @@ export default function Layout() {
           className="flex-1 overflow-hidden bg-white focus:outline-none"
           tabIndex="-1"
         >
-          <Outlet context={{ refreshFolders: fetchFolders, folders, foldersLoading }} />
+          {/* ⚡ Bolt: Memoize context to avoid unnecessary re-renders of child routes */}
+          <Outlet context={useMemo(() => ({ refreshFolders: fetchFolders, folders, foldersLoading }), [fetchFolders, folders, foldersLoading])} />
         </main>
       </div>
     </div>
