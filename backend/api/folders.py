@@ -9,6 +9,8 @@ from ..core.exceptions import SandeshError
 
 router = APIRouter()
 
+# ⚡ Bolt: Pre-compile regex for performance
+FOLDER_NAME_REGEX = re.compile(r'^[a-zA-Z0-9 _\-.\(\)]+$')
 
 class FolderResponse(BaseModel):
     id: int
@@ -28,7 +30,7 @@ class FolderCreate(BaseModel):
         if not stripped:
             raise ValueError('Folder name cannot be empty or whitespace only')
 
-        if not re.match(r'^[a-zA-Z0-9 _\-.\(\)]+$', v):
+        if not FOLDER_NAME_REGEX.match(v):
             raise ValueError('Folder name must contain only letters, numbers, spaces, underscores, hyphens, dots, and parentheses')
         return stripped
 

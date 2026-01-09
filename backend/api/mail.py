@@ -15,6 +15,9 @@ from ..infrastructure.security.rate_limiter import limiter
 
 router = APIRouter()
 
+# ⚡ Bolt: Pre-compile regex for performance
+# Used to sanitize email subjects against Header Injection (CRLF)
+SUBJECT_SANITIZER_REGEX = re.compile(r'[\r\n]')
 
 class EmailSendRequest(BaseModel):
     to: List[str] = Field(..., max_items=50, description="Max 50 recipients")
@@ -27,7 +30,7 @@ class EmailSendRequest(BaseModel):
     def sanitize_subject(cls, v: str) -> str:
         if v:
             # Security: Prevent Header Injection in Subject
-            return re.sub(r'[\r\n]', ' ', v).strip()
+            return SUBJECT_SANITIZER_REGEX.sub(' ', v).strip()
         return v
 
 
