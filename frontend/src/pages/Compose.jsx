@@ -26,6 +26,10 @@ export default function Compose() {
   const [showCc, setShowCc] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
 
+  // Platform detection for keyboard shortcuts
+  const isMac = typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/i.test(navigator.userAgent);
+  const shortcutKey = isMac ? '⌘' : 'Ctrl';
+
   // Get namespace for hints
   useEffect(() => {
     checkHealth()
@@ -297,8 +301,9 @@ export default function Compose() {
                 {/* Send button */}
                 <button
                   onClick={handleSubmit}
-                  title="Send (Ctrl+Enter)"
+                  title={`Send (${shortcutKey}+Enter)`}
                   aria-label={sending ? "Sending..." : "Send"}
+                  aria-keyshortcuts={isMac ? "Meta+Enter" : "Control+Enter"}
                   disabled={sending || !to.trim()}
                   className="
                     flex items-center gap-2 px-5 py-2
@@ -314,7 +319,12 @@ export default function Compose() {
                       Sending...
                     </>
                   ) : (
-                    'Send'
+                    <>
+                      Send
+                      <span className="ml-1 text-xs opacity-60 font-normal" aria-hidden="true">
+                        {shortcutKey}↵
+                      </span>
+                    </>
                   )}
                 </button>
 
