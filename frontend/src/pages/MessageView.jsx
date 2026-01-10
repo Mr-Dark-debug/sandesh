@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { getMessage, moveMessage, getFolders } from '../api';
+import { getMessage, moveMessage } from '../api';
 import { format } from 'date-fns';
 import { useToast } from '../components/ToastContext';
 import { useConfirmation } from '../components/ConfirmationDialog';
-import { Button, Skeleton, Card, ComingSoonButton } from '../components/ui';
+import { Skeleton, ComingSoonButton } from '../components/ui';
 import {
-  ArrowLeft, Trash2, Mail, User, Calendar,
+  ArrowLeft, Trash2,
   Folder, AlertCircle, ChevronDown, Archive,
-  Reply, Forward, MoreVertical, Printer, Star
+  Reply, Forward, Printer, Star
 } from 'lucide-react';
 
 export default function MessageView() {
@@ -16,15 +16,16 @@ export default function MessageView() {
   const navigate = useNavigate();
   const toast = useToast();
   const { confirm } = useConfirmation();
-  const { refreshFolders } = useOutletContext() || {};
+  const { refreshFolders, folders: contextFolders, foldersLoading } = useOutletContext() || {};
+
+  // ⚡ Bolt: Use folders from context to avoid extra API call
+  const folders = contextFolders || [];
 
   const [email, setEmail] = useState(null);
-  const [folders, setFolders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [moving, setMoving] = useState(false);
   const [showMoveMenu, setShowMoveMenu] = useState(false);
-  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   useEffect(() => {
     loadMessage();
@@ -35,12 +36,9 @@ export default function MessageView() {
     setError(null);
 
     try {
-      const [messageRes, foldersRes] = await Promise.all([
-        getMessage(id),
-        getFolders()
-      ]);
+      // ⚡ Bolt: Removed getFolders() from Promise.all to reduce API calls
+      const messageRes = await getMessage(id);
       setEmail(messageRes.data);
-      setFolders(foldersRes.data);
       refreshFolders?.();
     } catch (e) {
       console.error('Failed to load message:', e);
@@ -60,7 +58,7 @@ export default function MessageView() {
       await moveMessage(id, folderId);
       toast.success(`Moved to ${folderName}`);
       refreshFolders?.();
-      navigate(`/folder/${folderId}`);
+      navigate(`/app/folder/${folderId}`);
     } catch (e) {
       console.error('Failed to move message:', e);
       toast.error('Failed to move message');
@@ -71,8 +69,21 @@ export default function MessageView() {
   };
 
   const handleDelete = async () => {
+    // ⚡ Bolt: Handle case where folders are still loading
+    if (foldersLoading && !folders.length) {
+      toast.error("Folders are still loading, please wait...");
+      return;
+    }
+
     const trashFolder = folders.find(f => f.name === 'Trash');
-    const isInTrash = email?.folder_id === trashFolder?.id;
+
+    // Safety check if Trash folder is missing (should not happen in healthy system)
+    if (!trashFolder) {
+      toast.error('Trash folder not found');
+      return;
+    }
+
+    const isInTrash = email?.folder_id === trashFolder.id;
 
     if (isInTrash) {
       // Permanent delete confirmation
@@ -80,18 +91,13 @@ export default function MessageView() {
       if (confirmed) {
         toast.warning('Permanent deletion not yet implemented');
       }
-    } else if (trashFolder) {
+    } else {
       // Move to trash confirmation
       const confirmed = await confirm('DELETE_EMAIL');
       if (confirmed) {
         await handleMove(trashFolder.id, 'Trash');
       }
     }
-  };
-
-  const getCurrentFolderName = () => {
-    const folder = folders.find(f => f.id === email?.folder_id);
-    return folder?.name || 'Unknown';
   };
 
   const getInitials = (sender) => {
@@ -224,14 +230,14 @@ export default function MessageView() {
               <div className="relative ml-2">
                 <button
                   onClick={() => setShowMoveMenu(!showMoveMenu)}
-                  className={`
+                  disabled={foldersLoading && !folders.length}
+                  className="
                     flex items-center gap-1 px-3 py-1.5 rounded-lg
                     text-sm transition-colors
-                    ${showMoveMenu
-                      ? 'bg-[#F6F8FC] text-[#3D3D3D]'
-                      : 'text-[#6B6B6B] hover:bg-[#F6F8FC] hover:text-[#3D3D3D]'
-                    }
-                  `}
+                    disabled:opacity-50 disabled:cursor-not-allowed
+                    text-[#6B6B6B] hover:bg-[#F6F8FC] hover:text-[#3D3D3D]
+                    aria-[expanded=true]:bg-[#F6F8FC] aria-[expanded=true]:text-[#3D3D3D]
+                  "
                   aria-haspopup="true"
                   aria-expanded={showMoveMenu}
                   aria-label="Move to folder"
@@ -273,6 +279,9 @@ export default function MessageView() {
                           </button>
                         ))
                       }
+                      {folders.filter(f => f.id !== email.folder_id).length === 0 && (
+                         <div className="px-3 py-2 text-sm text-[#8B8B8B]">No other folders</div>
+                      )}
                     </div>
                   </>
                 )}
