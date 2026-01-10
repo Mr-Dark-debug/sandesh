@@ -299,6 +299,7 @@ export default function Compose() {
                   onClick={handleSubmit}
                   title="Send (Ctrl+Enter)"
                   aria-label={sending ? "Sending..." : "Send"}
+                  aria-keyshortcuts="Control+Enter Meta+Enter"
                   disabled={sending || !to.trim()}
                   className="
                     flex items-center gap-2 px-5 py-2
@@ -317,6 +318,10 @@ export default function Compose() {
                     'Send'
                   )}
                 </button>
+
+                <span className="hidden sm:block text-xs text-[#8B8B8B] select-none" aria-hidden="true">
+                  {typeof navigator !== 'undefined' && /Mac/.test(navigator.platform) ? '⌘+Enter' : 'Ctrl+Enter'}
+                </span>
 
                 {/* Formatting tools (placeholders) */}
                 <div className="flex items-center gap-1 ml-2 border-l border-[#E5E8EB] pl-2">
