@@ -177,8 +177,8 @@ export default function Layout() {
 
         {/* Compose Button */}
         <div className="px-4 py-3 min-w-[280px]">
-          <button
-            onClick={() => navigate('/app/compose')}
+          <Link
+            to="/app/compose"
             className="
               w-full flex items-center gap-3 px-6 py-3.5
               bg-[#D7CE93] hover:bg-[#C9BF7D] 
@@ -189,7 +189,7 @@ export default function Layout() {
           >
             <Plus className="w-5 h-5" strokeWidth={2.5} />
             Compose
-          </button>
+          </Link>
         </div>
 
         {/* Folders List */}
