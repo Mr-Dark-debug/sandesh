@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
 import { getMessage, moveMessage, getFolders } from '../api';
 import { format } from 'date-fns';
@@ -26,9 +26,24 @@ export default function MessageView() {
   const [showMoveMenu, setShowMoveMenu] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
 
+  // Focus management for dropdowns
+  const moveMenuRef = useRef(null);
+  const moveTriggerRef = useRef(null);
+
   useEffect(() => {
     loadMessage();
   }, [id]);
+
+  useEffect(() => {
+    if (showMoveMenu && moveMenuRef.current) {
+      const firstButton = moveMenuRef.current.querySelector('button');
+      if (firstButton) {
+        firstButton.focus();
+      }
+    }
+    // Removed logic that auto-focuses trigger when menu closes to avoid stealing focus on Tab.
+    // Trigger focus is now handled explicitly in event handlers.
+  }, [showMoveMenu]);
 
   const loadMessage = async () => {
     setLoading(true);
@@ -67,6 +82,7 @@ export default function MessageView() {
     } finally {
       setMoving(false);
       setShowMoveMenu(false);
+      moveTriggerRef.current?.focus();
     }
   };
 
@@ -86,6 +102,35 @@ export default function MessageView() {
       if (confirmed) {
         await handleMove(trashFolder.id, 'Trash');
       }
+    }
+  };
+
+  const handleMenuKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      setShowMoveMenu(false);
+      moveTriggerRef.current?.focus();
+      return;
+    }
+
+    if (!moveMenuRef.current) return;
+
+    const buttons = Array.from(moveMenuRef.current.querySelectorAll('button'));
+    if (buttons.length === 0) return;
+
+    const currentIndex = buttons.indexOf(document.activeElement);
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const nextIndex = (currentIndex + 1) % buttons.length;
+      buttons[nextIndex].focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prevIndex = (currentIndex - 1 + buttons.length) % buttons.length;
+      buttons[prevIndex].focus();
+    } else if (e.key === 'Tab') {
+      // Allow default Tab behavior (move focus to next element) but close the menu
+      setShowMoveMenu(false);
     }
   };
 
@@ -223,6 +268,7 @@ export default function MessageView() {
               {/* Move to folder */}
               <div className="relative ml-2">
                 <button
+                  ref={moveTriggerRef}
                   onClick={() => setShowMoveMenu(!showMoveMenu)}
                   className={`
                     flex items-center gap-1 px-3 py-1.5 rounded-lg
@@ -245,15 +291,20 @@ export default function MessageView() {
                   <>
                     <div
                       className="fixed inset-0 z-40"
-                      onClick={() => setShowMoveMenu(false)}
+                      onClick={() => {
+                         setShowMoveMenu(false);
+                         moveTriggerRef.current?.focus();
+                      }}
                     />
                     <div
+                      ref={moveMenuRef}
                       className="
                         absolute left-0 top-full mt-1 z-50
                         w-48 bg-white rounded-lg shadow-lg border border-[#E5E8EB]
                         py-1 animate-[fadeIn_100ms_ease]
                       "
                       role="menu"
+                      onKeyDown={handleMenuKeyDown}
                     >
                       {folders
                         .filter(f => f.id !== email.folder_id)
@@ -266,6 +317,7 @@ export default function MessageView() {
                               w-full flex items-center gap-2.5 px-3 py-2
                               text-sm text-[#3D3D3D] text-left
                               hover:bg-[#F6F8FC] transition-colors
+                              focus:bg-[#F6F8FC] focus:outline-none
                             "
                           >
                             <Folder className="w-4 h-4 text-[#6B6B6B]" />
