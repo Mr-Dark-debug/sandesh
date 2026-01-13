@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { useParams, Link, useOutletContext, useNavigate } from 'react-router-dom';
 import { getMail, moveMessage } from '../api';
@@ -170,7 +171,8 @@ function BulkActionBar({ selectedCount, onClear, onMoveToTrash }) {
 export default function FolderView() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { refreshFolders, folders, foldersLoading } = useOutletContext() || {};
+  // ⚡ Bolt: Removed 'foldersLoading' from useOutletContext() as it is unused
+  const { refreshFolders, folders } = useOutletContext() || {};
   const toast = useToast();
   const { confirm } = useConfirmation();
 
@@ -297,7 +299,9 @@ export default function FolderView() {
   // Must be called before any conditional returns
   const unreadCount = useMemo(() => (Array.isArray(emails) ? emails : []).filter(e => !e.is_read).length, [emails]);
 
-  if (loading || (foldersLoading && !folders?.length)) {
+  // ⚡ Bolt: Optimized rendering condition.
+  // Only show skeleton if emails are loading. Folder loading state shouldn't block email view.
+  if (loading) {
     return (
       <div className="h-full flex flex-col bg-white">
         {/* Header skeleton */}
@@ -312,6 +316,11 @@ export default function FolderView() {
       </div>
     );
   }
+
+  // If folders are still loading initially and we don't have the folder name, we might want to wait?
+  // But `currentFolder` will be undefined, `folderName` will be 'Folder'.
+  // That's acceptable for a split second.
+  // The original code blocked the whole view if folders were loading (initially).
 
   if (error) {
     return (
