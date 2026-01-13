@@ -1,5 +1,5 @@
 {
-  "name": "Sandesh - A local-first email system for private networks",
+  "name": "sandesh-local-email-system",
   "private": true,
   "version": "0.0.0",
   "type": "module",
