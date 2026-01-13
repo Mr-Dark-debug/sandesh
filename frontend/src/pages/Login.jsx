@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { login, checkHealth } from '../api';
 import { Input } from '../components/ui';
-import { Mail, Lock, AlertCircle, Eye, EyeOff, BookOpen, Loader2 } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Eye, EyeOff, BookOpen, Loader2, ArrowUpFromLine } from 'lucide-react';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -11,7 +11,16 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [namespace, setNamespace] = useState('local');
   const [showPassword, setShowPassword] = useState(false);
+  const [capsLock, setCapsLock] = useState(false);
   const navigate = useNavigate();
+
+  const checkCapsLock = (e) => {
+    if (e.getModifierState('CapsLock')) {
+      setCapsLock(true);
+    } else {
+      setCapsLock(false);
+    }
+  };
 
   // Check if already logged in
   useEffect(() => {
@@ -176,6 +185,10 @@ export default function Login() {
                 placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onKeyDown={checkCapsLock}
+                onKeyUp={checkCapsLock}
+                onClick={checkCapsLock}
+                onFocus={checkCapsLock}
                 disabled={loading}
               />
               <div className="absolute left-4 top-[2.4rem] -translate-y-1/2 pointer-events-none">
@@ -195,6 +208,14 @@ export default function Login() {
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
+
+              {/* Caps Lock Warning */}
+              {capsLock && (
+                <div className="absolute -bottom-6 left-0 flex items-center gap-1.5 text-xs text-[#D4A855] animate-[fadeIn_200ms_ease]">
+                  <ArrowUpFromLine className="w-3 h-3" />
+                  <span>Caps Lock is on</span>
+                </div>
+              )}
             </div>
 
             {/* Submit */}
