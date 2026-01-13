@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { login, checkHealth } from '../api';
 import { Input } from '../components/ui';
-import { Mail, Lock, AlertCircle, Eye, EyeOff, BookOpen, Loader2, ArrowUpFromLine } from 'lucide-react';
+import { Mail, Lock, AlertCircle, Eye, EyeOff, BookOpen, Loader2, ArrowUp } from 'lucide-react';
 
 export default function Login() {
   const [username, setUsername] = useState('');
@@ -13,14 +13,6 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [capsLock, setCapsLock] = useState(false);
   const navigate = useNavigate();
-
-  const checkCapsLock = (e) => {
-    if (e.getModifierState('CapsLock')) {
-      setCapsLock(true);
-    } else {
-      setCapsLock(false);
-    }
-  };
 
   // Check if already logged in
   useEffect(() => {
@@ -38,6 +30,12 @@ export default function Login() {
       })
       .catch(() => { });
   }, [navigate]);
+
+  const checkCapsLock = (e) => {
+    if (e.getModifierState) {
+      setCapsLock(e.getModifierState('CapsLock'));
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -188,7 +186,6 @@ export default function Login() {
                 onKeyDown={checkCapsLock}
                 onKeyUp={checkCapsLock}
                 onClick={checkCapsLock}
-                onFocus={checkCapsLock}
                 disabled={loading}
               />
               <div className="absolute left-4 top-[2.4rem] -translate-y-1/2 pointer-events-none">
@@ -208,11 +205,13 @@ export default function Login() {
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
-
-              {/* Caps Lock Warning */}
-              {capsLock && (
-                <div className="absolute -bottom-6 left-0 flex items-center gap-1.5 text-xs text-[#D4A855] animate-[fadeIn_200ms_ease]">
-                  <ArrowUpFromLine className="w-3 h-3" />
+              {capsLock && !showPassword && (
+                <div
+                  className="flex items-center gap-1.5 mt-2 text-xs font-medium text-[#D4A855] animate-pulse"
+                  role="alert"
+                  aria-live="polite"
+                >
+                  <ArrowUp className="w-3 h-3" />
                   <span>Caps Lock is on</span>
                 </div>
               )}
