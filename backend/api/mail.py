@@ -116,8 +116,8 @@ class EmailListResponse(BaseModel):
         return EmailListResponse(
             id=entity.id,
             sender=entity.sender,
-            # ⚡ Bolt: Direct access is faster than getattr for known fields
-            sender_display_name=entity.sender_display_name,
+            # ⚡ Bolt: Compute display name on server to reduce frontend JS overhead
+            sender_display_name=entity.get_sender_name(),
             sender_email=entity.sender_email,
             # recipients=entity.recipients, # Optimization: Excluded from list response
             subject=entity.subject or "",

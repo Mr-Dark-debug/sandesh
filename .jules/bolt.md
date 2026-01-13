@@ -9,3 +9,7 @@
 ## 2025-01-06 - [Redundant State in Layout]
 **Learning:** The `Layout.jsx` component was maintaining a separate `unreadCounts` state that was derived from `folders` data which already contained the unread counts. This caused an extra re-render on every folder fetch and added unnecessary complexity.
 **Action:** Removed `unreadCounts` state and updated the render loop to use `folder.unread_count` directly. This eliminates one state update and simplifies the component logic.
+
+## 2025-01-07 - [Frontend Logic to Backend]
+**Learning:** The `EmailListItem` component was performing repetitive regex/string parsing on the `sender` field (to extract display names) for every item in the list on every render. This logic already existed in the backend entity but wasn't being utilized in the API response.
+**Action:** Updated the backend API to compute `sender_display_name` using the existing entity method and removed the complex parsing logic from the frontend component. This reduces client-side CPU usage during list rendering and ensures consistent name resolution.
