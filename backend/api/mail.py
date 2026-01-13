@@ -30,6 +30,29 @@ class EmailSendRequest(BaseModel):
             return re.sub(r'[\r\n]', ' ', v).strip()
         return v
 
+    @field_validator('to', 'cc')
+    @classmethod
+    def validate_recipients(cls, v: List[str]) -> List[str]:
+        # Security: Validate recipient addresses
+        # 1. Check for max length per recipient (DoS prevention)
+        # 2. Check for control characters (Header Injection)
+        # 3. Ensure not empty
+        cleaned = []
+        for r in v:
+            r = r.strip()
+            if not r:
+                continue
+
+            if len(r) > 100:
+                raise ValueError(f"Recipient address too long (max 100 chars): {r[:20]}...")
+
+            # Check for control characters (newline injection)
+            if re.search(r'[\r\n]', r):
+                raise ValueError("Recipient address cannot contain newlines")
+
+            cleaned.append(r)
+        return cleaned
+
 
 class MoveEmailRequest(BaseModel):
     folder_id: int
