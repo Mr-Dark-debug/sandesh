@@ -385,7 +385,7 @@ export default function MessageView() {
 
             {/* Date */}
             <div className="text-sm text-[#8B8B8B] text-right">
-              <p>{formatDateSafe(email.timestamp, 'MMM d, yyyy, h:mm a')}</p>
+              <p title={formatDateSafe(email.timestamp, 'PPPP p')}>{formatDateSafe(email.timestamp, 'MMM d, yyyy, h:mm a')}</p>
               <p className="text-xs mt-0.5">({formatDateSafe(email.timestamp, 'EEEE')})</p>
             </div>
           </div>
