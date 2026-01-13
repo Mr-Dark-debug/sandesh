@@ -70,7 +70,7 @@ const EmailListItem = React.memo(function EmailListItem({ email, isSelected, onS
         {/* Sender */}
         <div className="w-[200px] flex-shrink-0">
           <p className={`text-sm truncate ${!email.is_read ? 'font-semibold text-[#3D3D3D]' : 'text-[#3D3D3D]'}`}>
-            {email.sender_display_name || (email.sender?.includes('<') ? email.sender.split('<')[0].trim() : email.sender?.split('@')[0]) || email.sender}
+            {email.sender_display_name || email.sender}
           </p>
         </div>
 
@@ -130,11 +130,15 @@ function BulkActionBar({ selectedCount, onClear, onMoveToTrash }) {
   if (selectedCount === 0) return null;
 
   return (
-    <div className="
-      flex items-center gap-4 px-4 py-2
-      bg-[#F6F8FC] border-b border-[#E5E8EB]
-      animate-[slideUp_150ms_ease]
-    ">
+    <div
+      role="status"
+      aria-label="Bulk actions"
+      className="
+        flex items-center gap-4 px-4 py-2
+        bg-[#F6F8FC] border-b border-[#E5E8EB]
+        animate-[slideUp_150ms_ease]
+      "
+    >
       <button
         onClick={onClear}
         className="flex items-center gap-2 text-sm text-[#3D3D3D] hover:bg-[#E5E8EB] px-3 py-1.5 rounded-lg"

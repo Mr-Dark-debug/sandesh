@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { getMessage, moveMessage, getFolders } from '../api';
+import { getMessage, moveMessage } from '../api';
 import { format } from 'date-fns';
 import { useToast } from '../components/ToastContext';
 import { useConfirmation } from '../components/ConfirmationDialog';
@@ -16,10 +16,10 @@ export default function MessageView() {
   const navigate = useNavigate();
   const toast = useToast();
   const { confirm } = useConfirmation();
-  const { refreshFolders } = useOutletContext() || {};
+  const { refreshFolders, folders = [] } = useOutletContext() || {};
 
   const [email, setEmail] = useState(null);
-  const [folders, setFolders] = useState([]);
+  // ⚡ Bolt: Removed local folders state. Using folders from context to avoid redundant fetch.
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [moving, setMoving] = useState(false);
@@ -50,12 +50,9 @@ export default function MessageView() {
     setError(null);
 
     try {
-      const [messageRes, foldersRes] = await Promise.all([
-        getMessage(id),
-        getFolders()
-      ]);
+      // ⚡ Bolt: Removed getFolders() call. Folders are available via context.
+      const messageRes = await getMessage(id);
       setEmail(messageRes.data);
-      setFolders(foldersRes.data);
       refreshFolders?.();
     } catch (e) {
       console.error('Failed to load message:', e);
