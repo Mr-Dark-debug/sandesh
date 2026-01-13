@@ -1,15 +1,26 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useNavigate, useOutletContext } from 'react-router-dom';
-import { getMessage, moveMessage } from '../api';
-import { format } from 'date-fns';
-import { useToast } from '../components/ToastContext';
-import { useConfirmation } from '../components/ConfirmationDialog';
-import { Skeleton, ComingSoonButton } from '../components/ui';
+import React, { useEffect, useState, useRef } from "react";
+import { useParams, useNavigate, useOutletContext } from "react-router-dom";
+import { getMessage, moveMessage, getFolders } from "../api";
+import { format } from "date-fns";
+import { useToast } from "../components/ToastContext";
+import { useConfirmation } from "../components/ConfirmationDialog";
+import { Button, Skeleton, Card, ComingSoonButton } from "../components/ui";
 import {
-  ArrowLeft, Trash2,
-  Folder, AlertCircle, ChevronDown, Archive,
-  Reply, Forward, Printer, Star
-} from 'lucide-react';
+  ArrowLeft,
+  Trash2,
+  Mail,
+  User,
+  Calendar,
+  Folder,
+  AlertCircle,
+  ChevronDown,
+  Archive,
+  Reply,
+  Forward,
+  MoreVertical,
+  Printer,
+  Star,
+} from "lucide-react";
 
 export default function MessageView() {
   const { id } = useParams();
@@ -32,6 +43,40 @@ export default function MessageView() {
   const moveTriggerRef = useRef(null);
 
   useEffect(() => {
+    if (showMoveMenu) {
+      const firstItem = moveMenuRef.current?.querySelector('[role="menuitem"]');
+      firstItem?.focus();
+    }
+  }, [showMoveMenu]);
+
+  const handleMenuKeyDown = (e) => {
+    if (!moveMenuRef.current) return;
+    const items = [
+      ...moveMenuRef.current.querySelectorAll('[role="menuitem"]'),
+    ];
+    const currentIndex = items.indexOf(document.activeElement);
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        items[(currentIndex + 1) % items.length]?.focus();
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        items[(currentIndex - 1 + items.length) % items.length]?.focus();
+        break;
+      case "Escape":
+        e.preventDefault();
+        setShowMoveMenu(false);
+        moveTriggerRef.current?.focus();
+        break;
+      case "Tab":
+        setShowMoveMenu(false);
+        break;
+    }
+  };
+
+  useEffect(() => {
     loadMessage();
   }, [id]);
 
@@ -51,16 +96,18 @@ export default function MessageView() {
     setError(null);
 
     try {
-      // ⚡ Bolt: Removed getFolders() from Promise.all to reduce API calls
-      const messageRes = await getMessage(id);
+      const [messageRes, foldersRes] = await Promise.all([
+        getMessage(id),
+        getFolders(),
+      ]);
       setEmail(messageRes.data);
       refreshFolders?.();
     } catch (e) {
-      console.error('Failed to load message:', e);
+      console.error("Failed to load message:", e);
       if (e.response?.status === 404) {
-        setError('Message not found');
+        setError("Message not found");
       } else {
-        setError('Failed to load message');
+        setError("Failed to load message");
       }
     } finally {
       setLoading(false);
@@ -75,8 +122,8 @@ export default function MessageView() {
       refreshFolders?.();
       navigate(`/app/folder/${folderId}`);
     } catch (e) {
-      console.error('Failed to move message:', e);
-      toast.error('Failed to move message');
+      console.error("Failed to move message:", e);
+      toast.error("Failed to move message");
     } finally {
       setMoving(false);
       setShowMoveMenu(false);
@@ -85,54 +132,48 @@ export default function MessageView() {
   };
 
   const handleDelete = async () => {
-    // ⚡ Bolt: Handle case where folders are still loading
-    if (foldersLoading && !folders.length) {
-      toast.error("Folders are still loading, please wait...");
-      return;
-    }
-
-    const trashFolder = folders.find(f => f.name === 'Trash');
-
-    // Safety check if Trash folder is missing (should not happen in healthy system)
-    if (!trashFolder) {
-      toast.error('Trash folder not found');
-      return;
-    }
-
-    const isInTrash = email?.folder_id === trashFolder.id;
+    const trashFolder = folders.find((f) => f.name === "Trash");
+    const isInTrash = email?.folder_id === trashFolder?.id;
 
     if (isInTrash) {
       // Permanent delete confirmation
-      const confirmed = await confirm('DELETE_EMAIL_PERMANENT');
+      const confirmed = await confirm("DELETE_EMAIL_PERMANENT");
       if (confirmed) {
-        toast.warning('Permanent deletion not yet implemented');
+        toast.warning("Permanent deletion not yet implemented");
       }
     } else {
       // Move to trash confirmation
-      const confirmed = await confirm('DELETE_EMAIL');
+      const confirmed = await confirm("DELETE_EMAIL");
       if (confirmed) {
-        await handleMove(trashFolder.id, 'Trash');
+        await handleMove(trashFolder.id, "Trash");
       }
     }
   };
 
+  const getCurrentFolderName = () => {
+    const folder = folders.find((f) => f.id === email?.folder_id);
+    return folder?.name || "Unknown";
+  };
+
   const getInitials = (sender) => {
-    if (!sender) return 'U';
-    const name = sender.split('@')[0];
+    if (!sender) return "U";
+    const name = sender.split("@")[0];
     return name.charAt(0).toUpperCase();
   };
 
   const formatDateSafe = (timestampString, formatStr) => {
     try {
-      if (!timestampString) return '';
+      if (!timestampString) return "";
       // Ensure we have a valid date string
-      const dateStr = timestampString.endsWith('Z') ? timestampString : timestampString + 'Z';
+      const dateStr = timestampString.endsWith("Z")
+        ? timestampString
+        : timestampString + "Z";
       const date = new Date(dateStr);
-      if (isNaN(date.getTime())) return 'Invalid Date';
+      if (isNaN(date.getTime())) return "Invalid Date";
       return format(date, formatStr);
     } catch (e) {
-      console.error('Date formatting error:', e);
-      return 'Invalid Date';
+      console.error("Date formatting error:", e);
+      return "Invalid Date";
     }
   };
 
@@ -179,7 +220,7 @@ export default function MessageView() {
             <AlertCircle className="w-8 h-8 text-[#C4756E]" />
           </div>
           <h3 className="text-lg font-semibold text-[#3D3D3D] mb-2">
-            {error || 'Message not found'}
+            {error || "Message not found"}
           </h3>
           <p className="text-sm text-[#6B6B6B] mb-6">
             This message may have been moved or deleted.
@@ -222,10 +263,7 @@ export default function MessageView() {
               </button>
 
               {/* Archive button */}
-              <ComingSoonButton
-                icon={Archive}
-                title="Archive (Coming soon)"
-              />
+              <ComingSoonButton icon={Archive} title="Archive (Coming soon)" />
 
               {/* Delete button */}
               <button
@@ -248,20 +286,22 @@ export default function MessageView() {
                   ref={moveTriggerRef}
                   onClick={() => setShowMoveMenu(!showMoveMenu)}
                   disabled={foldersLoading && !folders.length}
-                  className="
+                  className={`
                     flex items-center gap-1 px-3 py-1.5 rounded-lg
                     text-sm transition-colors
-                    disabled:opacity-50 disabled:cursor-not-allowed
-                    text-[#6B6B6B] hover:bg-[#F6F8FC] hover:text-[#3D3D3D]
-                    aria-[expanded=true]:bg-[#F6F8FC] aria-[expanded=true]:text-[#3D3D3D]
-                  "
+                    ${showMoveMenu
+                      ? "bg-[#F6F8FC] text-[#3D3D3D]"
+                      : "text-[#6B6B6B] hover:bg-[#F6F8FC] hover:text-[#3D3D3D]"}
+                  `}
                   aria-haspopup="true"
                   aria-expanded={showMoveMenu}
                   aria-label="Move to folder"
                 >
                   <Folder className="w-4 h-4" />
                   Move to
-                  <ChevronDown className={`w-3 h-3 transition-transform ${showMoveMenu ? 'rotate-180' : ''}`} />
+                  <ChevronDown
+                    className={`w-3 h-3 transition-transform ${showMoveMenu ? "rotate-180" : ""}`}
+                  />
                 </button>
 
                 {showMoveMenu && (
@@ -275,17 +315,17 @@ export default function MessageView() {
                     />
                     <div
                       ref={moveMenuRef}
+                      onKeyDown={handleMenuKeyDown}
                       className="
                         absolute left-0 top-full mt-1 z-50
                         w-48 bg-white rounded-lg shadow-lg border border-[#E5E8EB]
                         py-1 animate-[fadeIn_100ms_ease]
                       "
                       role="menu"
-                      onKeyDown={handleMenuKeyDown}
                     >
                       {folders
-                        .filter(f => f.id !== email.folder_id)
-                        .map(folder => (
+                        .filter((f) => f.id !== email.folder_id)
+                        .map((folder) => (
                           <button
                             key={folder.id}
                             onClick={() => handleMove(folder.id, folder.name)}
@@ -300,11 +340,7 @@ export default function MessageView() {
                             <Folder className="w-4 h-4 text-[#6B6B6B]" />
                             {folder.name}
                           </button>
-                        ))
-                      }
-                      {folders.filter(f => f.id !== email.folder_id).length === 0 && (
-                         <div className="px-3 py-2 text-sm text-[#8B8B8B]">No other folders</div>
-                      )}
+                        ))}
                     </div>
                   </>
                 )}
@@ -321,10 +357,7 @@ export default function MessageView() {
               >
                 <Printer className="w-5 h-5" />
               </button>
-              <ComingSoonButton
-                icon={Star}
-                title="Star (Coming soon)"
-              />
+              <ComingSoonButton icon={Star} title="Star (Coming soon)" />
             </div>
           </div>
         </div>
@@ -333,7 +366,7 @@ export default function MessageView() {
         <div className="p-6">
           {/* Subject */}
           <h1 className="text-2xl font-normal text-[#3D3D3D] mb-6">
-            {email.subject || '(No Subject)'}
+            {email.subject || "(No Subject)"}
           </h1>
 
           {/* Sender Info */}
@@ -350,14 +383,17 @@ export default function MessageView() {
               <div>
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="font-semibold text-[#3D3D3D]">
-                    {email.sender?.split('@')[0] || 'Unknown'}
+                    {email.sender?.split("@")[0] || "Unknown"}
                   </span>
                   <span className="text-sm text-[#8B8B8B]">
                     &lt;{email.sender}&gt;
                   </span>
                 </div>
                 <div className="flex items-center gap-1 text-sm text-[#8B8B8B] mt-1">
-                  <span>to {email.recipients?.map(r => r.split('@')[0]).join(', ')}</span>
+                  <span>
+                    to{" "}
+                    {email.recipients?.map((r) => r.split("@")[0]).join(", ")}
+                  </span>
                   <ChevronDown className="w-3 h-3" />
                 </div>
               </div>
@@ -365,31 +401,39 @@ export default function MessageView() {
 
             {/* Date */}
             <div className="text-sm text-[#8B8B8B] text-right">
-              <p title={formatDateSafe(email.timestamp, 'PPPP p')}>{formatDateSafe(email.timestamp, 'MMM d, yyyy, h:mm a')}</p>
-              <p className="text-xs mt-0.5">({formatDateSafe(email.timestamp, 'EEEE')})</p>
+              <p>{formatDateSafe(email.timestamp, "MMM d, yyyy, h:mm a")}</p>
+              <p className="text-xs mt-0.5">
+                ({formatDateSafe(email.timestamp, "EEEE")})
+              </p>
             </div>
           </div>
 
           {/* Email Body */}
-          <div className="
+          <div
+            className="
             text-[#3D3D3D] text-[15px] leading-relaxed
             whitespace-pre-wrap font-[system-ui]
             min-h-[200px]
-          ">
-            {email.body || '(No content)'}
+          "
+          >
+            {email.body || "(No content)"}
           </div>
 
           {/* Reply Bar */}
           <div className="mt-12 pt-6 border-t border-[#E5E8EB]">
             <div className="flex items-center gap-3">
               <button
-                onClick={() => navigate('/app/compose', {
-                  state: {
-                    to: email.sender,
-                    subject: email.subject.startsWith('Re: ') ? email.subject : `Re: ${email.subject}`,
-                    body: `\n\nOn ${formatDateSafe(email.timestamp, 'PPP p')}, ${email.sender} wrote:\n> ${email.body.replace(/\n/g, '\n> ')}`
-                  }
-                })}
+                onClick={() =>
+                  navigate("/app/compose", {
+                    state: {
+                      to: email.sender,
+                      subject: email.subject.startsWith("Re: ")
+                        ? email.subject
+                        : `Re: ${email.subject}`,
+                      body: "\\n\\nOn " + formatDateSafe(email.timestamp, "PPP p") + ", " + email.sender + " wrote:\\n> " + email.body.replace(/\\n/g, "\\n> ")
+                    },
+                  })
+                }
                 className="
                   flex items-center gap-2 px-4 py-2.5
                   bg-white border border-[#E5E8EB] rounded-full
@@ -402,12 +446,16 @@ export default function MessageView() {
                 Reply
               </button>
               <button
-                onClick={() => navigate('/app/compose', {
-                  state: {
-                    subject: email.subject.startsWith('Fwd: ') ? email.subject : `Fwd: ${email.subject}`,
-                    body: `\n\n---------- Forwarded message ---------\nFrom: ${email.sender}\nDate: ${formatDateSafe(email.timestamp, 'PPP p')}\nSubject: ${email.subject}\nTo: ${email.recipients?.join(', ')}\n\n${email.body}`
-                  }
-                })}
+                onClick={() =>
+                  navigate("/app/compose", {
+                    state: {
+                      subject: email.subject.startsWith("Fwd: ")
+                        ? email.subject
+                        : `Fwd: ${email.subject}`,
+                      body: "\\n\\n---------- Forwarded message ---------\\nFrom: " + email.sender + "\\nDate: " + formatDateSafe(email.timestamp, "PPP p") + "\\nSubject: " + email.subject + "\\nTo: " + (email.recipients?.join(", ") || "") + "\\n\\n" + email.body
+                    },
+                  })
+                }
                 className="
                   flex items-center gap-2 px-4 py-2.5
                   bg-white border border-[#E5E8EB] rounded-full

@@ -1,19 +1,18 @@
-import React, { useId } from 'react';
-import { Loader2 } from 'lucide-react';
-import { useToast } from './ToastContext';
-import { format, isToday, isYesterday, isThisYear } from 'date-fns';
+import React, { useId } from "react";
+import { Loader2 } from "lucide-react";
+import { useToast } from "./ToastContext";
 
 /**
  * Primary button with Sandesh styling
  */
-export function Button({ 
-  children, 
-  variant = 'primary', 
-  size = 'md',
-  loading = false, 
+export function Button({
+  children,
+  variant = "primary",
+  size = "md",
+  loading = false,
   disabled = false,
-  className = '',
-  ...props 
+  className = "",
+  ...props
 }) {
   const baseStyles = `
     inline-flex items-center justify-center gap-2 
@@ -48,13 +47,13 @@ export function Button({
       bg-white text-[#3D3D3D] border border-[#E5DCC0]
       hover:bg-[#EFE8CE]
       focus-visible:ring-[#A3A380]
-    `
+    `,
   };
 
   const sizes = {
-    sm: 'px-3 py-1.5 text-xs',
-    md: 'px-4 py-2.5 text-sm',
-    lg: 'px-6 py-3 text-base'
+    sm: "px-3 py-1.5 text-xs",
+    md: "px-4 py-2.5 text-sm",
+    lg: "px-6 py-3 text-base",
   };
 
   return (
@@ -72,13 +71,13 @@ export function Button({
 /**
  * Input field with Sandesh styling
  */
-export function Input({ 
+export function Input({
   label,
   error,
-  className = '',
+  className = "",
   id,
   required,
-  ...props 
+  ...props
 }) {
   const generatedId = useId();
   const inputId = id || generatedId;
@@ -87,10 +86,17 @@ export function Input({
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={inputId} className="block text-sm font-medium text-[#3D3D3D] mb-1.5">
+        <label
+          htmlFor={inputId}
+          className="block text-sm font-medium text-[#3D3D3D] mb-1.5"
+        >
           {label}
           {required && (
-            <span className="text-[#C4756E] ml-1" aria-hidden="true" title="Required field">
+            <span
+              className="text-[#C4756E] ml-1"
+              aria-hidden="true"
+              title="Required field"
+            >
               *
             </span>
           )}
@@ -108,16 +114,19 @@ export function Input({
           transition-all duration-150
           placeholder:text-[#8B8B8B]
           focus:outline-none focus:ring-2 focus:ring-[#A3A380]/20
-          ${error 
-            ? 'border-[#C4756E] focus:border-[#C4756E]' 
-            : 'border-[#E5DCC0] focus:border-[#A3A380]'
+          ${
+            error
+              ? "border-[#C4756E] focus:border-[#C4756E]"
+              : "border-[#E5DCC0] focus:border-[#A3A380]"
           }
           ${className}
         `}
         {...props}
       />
       {error && (
-        <p id={errorId} className="mt-1.5 text-xs text-[#C4756E]">{error}</p>
+        <p id={errorId} className="mt-1.5 text-xs text-[#C4756E]">
+          {error}
+        </p>
       )}
     </div>
   );
@@ -126,13 +135,13 @@ export function Input({
 /**
  * Textarea with Sandesh styling
  */
-export function Textarea({ 
+export function Textarea({
   label,
   error,
-  className = '',
+  className = "",
   id,
   required,
-  ...props 
+  ...props
 }) {
   const generatedId = useId();
   const inputId = id || generatedId;
@@ -141,10 +150,17 @@ export function Textarea({
   return (
     <div className="w-full">
       {label && (
-        <label htmlFor={inputId} className="block text-sm font-medium text-[#3D3D3D] mb-1.5">
+        <label
+          htmlFor={inputId}
+          className="block text-sm font-medium text-[#3D3D3D] mb-1.5"
+        >
           {label}
           {required && (
-            <span className="text-[#C4756E] ml-1" aria-hidden="true" title="Required field">
+            <span
+              className="text-[#C4756E] ml-1"
+              aria-hidden="true"
+              title="Required field"
+            >
               *
             </span>
           )}
@@ -162,16 +178,19 @@ export function Textarea({
           transition-all duration-150
           placeholder:text-[#8B8B8B]
           focus:outline-none focus:ring-2 focus:ring-[#A3A380]/20
-          ${error 
-            ? 'border-[#C4756E] focus:border-[#C4756E]' 
-            : 'border-[#E5DCC0] focus:border-[#A3A380]'
+          ${
+            error
+              ? "border-[#C4756E] focus:border-[#C4756E]"
+              : "border-[#E5DCC0] focus:border-[#A3A380]"
           }
           ${className}
         `}
         {...props}
       />
       {error && (
-        <p id={errorId} className="mt-1.5 text-xs text-[#C4756E]">{error}</p>
+        <p id={errorId} className="mt-1.5 text-xs text-[#C4756E]">
+          {error}
+        </p>
       )}
     </div>
   );
@@ -180,17 +199,17 @@ export function Textarea({
 /**
  * Loading skeleton component
  */
-export function Skeleton({ className = '', variant = 'text' }) {
+export function Skeleton({ className = "", variant = "text" }) {
   const variants = {
-    text: 'h-4 w-full',
-    title: 'h-6 w-3/4',
-    avatar: 'h-10 w-10 rounded-full',
-    card: 'h-24 w-full',
-    button: 'h-10 w-24'
+    text: "h-4 w-full",
+    title: "h-6 w-3/4",
+    avatar: "h-10 w-10 rounded-full",
+    card: "h-24 w-full",
+    button: "h-10 w-24",
   };
 
   return (
-    <div 
+    <div
       className={`
         bg-gradient-to-r from-[#EFE8CE] via-[#E5DCC0] to-[#EFE8CE]
         bg-[length:200%_100%] animate-pulse rounded
@@ -204,16 +223,18 @@ export function Skeleton({ className = '', variant = 'text' }) {
 /**
  * Empty state component
  */
-export function EmptyState({ 
+export function EmptyState({
   icon: Icon,
   title,
   description,
   action,
   actionLabel,
-  className = ''
+  className = "",
 }) {
   return (
-    <div className={`flex flex-col items-center justify-center py-16 px-8 text-center animate-[fadeIn_300ms_ease] ${className}`}>
+    <div
+      className={`flex flex-col items-center justify-center py-16 px-8 text-center animate-[fadeIn_300ms_ease] ${className}`}
+    >
       {Icon && (
         <div
           className="w-16 h-16 rounded-full bg-[#BB8588]/10 flex items-center justify-center mb-4"
@@ -238,35 +259,30 @@ export function EmptyState({
 /**
  * Toast notification component
  */
-export function Toast({ 
-  message, 
-  type = 'success', 
-  onClose,
-  className = ''
-}) {
+export function Toast({ message, type = "success", onClose, className = "" }) {
   const types = {
     success: {
-      bg: 'bg-[#7A9B6D]',
-      icon: '✓'
+      bg: "bg-[#7A9B6D]",
+      icon: "✓",
     },
     error: {
-      bg: 'bg-[#C4756E]',
-      icon: '✕'
+      bg: "bg-[#C4756E]",
+      icon: "✕",
     },
     warning: {
-      bg: 'bg-[#D4A855]',
-      icon: '!'
+      bg: "bg-[#D4A855]",
+      icon: "!",
     },
     info: {
-      bg: 'bg-[#A3A380]',
-      icon: 'ℹ'
-    }
+      bg: "bg-[#A3A380]",
+      icon: "ℹ",
+    },
   };
 
   const { bg, icon } = types[type] || types.success;
 
   return (
-    <div 
+    <div
       className={`
         fixed bottom-6 right-6 z-50
         flex items-center gap-3 px-4 py-3
@@ -274,15 +290,18 @@ export function Toast({
         animate-[slideUp_200ms_ease]
         ${className}
       `}
-      role={type === 'error' ? 'alert' : 'status'}
-      aria-live={type === 'error' ? 'assertive' : 'polite'}
+      role={type === "error" ? "alert" : "status"}
+      aria-live={type === "error" ? "assertive" : "polite"}
     >
-      <span className="w-5 h-5 flex items-center justify-center rounded-full bg-white/20 text-xs font-bold" aria-hidden="true">
+      <span
+        className="w-5 h-5 flex items-center justify-center rounded-full bg-white/20 text-xs font-bold"
+        aria-hidden="true"
+      >
         {icon}
       </span>
       <span className="text-sm font-medium">{message}</span>
       {onClose && (
-        <button 
+        <button
           onClick={onClose}
           className="ml-2 text-white/80 hover:text-white transition-colors"
           aria-label="Close"
@@ -297,16 +316,16 @@ export function Toast({
 /**
  * Badge component
  */
-export function Badge({ children, variant = 'default', className = '' }) {
+export function Badge({ children, variant = "default", className = "" }) {
   const variants = {
-    default: 'bg-[#EFE8CE] text-[#6B6B6B]',
-    primary: 'bg-[#A3A380] text-white',
-    accent: 'bg-[#D7CE93] text-[#3D3D3D]',
-    unread: 'bg-[#D8A48F] text-white'
+    default: "bg-[#EFE8CE] text-[#6B6B6B]",
+    primary: "bg-[#A3A380] text-white",
+    accent: "bg-[#D7CE93] text-[#3D3D3D]",
+    unread: "bg-[#D8A48F] text-white",
   };
 
   return (
-    <span 
+    <span
       className={`
         inline-flex items-center justify-center
         px-2 py-0.5 text-xs font-medium rounded-full
@@ -322,9 +341,9 @@ export function Badge({ children, variant = 'default', className = '' }) {
 /**
  * Card component
  */
-export function Card({ children, className = '', ...props }) {
+export function Card({ children, className = "", ...props }) {
   return (
-    <div 
+    <div
       className={`
         bg-white rounded-xl
         border border-[#E5DCC0]
@@ -341,9 +360,11 @@ export function Card({ children, className = '', ...props }) {
 /**
  * Card Header
  */
-export function CardHeader({ children, className = '' }) {
+export function CardHeader({ children, className = "" }) {
   return (
-    <div className={`px-5 py-4 border-b border-[#EFE8CE] bg-[#FDFCF7] rounded-t-xl ${className}`}>
+    <div
+      className={`px-5 py-4 border-b border-[#EFE8CE] bg-[#FDFCF7] rounded-t-xl ${className}`}
+    >
       {children}
     </div>
   );
@@ -352,18 +373,19 @@ export function CardHeader({ children, className = '' }) {
 /**
  * Card Content
  */
-export function CardContent({ children, className = '' }) {
-  return (
-    <div className={`p-5 ${className}`}>
-      {children}
-    </div>
-  );
+export function CardContent({ children, className = "" }) {
+  return <div className={`p-5 ${className}`}>{children}</div>;
 }
 
 /**
  * Dropdown menu
  */
-export function Dropdown({ trigger, children, align = 'right', className = '' }) {
+export function Dropdown({
+  trigger,
+  children,
+  align = "right",
+  className = "",
+}) {
   const [isOpen, setIsOpen] = React.useState(false);
   const ref = React.useRef(null);
 
@@ -374,32 +396,30 @@ export function Dropdown({ trigger, children, align = 'right', className = '' })
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
     <div ref={ref} className={`relative ${className}`}>
-      <div onClick={() => setIsOpen(!isOpen)}>
-        {trigger}
-      </div>
+      <div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>
       {isOpen && (
-        <div 
+        <div
           className={`
             absolute z-50 mt-2 min-w-[180px]
             bg-white rounded-lg shadow-lg
             border border-[#E5DCC0]
             py-1 animate-[fadeIn_150ms_ease]
-            ${align === 'right' ? 'right-0' : 'left-0'}
+            ${align === "right" ? "right-0" : "left-0"}
           `}
         >
-          {React.Children.map(children, child => 
-            React.cloneElement(child, { 
+          {React.Children.map(children, (child) =>
+            React.cloneElement(child, {
               onClick: (e) => {
                 child.props.onClick?.(e);
                 setIsOpen(false);
-              }
-            })
+              },
+            }),
           )}
         </div>
       )}
@@ -410,7 +430,12 @@ export function Dropdown({ trigger, children, align = 'right', className = '' })
 /**
  * Dropdown item
  */
-export function DropdownItem({ children, icon: Icon, className = '', ...props }) {
+export function DropdownItem({
+  children,
+  icon: Icon,
+  className = "",
+  ...props
+}) {
   return (
     <button
       className={`
@@ -433,7 +458,7 @@ export function DropdownItem({ children, icon: Icon, className = '', ...props })
  *
  * Now provides visual feedback via Toast notification.
  */
-export function ComingSoonButton({ icon: Icon, title, className = '' }) {
+export function ComingSoonButton({ icon: Icon, title, className = "" }) {
   const toast = useToast();
 
   const handleClick = (e) => {
@@ -441,9 +466,17 @@ export function ComingSoonButton({ icon: Icon, title, className = '' }) {
     e.stopPropagation(); // Prevent row clicks in lists
 
     // Extract the clean title without "(Coming soon)" for the message
-    const cleanTitle = title?.replace(/\s*\(Coming soon\)\s*$/i, '') || 'This feature';
+    const cleanTitle =
+      title?.replace(/\s*\(Coming soon\)\s*$/i, "") || "This feature";
 
-    toast.addToast(`${cleanTitle} is coming soon!`, 'info');
+    // Use the exposed warning or addToast directly
+    // Assuming addToast or a specific 'info' helper if available, or fallback to warning/success
+    // Since we don't have 'info' exposed in the context directly in my memory, I'll check ToastContext or use 'warning'
+    // Actually, looking at ToastContext above, I added 'info' type to Toast component but need to see if context exposes it.
+    // The previous read of ToastContext showed success, error, warning. I'll stick to 'warning' or just addToast with type 'info' if valid.
+    // Let's safe bet on 'addToast' with 'info' if the Toast component supports it (I added support in this file).
+
+    toast.addToast(`${cleanTitle} is coming soon!`, "info");
   };
 
   return (

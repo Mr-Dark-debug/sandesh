@@ -1,27 +1,42 @@
-
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom';
-import { getFolders, createFolder, checkHealth } from '../api';
-import { useToast } from '../components/ToastContext';
-import { useConfirmation } from '../components/ConfirmationDialog';
-import { Button, Badge, Skeleton } from '../components/ui';
+import React, { useEffect, useState } from "react";
+import { Outlet, Link, useNavigate, useLocation } from "react-router-dom";
+import { getFolders, createFolder, checkHealth } from "../api";
+import { useToast } from "../components/ToastContext";
+import { useConfirmation } from "../components/ConfirmationDialog";
+import { Button, Badge, Skeleton } from "../components/ui";
 import {
-  Inbox, Send, Trash2, Folder, FolderPlus,
-  LogOut, Plus, Settings, Menu, X, Mail,
-  User, Search, MoreVertical, RefreshCw, ChevronDown, Server,
-  BookOpen, Zap, ExternalLink
-} from 'lucide-react';
+  Inbox,
+  Send,
+  Trash2,
+  Folder,
+  FolderPlus,
+  LogOut,
+  Plus,
+  Settings,
+  Menu,
+  X,
+  Mail,
+  User,
+  Search,
+  MoreVertical,
+  RefreshCw,
+  ChevronDown,
+  Server,
+  BookOpen,
+  Zap,
+  ExternalLink,
+} from "lucide-react";
 
 export default function Layout() {
   const [folders, setFolders] = useState([]);
-  const [newFolderName, setNewFolderName] = useState('');
+  const [newFolderName, setNewFolderName] = useState("");
   const [isCreatingFolder, setIsCreatingFolder] = useState(false);
   const [creatingFolderLoading, setCreatingFolderLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [foldersLoading, setFoldersLoading] = useState(true);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [namespace, setNamespace] = useState('local');
+  const [namespace, setNamespace] = useState("local");
   const [expandedSections, setExpandedSections] = useState({ manage: true }); // Track expanded sections
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -30,14 +45,25 @@ export default function Layout() {
   const toast = useToast();
   const { confirm } = useConfirmation();
 
-  const fetchSystemInfo = useCallback(async () => {
+  useEffect(() => {
+    const u = localStorage.getItem("user");
+    if (!u) {
+      navigate("/login");
+    } else {
+      setUser(JSON.parse(u));
+      fetchFolders();
+      fetchSystemInfo();
+    }
+  }, [navigate]);
+
+  const fetchSystemInfo = async () => {
     try {
       const { data } = await checkHealth();
       if (data.namespace) setNamespace(data.namespace);
     } catch (e) {
-      console.error('Failed to fetch system info:', e);
+      console.error("Failed to fetch system info:", e);
     }
-  }, []);
+  };
 
   // ⚡ Bolt: Wrap in useCallback to prevent context consumers (FolderView) from re-rendering
   // when Layout state changes (e.g. menu toggles)
@@ -47,7 +73,7 @@ export default function Layout() {
       const { data } = await getFolders();
       // Sort: Inbox, Sent, Trash, then others alphabetically
       const sorted = data.sort((a, b) => {
-        const order = ['Inbox', 'Sent', 'Trash'];
+        const order = ["Inbox", "Sent", "Trash"];
         const aIdx = order.indexOf(a.name);
         const bIdx = order.indexOf(b.name);
         if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
@@ -60,10 +86,9 @@ export default function Layout() {
       // ⚡ Bolt: Removed redundant unreadCounts state calculation.
       // Unread counts are already present in the 'folder' object (folder.unread_count).
       // This prevents an extra re-render and redundant iteration.
-
     } catch (e) {
-      console.error('Failed to load folders:', e);
-      toast.error('Failed to load folders');
+      console.error("Failed to load folders:", e);
+      toast.error("Failed to load folders");
     } finally {
       setFoldersLoading(false);
     }
@@ -93,12 +118,12 @@ export default function Layout() {
     setCreatingFolderLoading(true);
     try {
       await createFolder(newFolderName.trim());
-      setNewFolderName('');
+      setNewFolderName("");
       setIsCreatingFolder(false);
       await fetchFolders();
       toast.success(`Folder "${newFolderName}" created`);
     } catch (e) {
-      const message = e.response?.data?.detail || 'Failed to create folder';
+      const message = e.response?.data?.detail || "Failed to create folder";
       toast.error(message);
     } finally {
       setCreatingFolderLoading(false);
@@ -106,20 +131,24 @@ export default function Layout() {
   };
 
   const handleLogout = async () => {
-    const confirmed = await confirm('SIGN_OUT');
+    const confirmed = await confirm("SIGN_OUT");
     if (confirmed) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      navigate('/login');
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      navigate("/login");
     }
   };
 
   const getIcon = (name) => {
     switch (name) {
-      case 'Inbox': return Inbox;
-      case 'Sent': return Send;
-      case 'Trash': return Trash2;
-      default: return Folder;
+      case "Inbox":
+        return Inbox;
+      case "Sent":
+        return Send;
+      case "Trash":
+        return Trash2;
+      default:
+        return Folder;
     }
   };
 
@@ -149,13 +178,15 @@ export default function Layout() {
           flex flex-col
 
           /* Mobile: controlled by mobileMenuOpen */
-          ${mobileMenuOpen ? 'translate-x-0 w-[280px]' : '-translate-x-full w-[280px]'}
+          ${mobileMenuOpen ? "translate-x-0 w-[280px]" : "-translate-x-full w-[280px]"}
 
           /* Desktop: controlled by isSidebarOpen */
           md:translate-x-0 md:relative
-          ${isSidebarOpen ? 'md:w-[280px]' : 'md:w-0 md:border-r-0 overflow-hidden md:invisible'}
+          ${isSidebarOpen ? "md:w-[280px]" : "md:w-0 md:border-r-0 overflow-hidden md:invisible"}
         `}
-        aria-hidden={mobileMenuOpen ? "false" : (isSidebarOpen ? "false" : "true")}
+        aria-hidden={
+          mobileMenuOpen ? "false" : isSidebarOpen ? "false" : "true"
+        }
       >
         {/* Logo Header */}
         <div className="h-16 flex items-center justify-between px-4 min-w-[280px]">
@@ -164,7 +195,9 @@ export default function Layout() {
               <Mail className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-[#3D3D3D] tracking-tight">Sandesh</h1>
+              <h1 className="text-lg font-bold text-[#3D3D3D] tracking-tight">
+                Sandesh
+              </h1>
               <p className="text-[10px] text-[#8B8B8B] -mt-0.5">Local Email</p>
             </div>
           </Link>
@@ -199,7 +232,7 @@ export default function Layout() {
           {foldersLoading ? (
             // Loading skeletons
             <div className="space-y-1">
-              {[1, 2, 3].map(i => (
+              {[1, 2, 3].map((i) => (
                 <div key={i} className="flex items-center gap-3 px-4 py-3">
                   <Skeleton className="w-5 h-5 rounded" />
                   <Skeleton className="w-20 h-4" />
@@ -208,7 +241,7 @@ export default function Layout() {
             </div>
           ) : (
             <div className="space-y-0.5">
-              {folders.map(folder => {
+              {folders.map((folder) => {
                 const Icon = getIcon(folder.name);
                 const active = isActive(`/app/folder/${folder.id}`);
                 // ⚡ Bolt: Use unread_count directly from folder object
@@ -218,17 +251,20 @@ export default function Layout() {
                   <Link
                     key={folder.id}
                     to={`/app/folder/${folder.id}`}
-                    aria-current={active ? 'page' : undefined}
+                    aria-current={active ? "page" : undefined}
                     className={`
                       flex items-center gap-4 px-4 py-2.5 rounded-full
                       text-[14px] font-medium transition-all duration-150
-                      ${active
-                        ? 'bg-[#D7CE93]/30 text-[#3D3D3D] font-semibold'
-                        : 'text-[#3D3D3D] hover:bg-[#E5E8EB]'
+                      ${
+                        active
+                          ? "bg-[#D7CE93]/30 text-[#3D3D3D] font-semibold"
+                          : "text-[#3D3D3D] hover:bg-[#E5E8EB]"
                       }
                     `}
                   >
-                    <Icon className={`w-5 h-5 ${active ? 'text-[#3D3D3D]' : 'text-[#6B6B6B]'}`} />
+                    <Icon
+                      className={`w-5 h-5 ${active ? "text-[#3D3D3D]" : "text-[#6B6B6B]"}`}
+                    />
                     <span className="flex-1">{folder.name}</span>
                     {unreadCount > 0 && (
                       <Badge variant="unread" className="ml-auto">
@@ -245,10 +281,17 @@ export default function Layout() {
           <div className="mt-4 pt-4 border-t border-[#E5E8EB]">
             <button
               className="flex items-center justify-between w-full px-4 py-2 text-xs font-semibold text-[#8B8B8B] uppercase tracking-wider"
-              onClick={() => setExpandedSections(prev => ({ ...prev, manage: !prev.manage }))}
+              onClick={() =>
+                setExpandedSections((prev) => ({
+                  ...prev,
+                  manage: !prev.manage,
+                }))
+              }
             >
               <span>Manage</span>
-              <ChevronDown className={`w-3 h-3 transition-transform ${expandedSections.manage ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`w-3 h-3 transition-transform ${expandedSections.manage ? "rotate-180" : ""}`}
+              />
             </button>
 
             {expandedSections.manage && (
@@ -280,28 +323,35 @@ export default function Layout() {
                         "
                         placeholder="Folder name"
                         value={newFolderName}
-                        onChange={e => setNewFolderName(e.target.value)}
+                        onChange={(e) => setNewFolderName(e.target.value)}
                         disabled={creatingFolderLoading}
-                        onKeyDown={e => e.key === 'Escape' && setIsCreatingFolder(false)}
+                        onKeyDown={(e) =>
+                          e.key === "Escape" && setIsCreatingFolder(false)
+                        }
                       />
                       <div className="flex gap-2">
                         <button
                           type="button"
-                          onClick={() => { setIsCreatingFolder(false); setNewFolderName(''); }}
+                          onClick={() => {
+                            setIsCreatingFolder(false);
+                            setNewFolderName("");
+                          }}
                           className="flex-1 px-3 py-1.5 text-sm text-[#6B6B6B] hover:bg-[#E5E8EB] rounded-lg"
                         >
                           Cancel
                         </button>
                         <button
                           type="submit"
-                          disabled={!newFolderName.trim() || creatingFolderLoading}
+                          disabled={
+                            !newFolderName.trim() || creatingFolderLoading
+                          }
                           className="
                             flex-1 px-3 py-1.5 text-sm font-medium
                             bg-[#A3A380] text-white rounded-lg
                             hover:bg-[#8B8B68] disabled:opacity-50
                           "
                         >
-                          {creatingFolderLoading ? '...' : 'Create'}
+                          {creatingFolderLoading ? "..." : "Create"}
                         </button>
                       </div>
                     </div>
@@ -312,13 +362,14 @@ export default function Layout() {
                 {user?.is_admin && (
                   <Link
                     to="/app/admin"
-                    aria-current={isActive('/app/admin') ? 'page' : undefined}
+                    aria-current={isActive("/app/admin") ? "page" : undefined}
                     className={`
                       flex items-center gap-4 px-4 py-2.5 rounded-full
                       text-[14px] font-medium transition-all duration-150
-                      ${isActive('/app/admin')
-                        ? 'bg-[#D7CE93]/30 text-[#3D3D3D] font-semibold'
-                        : 'text-[#6B6B6B] hover:bg-[#E5E8EB] hover:text-[#3D3D3D]'
+                      ${
+                        isActive("/app/admin")
+                          ? "bg-[#D7CE93]/30 text-[#3D3D3D] font-semibold"
+                          : "text-[#6B6B6B] hover:bg-[#E5E8EB] hover:text-[#3D3D3D]"
                       }
                     `}
                   >
@@ -342,7 +393,9 @@ export default function Layout() {
 
                 {/* Swagger UI Link */}
                 <a
-                  href="/api/docs" target="_blank" rel="noopener noreferrer"
+                  href="/api/docs"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="
                     flex items-center gap-4 px-4 py-2.5 rounded-full
                     text-[14px] font-medium transition-all duration-150
@@ -373,7 +426,7 @@ export default function Layout() {
             >
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#D8A48F] to-[#BB8588] flex items-center justify-center shadow-sm">
                 <span className="text-white font-semibold text-sm">
-                  {user?.username?.charAt(0)?.toUpperCase() || 'U'}
+                  {user?.username?.charAt(0)?.toUpperCase() || "U"}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
@@ -381,10 +434,12 @@ export default function Layout() {
                   {user?.username}
                 </p>
                 <p className="text-xs text-[#8B8B8B]">
-                  {user?.is_admin ? 'Administrator' : 'User'}
+                  {user?.is_admin ? "Administrator" : "User"}
                 </p>
               </div>
-              <ChevronDown className={`w-4 h-4 text-[#8B8B8B] transition-transform ${showUserMenu ? 'rotate-180' : ''}`} />
+              <ChevronDown
+                className={`w-4 h-4 text-[#8B8B8B] transition-transform ${showUserMenu ? "rotate-180" : ""}`}
+              />
             </button>
 
             {/* User Dropdown Menu */}
@@ -406,7 +461,9 @@ export default function Layout() {
                     <p className="text-sm font-semibold text-[#3D3D3D]">
                       {user?.display_name || user?.username}
                     </p>
-                    <p className="text-xs text-[#8B8B8B]">{user?.username}@{namespace}</p>
+                    <p className="text-xs text-[#8B8B8B]">
+                      {user?.username}@{namespace}
+                    </p>
                   </div>
                   <Link
                     to="/app/settings"
@@ -468,11 +525,13 @@ export default function Layout() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header Bar */}
-        <header className="
+        <header
+          className="
           h-16 flex items-center justify-between gap-4
           px-4 md:px-6 
           bg-white border-b border-[#E5E8EB]
-        ">
+        "
+        >
           {/* Mobile menu button */}
           <button
             onClick={() => setMobileMenuOpen(true)}
@@ -494,12 +553,14 @@ export default function Layout() {
 
           {/* Search Bar (placeholder) */}
           <div className="flex-1 max-w-2xl hidden md:block">
-            <div className="
+            <div
+              className="
               flex items-center gap-3 px-4 py-2.5
               bg-[#F6F8FC] rounded-full
               border border-transparent hover:border-[#E5E8EB] hover:shadow-sm
               transition-all
-            ">
+            "
+            >
               <Search className="w-5 h-5 text-[#8B8B8B]" />
               <input
                 type="text"
@@ -543,8 +604,9 @@ export default function Layout() {
           className="flex-1 overflow-hidden bg-white focus:outline-none"
           tabIndex="-1"
         >
-          {/* ⚡ Bolt: Memoize context to avoid unnecessary re-renders of child routes */}
-          <Outlet context={useMemo(() => ({ refreshFolders: fetchFolders, folders, foldersLoading }), [fetchFolders, folders, foldersLoading])} />
+          <Outlet
+            context={{ refreshFolders: fetchFolders, folders, foldersLoading }}
+          />
         </main>
       </div>
     </div>
